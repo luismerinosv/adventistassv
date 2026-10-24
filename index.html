@@ -158,18 +158,18 @@
       display: block;
     }
 
+    /* ACCIONES DE TARJETA CON ICONOS MINIMALISTAS */
     .card-actions {
-      padding: 10px;
+      padding: 8px;
       display: flex;
       gap: 6px;
       background: #172033;
       border-top: 1px solid var(--border);
     }
 
-    /* Botones Minimalistas */
     .btn {
       flex: 1;
-      padding: 8px 10px;
+      padding: 8px 4px;
       border: 1px solid transparent;
       border-radius: 6px;
       background: var(--accent);
@@ -178,11 +178,12 @@
       cursor: pointer;
       text-align: center;
       font-size: 0.82rem;
-      display: flex;
+      display: inline-flex;
       align-items: center;
       justify-content: center;
+      gap: 4px;
       transition: background 0.15s, border-color 0.15s;
-      min-height: 38px;
+      min-height: 36px;
       text-decoration: none;
     }
     .btn:hover { background: var(--accent-hover); }
@@ -195,6 +196,12 @@
       background: rgba(255, 255, 255, 0.06);
       color: #fff;
       border-color: #475569;
+    }
+
+    .btn svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
     }
 
     .editor-layout {
@@ -650,7 +657,6 @@
       { frase: "PRONTO VENDRÁ EL SEÑOR Y SU GLORIA VEREMOS REINAR.", cita: "Himno Adventista #170" }
     ];
 
-    /* GENERADOR DINÁMICO DE COMBINACIONES MASIVAS (+3000) */
     function buildExpandedQuoteBank() {
       let bank = [...RAW_BIBLIA, ...RAW_ESCRITOS, ...RAW_HIMNOS];
       
@@ -772,6 +778,21 @@
     function getRandomItems(arr, count) {
       const shuffled = [...arr].sort(() => 0.5 - Math.random());
       return shuffled.slice(0, count);
+    }
+
+    /* CARGAR FRASE DE TARJETA DIRECTO AL EDITOR */
+    function editCardQuote(phrase, citation, fontPhrase, fontCitation, logo, bg) {
+      document.getElementById('inputPhrase').value = phrase;
+      document.getElementById('inputCitation').value = citation;
+      document.getElementById('selectFontPhrase').value = fontPhrase;
+      document.getElementById('selectFontCitation').value = fontCitation;
+      document.getElementById('selectLogo').value = logo;
+      selectedBg = bg;
+
+      switchTab('editor');
+      updateCustomCanvas();
+
+      document.getElementById('editorSection').scrollIntoView({ behavior: 'smooth' });
     }
 
     /* COMPARTIR LA PÁGINA WEB COMPLETA */
@@ -1149,7 +1170,7 @@
       ctx.save();
       ctx.textAlign = 'center';
       ctx.textBaseline = 'alphabetic';
-      ctx.font = 'italic 500 24px "Montserrat", sans-serif'; // Fuente predefinida oficial
+      ctx.font = 'italic 500 24px "Montserrat", sans-serif';
       ctx.fillStyle = 'rgba(255, 255, 255, 0.88)';
       ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
       ctx.shadowBlur = 8;
@@ -1296,12 +1317,19 @@
       renderDailyGrid(shuffledQuotes);
     }
 
+    /* ICONOS VECTORIALES PARA LAS TARJETAS DE LA GALERÍA */
     async function renderDailyGrid(quotesList) {
       const grid = document.getElementById('dailyGrid');
       grid.innerHTML = '';
 
       const fontKeys = Object.keys(FONT_MAP);
       const logoRotation = ['blanco', 'turquesa', 'blanco', 'blanco', 'turquesa'];
+
+      // SVG ICONS
+      const svgEye = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+      const svgEdit = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>`;
+      const svgShare = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`;
+      const svgDownload = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`;
 
       for (let i = 0; i < quotesList.length; i++) {
         const item = quotesList[i];
@@ -1323,19 +1351,35 @@
         const actions = document.createElement('div');
         actions.className = 'card-actions';
 
+        // 1. VER
         const btnView = document.createElement('button');
         btnView.className = 'btn btn-secondary';
-        btnView.innerText = 'Ver';
+        btnView.title = 'Ver imagen';
+        btnView.innerHTML = svgEye;
         btnView.onclick = (e) => { e.stopPropagation(); openCanvasModal(canvas); };
 
+        // 2. EDITAR
+        const btnEdit = document.createElement('button');
+        btnEdit.className = 'btn btn-secondary';
+        btnEdit.title = 'Editar frase';
+        btnEdit.innerHTML = svgEdit;
+        btnEdit.onclick = (e) => {
+          e.stopPropagation();
+          editCardQuote(item.frase, item.cita, fontPhraseName, fontCitationName, logoKey, bgType);
+        };
+
+        // 3. COMPARTIR
         const btnShare = document.createElement('button');
         btnShare.className = 'btn btn-secondary';
-        btnShare.innerText = 'Compartir';
+        btnShare.title = 'Compartir';
+        btnShare.innerHTML = svgShare;
         btnShare.onclick = (e) => { e.stopPropagation(); shareCanvasCard(canvas, item.frase, item.cita, '@adventistassv'); };
 
+        // 4. DESCARGAR
         const btnDownload = document.createElement('button');
         btnDownload.className = 'btn';
-        btnDownload.innerText = 'Descargar';
+        btnDownload.title = 'Descargar';
+        btnDownload.innerHTML = svgDownload;
         btnDownload.onclick = (e) => {
           e.stopPropagation();
           openDownloadModal({
@@ -1350,6 +1394,7 @@
         };
 
         actions.appendChild(btnView);
+        actions.appendChild(btnEdit);
         actions.appendChild(btnShare);
         actions.appendChild(btnDownload);
 
