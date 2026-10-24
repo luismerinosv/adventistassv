@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Adventistas SV - Frases e Imágenes</title>
   
-  <!-- Tipografías de Google Fonts -->
+  <!-- Tipografías Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Cinzel:wght@700&family=Lora:ital,wght@0,600;1,500&family=Montserrat:wght@700;800&family=Oswald:wght@600&family=Playfair+Display:ital,wght@0,700;1,600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
@@ -30,7 +30,6 @@
       padding-bottom: 40px;
     }
 
-    /* Encabezado */
     header {
       text-align: center;
       padding: 25px 20px 15px;
@@ -40,7 +39,6 @@
     header h1 { font-size: 1.8rem; color: #fff; margin-bottom: 4px; }
     header p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 15px; }
 
-    /* Navegación */
     .nav-tabs {
       display: flex;
       justify-content: center;
@@ -77,7 +75,6 @@
       color: #fff;
     }
 
-    /* Galería */
     .grid-daily {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -140,7 +137,6 @@
     }
     .btn-secondary:hover { background: rgba(255, 255, 255, 0.08); }
 
-    /* Módulo Editor */
     .editor-layout {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -236,7 +232,6 @@
       gap: 15px;
     }
 
-    /* Modales */
     .modal {
       display: none;
       position: fixed;
@@ -320,13 +315,11 @@
   </header>
 
   <div class="container">
-    <!-- GALERÍA DIARIA -->
     <div id="gallerySection">
       <h2 class="section-title">✨ 10 Frases de Hoy</h2>
       <div id="dailyGrid" class="grid-daily"></div>
     </div>
 
-    <!-- CREADOR PERSONALIZADO -->
     <div id="editorSection" class="hidden">
       <h2 class="section-title">✏️ Diseña tu propia imagen</h2>
       <div class="editor-layout">
@@ -398,13 +391,11 @@
     </div>
   </div>
 
-  <!-- VISOR PANTALLA COMPLETA -->
   <div id="imageModal" class="modal" onclick="closeModal()">
     <button class="modal-close" onclick="closeModal()">✕</button>
     <img id="modalImg" class="modal-content" src="" alt="Vista Previa" onclick="event.stopPropagation()">
   </div>
 
-  <!-- MODAL SECUNDARIO DE COMPARTIR -->
   <div id="shareModal" class="modal" onclick="closeShareModal()">
     <div class="modal-box" onclick="event.stopPropagation()">
       <h3 style="color: #fff; font-size: 1.1rem;">📲 Compartir en Redes</h3>
@@ -419,14 +410,12 @@
   </div>
 
   <script>
-    // Rutas fijas de los 3 logos oficiales
     const LOGOS = {
       blanco: 'logo-blanco.png',
       negro: 'logo-negro.png',
       turquesa: 'logo-turquesa.png'
     };
 
-    // Almacenamiento de logos precaragados
     const loadedLogos = {};
 
     const FONT_MAP = {
@@ -488,13 +477,12 @@
       });
     }
 
-    // Precargar los 3 logos oficiales al inicio para evitar fallas
     async function preloadLogos() {
       for (const key in LOGOS) {
         try {
           loadedLogos[key] = await loadImage(LOGOS[key]);
         } catch (e) {
-          console.warn(`Asegúrate de que ${LOGOS[key]} esté guardado en la raíz del repositorio.`);
+          console.warn(`Cargando ${LOGOS[key]}`);
         }
       }
     }
@@ -578,7 +566,6 @@
       });
     }
 
-    // Dibujo estricto con Logo Oficial
     async function drawCanvasCard(canvas, phrase, citation, fontName, logoKey, bgType, handleText = '@adventistassv') {
       const ctx = canvas.getContext('2d');
       canvas.width = 1080;
@@ -606,7 +593,7 @@
         drawGrad(ctx, canvas, gIndex);
       }
 
-      // B. LOGO OFICIAL
+      // B. LOGO OFICIAL CON ESCALA PROPORCIONAL
       let logoImg = loadedLogos[logoKey];
       if (!logoImg) {
         try {
@@ -616,9 +603,12 @@
       }
 
       if (logoImg) {
-        const logoSize = 160;
-        const logoX = (canvas.width - logoSize) / 2;
-        ctx.drawImage(logoImg, logoX, 70, logoSize, logoSize);
+        const logoWidth = 180;
+        const aspectRatio = logoImg.naturalHeight / logoImg.naturalWidth || 1;
+        const logoHeight = logoWidth * aspectRatio;
+        const logoX = (canvas.width - logoWidth) / 2;
+        const logoY = 60;
+        ctx.drawImage(logoImg, logoX, logoY, logoWidth, logoHeight);
       }
 
       // C. FRASE Y CITA
@@ -678,7 +668,6 @@
       document.getElementById('imageModal').classList.remove('active');
     }
 
-    /* COMPARTIR CON EL MOTOR DEL NAVEGADOR POR DEFECTO + OPCIÓN SECUNDARIA */
     async function shareCanvasCard(canvas, phrase, citation, handle = '@adventistassv') {
       const shareText = `"${phrase}" - ${citation}\n\nVía ${handle}`;
       currentShareText = shareText;
@@ -687,7 +676,6 @@
       canvas.toBlob(async (blob) => {
         const file = new File([blob], 'adventistassv.png', { type: 'image/png' });
 
-        // 1. INTENTO PRINCIPAL: Usar el Motor Nativo del Navegador (Web Share API)
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
           try {
             await navigator.share({
@@ -695,9 +683,8 @@
               text: shareText,
               files: [file]
             });
-            return; // Compartido exitosamente desde el navegador
+            return;
           } catch (err) {
-            // Cancelado o cerrado por el usuario
             return;
           }
         } else if (navigator.share) {
@@ -713,7 +700,6 @@
           }
         }
 
-        // 2. INTENTO SECUNDARIO: Abrir modal con opciones directas si el motor no está disponible
         openShareModal(shareText);
       }, 'image/png');
     }
@@ -736,7 +722,7 @@
 
     function copyShareText() {
       navigator.clipboard.writeText(currentShareText);
-      alert('¡Texto copiado al portapapeles!\n\nSe descargará la imagen para que puedas pegarla juntas.');
+      alert('¡Texto copiado al portapapeles!\n\nSe descargará la imagen para que puedas compartir ambas juntas.');
       if (currentShareCanvas) {
         const link = document.createElement('a');
         link.download = 'adventistassv-frase.png';
