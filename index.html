@@ -437,7 +437,7 @@
   </header>
 
   <div class="container">
-    <!-- GALERÍA DIARIA CON SELECTOR DE FECHAS -->
+    <!-- GALERÍA DIARIA CON SELECTOR DE FECHAS Y BOTÓN GENERAR NUEVAS -->
     <div id="gallerySection">
       <div class="section-header">
         <h2 class="section-title" id="galleryTitle">Frases del Día</h2>
@@ -445,6 +445,7 @@
           <label for="historyDate" style="font-size: 0.82rem; color: var(--text-muted);">Fecha:</label>
           <input type="date" id="historyDate" class="form-control" style="width: auto; min-height: 36px; padding: 4px 10px;" onchange="loadQuotesForSelectedDate(this.value)">
           <button class="btn btn-secondary" style="min-height: 36px; padding: 4px 10px;" onclick="resetToTodayDate()">Hoy</button>
+          <button class="btn btn-secondary" style="min-height: 36px; padding: 4px 10px;" onclick="generateNewQuotesSet()">🔄 Generar Nuevas</button>
         </div>
       </div>
       <div id="dailyGrid" class="grid-daily"></div>
@@ -611,7 +612,7 @@
       'Great Vibes': { main: '400 64px "Great Vibes", cursive', cita: '400 40px "Great Vibes", cursive', lineH: 76 }
     };
 
-    /* BANCO MASIVO */
+    /* BANCO MASIVO DE FRASES */
     const RAW_BIBLIA = [
       { frase: "JEHOVÁ ES MI PASTOR; NADA ME FALTARÁ.", cita: "Salmos 23:1" },
       { frase: "EN LUGARES DE DELICADOS PASTOS ME HARÁ DESCANSAR; JUNTO A AGUAS DE REPOSO ME PASTOREARÁ.", cita: "Salmos 23:2" },
@@ -759,6 +760,13 @@
         quotes.push(QUOTES_BANK[index % totalAvailable]);
       }
       return quotes;
+    }
+
+    /* GENERAR NUEVAS FRASES Y FONDOS LOCALMENTE */
+    async function generateNewQuotesSet() {
+      refreshAllBackgrounds();
+      const shuffledQuotes = [...QUOTES_BANK].sort(() => 0.5 - Math.random()).slice(0, 10);
+      renderDailyGrid(shuffledQuotes);
     }
 
     function editCardQuote(phrase, citation, fontPhrase, fontCitation, logo, bg) {
