@@ -30,7 +30,7 @@
       padding-bottom: 40px;
     }
 
-    /* Header */
+    /* Encabezado */
     header {
       text-align: center;
       padding: 25px 20px 15px;
@@ -40,7 +40,7 @@
     header h1 { font-size: 1.8rem; color: #fff; margin-bottom: 4px; }
     header p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 15px; }
 
-    /* Pestañas */
+    /* Pestañas de Navegación */
     .nav-tabs {
       display: flex;
       justify-content: center;
@@ -191,11 +191,17 @@
     }
 
     /* Galería Visual de Miniaturas */
+    .bg-grid-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
     .bg-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(65px, 1fr));
       gap: 8px;
-      max-height: 220px;
+      max-height: 200px;
       overflow-y: auto;
       padding: 6px;
       background: var(--bg-dark);
@@ -307,6 +313,11 @@
           </div>
 
           <div class="form-group">
+            <label>Usuario / Pie de Imagen (Editable):</label>
+            <input type="text" id="inputHandle" class="form-control" value="@adventistassv" oninput="updateCustomCanvas()">
+          </div>
+
+          <div class="form-group">
             <label>Estilo de Tipografía:</label>
             <select id="selectFont" class="form-control" onchange="updateCustomCanvas()">
               <option value="Montserrat">Montserrat (Moderna y Enfática)</option>
@@ -328,9 +339,18 @@
             </select>
           </div>
 
-          <!-- Selector de Fondos con Miniaturas -->
+          <!-- Opción 1: Subir imagen propia -->
           <div class="form-group">
-            <label>Selecciona un Fondo (Haz clic en una miniatura):</label>
+            <label>📁 Subir mi propia imagen de fondo:</label>
+            <input type="file" id="inputCustomBg" class="form-control" accept="image/*" onchange="handleUserBgUpload(event)">
+          </div>
+
+          <!-- Opción 2: Galería de Fondos Disponibles + Refrescar -->
+          <div class="form-group">
+            <div class="bg-grid-header">
+              <label>O selecciona una foto del banco:</label>
+              <button class="btn btn-secondary" style="padding: 3px 8px; font-size: 0.75rem;" onclick="refreshStockPhotos()">🔄 Nuevas fotos</button>
+            </div>
             <div id="bgThumbnailGrid" class="bg-grid"></div>
           </div>
         </div>
@@ -341,7 +361,7 @@
           </div>
           <div style="display: flex; gap: 8px; width: 100%; max-width: 400px;">
             <button class="btn btn-secondary" onclick="openCanvasModal(document.getElementById('customCanvas'))">🔍 Ver</button>
-            <button class="btn btn-secondary" onclick="shareCanvasCard(document.getElementById('customCanvas'), document.getElementById('inputPhrase').value, document.getElementById('inputCitation').value)">📲 Compartir</button>
+            <button class="btn btn-secondary" onclick="shareCanvasCard(document.getElementById('customCanvas'), document.getElementById('inputPhrase').value, document.getElementById('inputCitation').value, document.getElementById('inputHandle').value)">📲 Compartir</button>
             <button class="btn" onclick="downloadCustomImage()">⬇️ Descargar</button>
           </div>
         </div>
@@ -386,20 +406,15 @@
       { frase: "NUESTRA ÚNICA SEGURIDAD ESTÁ EN LA DIRECCIÓN DE DIOS.", cita: "El Deseado de Todas las Gentes, p. 62" }
     ];
 
-    // Colección ampliada de 12 fotografías
-    const STOCK_PHOTOS = [
-      'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80',
-      'https://images.unsplash.com/photo-1470240731273-7821a6eeb6bd?auto=format&fit=crop&w=600&q=80',
-      'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=600&q=80',
-      'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80',
-      'https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=600&q=80',
-      'https://images.unsplash.com/photo-1513002749550-c59d786b8e6c?auto=format&fit=crop&w=600&q=80',
-      'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=600&q=80',
-      'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=600&q=80',
-      'https://images.unsplash.com/photo-1507499739999-097706ad8914?auto=format&fit=crop&w=600&q=80',
-      'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&w=600&q=80',
-      'https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?auto=format&fit=crop&w=600&q=80',
-      'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=600&q=80'
+    let STOCK_PHOTOS = [
+      'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1470240731273-7821a6eeb6bd?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1513002749550-c59d786b8e6c?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=800&q=80'
     ];
 
     const GRADIENTS = [
@@ -411,8 +426,8 @@
     ];
 
     let selectedBg = 'photo_0';
+    let userCustomImg = null;
 
-    // Carga de imágenes corregida para evitar bloqueo CORS en archivos locales
     function loadImage(src) {
       return new Promise((resolve, reject) => {
         const img = new Image();
@@ -423,6 +438,38 @@
         img.onerror = (e) => reject(e);
         img.src = src;
       });
+    }
+
+    // Manejar subida de imagen propia
+    function handleUserBgUpload(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const img = new Image();
+          img.onload = function() {
+            userCustomImg = img;
+            selectedBg = 'user_custom';
+            document.querySelectorAll('.bg-thumb').forEach(t => t.classList.remove('active'));
+            updateCustomCanvas();
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    // Actualizar fotos de stock con nuevas imágenes aleatorias
+    function refreshStockPhotos() {
+      const randomSeeds = [
+        'nature,sky', 'mountains,sunset', 'forest,mist', 'sea,ocean',
+        'stars,night', 'sunrise,clouds', 'landscape,light', 'calm,water'
+      ];
+      STOCK_PHOTOS = randomSeeds.map((seed, idx) => 
+        `https://images.unsplash.com/photo-1500000000000?auto=format&fit=crop&w=800&q=80&sig=${Math.floor(Math.random()*10000)}&${seed}`
+      );
+      renderBgThumbnails(true);
+      updateCustomCanvas();
     }
 
     function switchTab(tab) {
@@ -445,12 +492,11 @@
       }
     }
 
-    // Generar la galería de miniaturas visuales
-    function renderBgThumbnails() {
+    function renderBgThumbnails(force = false) {
       const container = document.getElementById('bgThumbnailGrid');
-      if (container.children.length > 0) return; // Evitar duplicar
+      if (container.children.length > 0 && !force) return;
+      container.innerHTML = '';
 
-      // Miniaturas de fotos
       STOCK_PHOTOS.forEach((url, i) => {
         const img = document.createElement('img');
         img.src = url;
@@ -464,7 +510,6 @@
         container.appendChild(img);
       });
 
-      // Miniaturas de degradados
       GRADIENTS.forEach((grad, i) => {
         const div = document.createElement('div');
         div.className = `bg-thumb ${selectedBg === 'grad_' + i ? 'active' : ''}`;
@@ -479,15 +524,20 @@
       });
     }
 
-    async function drawCanvasCard(canvas, phrase, citation, fontName, logoKey, bgType) {
+    // Dibujo del Canvas (Con logo asegurado y usuario/handle personalizable)
+    async function drawCanvasCard(canvas, phrase, citation, fontName, logoKey, bgType, handleText = '@adventistassv') {
       const ctx = canvas.getContext('2d');
       canvas.width = 1080;
       canvas.height = 1350;
 
       const fontCfg = FONT_MAP[fontName] || FONT_MAP['Montserrat'];
 
-      // A. FONDO
-      if (bgType.startsWith('photo_')) {
+      // A. DIBUJAR FONDO
+      if (bgType === 'user_custom' && userCustomImg) {
+        ctx.drawImage(userCustomImg, 0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      } else if (bgType.startsWith('photo_')) {
         const pIndex = parseInt(bgType.split('_')[1]);
         try {
           const bgImg = await loadImage(STOCK_PHOTOS[pIndex % STOCK_PHOTOS.length]);
@@ -502,17 +552,20 @@
         drawGrad(ctx, canvas, gIndex);
       }
 
-      // B. LOGO
+      // B. DIBUJAR LOGO (Intenta cargar archivo PNG; si falta en GitHub, dibuja logo vectorial de respaldo)
+      const logoSize = 160;
+      const logoX = (canvas.width - logoSize) / 2;
+      const logoY = 70;
+
       try {
         const logoImg = await loadImage(LOGOS[logoKey]);
-        const logoSize = 160;
-        const logoX = (canvas.width - logoSize) / 2;
-        ctx.drawImage(logoImg, logoX, 70, logoSize, logoSize);
+        ctx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
       } catch (err) {
-        console.warn("Recuerda subir " + LOGOS[logoKey] + " a la raíz de tu repositorio en GitHub.");
+        // Logo Vectorial de Garantía
+        drawFallbackVectorLogo(ctx, canvas.width / 2, 150, logoKey);
       }
 
-      // C. TEXTO
+      // C. DIBUJAR FRASE Y CITA
       const textColor = (logoKey === 'negro') ? '#1e293b' : '#ffffff';
       const subColor = (logoKey === 'negro') ? '#475569' : '#f1f5f9';
 
@@ -543,10 +596,30 @@
       ctx.fillStyle = subColor;
       ctx.fillText(citation, canvas.width / 2, y + 90);
 
-      // D. MARCA DE AGUA
+      // D. MARCA DE AGUA / USUARIO EDITABLE (Footer)
       ctx.font = '600 32px "Montserrat", sans-serif';
       ctx.fillStyle = (logoKey === 'negro') ? 'rgba(0,0,0,0.6)' : 'rgba(255, 255, 255, 0.85)';
-      ctx.fillText('@adventistassv', canvas.width / 2, canvas.height - 80);
+      ctx.fillText(handleText || '@adventistassv', canvas.width / 2, canvas.height - 80);
+    }
+
+    // Logo Vectorial de respaldo si el PNG aún no se encuentra en GitHub
+    function drawFallbackVectorLogo(ctx, x, y, logoKey) {
+      ctx.save();
+      const mainColor = (logoKey === 'negro') ? '#1e293b' : (logoKey === 'turquesa' ? '#00838f' : '#ffffff');
+      
+      ctx.beginPath();
+      ctx.arc(x, y, 60, 0, Math.PI * 2);
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = mainColor;
+      ctx.stroke();
+
+      ctx.fillStyle = mainColor;
+      ctx.font = 'bold 18px "Montserrat", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('ADVENTISTAS', x, y - 10);
+      ctx.fillText('SV', x, y + 15);
+      ctx.restore();
     }
 
     function drawGrad(ctx, canvas, index) {
@@ -569,27 +642,19 @@
       document.getElementById('imageModal').classList.remove('active');
     }
 
-    async function shareCanvasCard(canvas, phrase, citation) {
-      const shareText = `"${phrase}" - ${citation}\n\nVía @adventistassv`;
+    async function shareCanvasCard(canvas, phrase, citation, handle = '@adventistassv') {
+      const shareText = `"${phrase}" - ${citation}\n\nVía ${handle}`;
 
       canvas.toBlob(async (blob) => {
         const file = new File([blob], 'adventistassv.png', { type: 'image/png' });
 
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
           try {
-            await navigator.share({
-              title: 'Adventistas SV',
-              text: shareText,
-              files: [file]
-            });
+            await navigator.share({ title: 'Adventistas SV', text: shareText, files: [file] });
           } catch (err) {}
         } else if (navigator.share) {
           try {
-            await navigator.share({
-              title: 'Adventistas SV',
-              text: shareText,
-              url: window.location.href
-            });
+            await navigator.share({ title: 'Adventistas SV', text: shareText, url: window.location.href });
           } catch (err) {}
         } else {
           navigator.clipboard.writeText(shareText);
@@ -601,11 +666,12 @@
     function updateCustomCanvas() {
       const phrase = document.getElementById('inputPhrase').value || '';
       const citation = document.getElementById('inputCitation').value || '';
+      const handle = document.getElementById('inputHandle').value || '@adventistassv';
       const font = document.getElementById('selectFont').value;
       const logo = document.getElementById('selectLogo').value;
 
       const canvas = document.getElementById('customCanvas');
-      drawCanvasCard(canvas, phrase, citation, font, logo, selectedBg);
+      drawCanvasCard(canvas, phrase, citation, font, logo, selectedBg, handle);
     }
 
     function downloadCustomImage() {
@@ -649,7 +715,7 @@
         const btnShare = document.createElement('button');
         btnShare.className = 'btn btn-secondary';
         btnShare.innerHTML = '📲 Compartir';
-        btnShare.onclick = (e) => { e.stopPropagation(); shareCanvasCard(canvas, item.frase, item.cita); };
+        btnShare.onclick = (e) => { e.stopPropagation(); shareCanvasCard(canvas, item.frase, item.cita, '@adventistassv'); };
 
         const btnDownload = document.createElement('button');
         btnDownload.className = 'btn';
@@ -671,7 +737,7 @@
         grid.appendChild(card);
 
         const bgType = (i % 2 === 0) ? `photo_${i % STOCK_PHOTOS.length}` : `grad_${i % GRADIENTS.length}`;
-        drawCanvasCard(canvas, item.frase, item.cita, fontName, 'blanco', bgType);
+        drawCanvasCard(canvas, item.frase, item.cita, fontName, 'blanco', bgType, '@adventistassv');
       }
     }
 
