@@ -40,7 +40,7 @@
     header h1 { font-size: 1.8rem; color: #fff; margin-bottom: 4px; }
     header p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 15px; }
 
-    /* Pestañas de Navegación */
+    /* Navegación */
     .nav-tabs {
       display: flex;
       justify-content: center;
@@ -77,7 +77,7 @@
       color: #fff;
     }
 
-    /* Galería Diaria */
+    /* Galería */
     .grid-daily {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -190,7 +190,6 @@
       min-height: 70px;
     }
 
-    /* Galería Visual de Miniaturas */
     .bg-grid-header {
       display: flex;
       justify-content: space-between;
@@ -237,7 +236,7 @@
       gap: 15px;
     }
 
-    /* Modal Visor */
+    /* Modales */
     .modal {
       display: none;
       position: fixed;
@@ -256,6 +255,18 @@
       border-radius: 12px;
       object-fit: contain;
     }
+    .modal-box {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      padding: 25px;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 420px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      text-align: center;
+    }
     .modal-close {
       position: absolute;
       top: 20px; right: 20px;
@@ -265,6 +276,25 @@
       cursor: pointer;
       display: flex; align-items: center; justify-content: center;
     }
+
+    .share-btn {
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      text-decoration: none;
+    }
+    .btn-wa { background: #25D366; }
+    .btn-tg { background: #0088cc; }
+    .btn-tw { background: #1DA1F2; }
+    .btn-copy { background: #475569; }
 
     .hidden { display: none !important; }
 
@@ -313,7 +343,7 @@
           </div>
 
           <div class="form-group">
-            <label>Usuario / Pie de Imagen (Editable):</label>
+            <label>Usuario / Pie de Imagen:</label>
             <input type="text" id="inputHandle" class="form-control" value="@adventistassv" oninput="updateCustomCanvas()">
           </div>
 
@@ -331,7 +361,7 @@
           </div>
 
           <div class="form-group">
-            <label>Color de Logo Superior:</label>
+            <label>Color de Logo Superior Oficial:</label>
             <select id="selectLogo" class="form-control" onchange="updateCustomCanvas()">
               <option value="blanco">Texto Blanco (Para fondos oscuros)</option>
               <option value="negro">Texto Negro (Para fondos muy claros)</option>
@@ -339,13 +369,11 @@
             </select>
           </div>
 
-          <!-- Opción 1: Subir imagen propia -->
           <div class="form-group">
             <label>📁 Subir mi propia imagen de fondo:</label>
             <input type="file" id="inputCustomBg" class="form-control" accept="image/*" onchange="handleUserBgUpload(event)">
           </div>
 
-          <!-- Opción 2: Galería de Fondos Disponibles + Refrescar -->
           <div class="form-group">
             <div class="bg-grid-header">
               <label>O selecciona una foto del banco:</label>
@@ -376,12 +404,30 @@
     <img id="modalImg" class="modal-content" src="" alt="Vista Previa" onclick="event.stopPropagation()">
   </div>
 
+  <!-- MODAL SECUNDARIO DE COMPARTIR -->
+  <div id="shareModal" class="modal" onclick="closeShareModal()">
+    <div class="modal-box" onclick="event.stopPropagation()">
+      <h3 style="color: #fff; font-size: 1.1rem;">📲 Compartir en Redes</h3>
+      <p id="shareTextPreview" style="color: var(--text-muted); font-size: 0.85rem; background: var(--bg-dark); padding: 10px; border-radius: 6px; text-align: left;"></p>
+      
+      <a id="shareWa" class="share-btn btn-wa" target="_blank">🟢 Compartir en WhatsApp</a>
+      <a id="shareTg" class="share-btn btn-tg" target="_blank">✈️ Compartir en Telegram</a>
+      <a id="shareTw" class="share-btn btn-tw" target="_blank">🐦 Compartir en X / Twitter</a>
+      <button class="share-btn btn-copy" onclick="copyShareText()">📋 Copiar Texto + Descargar Imagen</button>
+      <button class="btn btn-secondary" onclick="closeShareModal()" style="margin-top: 5px;">Cerrar</button>
+    </div>
+  </div>
+
   <script>
+    // Rutas fijas de los 3 logos oficiales
     const LOGOS = {
       blanco: 'logo-blanco.png',
       negro: 'logo-negro.png',
       turquesa: 'logo-turquesa.png'
     };
+
+    // Almacenamiento de logos precaragados
+    const loadedLogos = {};
 
     const FONT_MAP = {
       'Montserrat': { main: '700 48px "Montserrat", sans-serif', cita: 'italic 34px "Lora", serif', lineH: 66 },
@@ -427,6 +473,8 @@
 
     let selectedBg = 'photo_0';
     let userCustomImg = null;
+    let currentShareText = '';
+    let currentShareCanvas = null;
 
     function loadImage(src) {
       return new Promise((resolve, reject) => {
@@ -440,7 +488,17 @@
       });
     }
 
-    // Manejar subida de imagen propia
+    // Precargar los 3 logos oficiales al inicio para evitar fallas
+    async function preloadLogos() {
+      for (const key in LOGOS) {
+        try {
+          loadedLogos[key] = await loadImage(LOGOS[key]);
+        } catch (e) {
+          console.warn(`Asegúrate de que ${LOGOS[key]} esté guardado en la raíz del repositorio.`);
+        }
+      }
+    }
+
     function handleUserBgUpload(event) {
       const file = event.target.files[0];
       if (file) {
@@ -459,13 +517,9 @@
       }
     }
 
-    // Actualizar fotos de stock con nuevas imágenes aleatorias
     function refreshStockPhotos() {
-      const randomSeeds = [
-        'nature,sky', 'mountains,sunset', 'forest,mist', 'sea,ocean',
-        'stars,night', 'sunrise,clouds', 'landscape,light', 'calm,water'
-      ];
-      STOCK_PHOTOS = randomSeeds.map((seed, idx) => 
+      const randomSeeds = ['nature,sky', 'mountains', 'forest', 'sea', 'stars', 'sunrise', 'landscape', 'calm'];
+      STOCK_PHOTOS = randomSeeds.map((seed) => 
         `https://images.unsplash.com/photo-1500000000000?auto=format&fit=crop&w=800&q=80&sig=${Math.floor(Math.random()*10000)}&${seed}`
       );
       renderBgThumbnails(true);
@@ -524,7 +578,7 @@
       });
     }
 
-    // Dibujo del Canvas (Con logo asegurado y usuario/handle personalizable)
+    // Dibujo estricto con Logo Oficial
     async function drawCanvasCard(canvas, phrase, citation, fontName, logoKey, bgType, handleText = '@adventistassv') {
       const ctx = canvas.getContext('2d');
       canvas.width = 1080;
@@ -532,7 +586,7 @@
 
       const fontCfg = FONT_MAP[fontName] || FONT_MAP['Montserrat'];
 
-      // A. DIBUJAR FONDO
+      // A. FONDO
       if (bgType === 'user_custom' && userCustomImg) {
         ctx.drawImage(userCustomImg, 0, 0, canvas.width, canvas.height);
         ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
@@ -552,20 +606,22 @@
         drawGrad(ctx, canvas, gIndex);
       }
 
-      // B. DIBUJAR LOGO (Intenta cargar archivo PNG; si falta en GitHub, dibuja logo vectorial de respaldo)
-      const logoSize = 160;
-      const logoX = (canvas.width - logoSize) / 2;
-      const logoY = 70;
-
-      try {
-        const logoImg = await loadImage(LOGOS[logoKey]);
-        ctx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
-      } catch (err) {
-        // Logo Vectorial de Garantía
-        drawFallbackVectorLogo(ctx, canvas.width / 2, 150, logoKey);
+      // B. LOGO OFICIAL
+      let logoImg = loadedLogos[logoKey];
+      if (!logoImg) {
+        try {
+          logoImg = await loadImage(LOGOS[logoKey]);
+          loadedLogos[logoKey] = logoImg;
+        } catch(e) {}
       }
 
-      // C. DIBUJAR FRASE Y CITA
+      if (logoImg) {
+        const logoSize = 160;
+        const logoX = (canvas.width - logoSize) / 2;
+        ctx.drawImage(logoImg, logoX, 70, logoSize, logoSize);
+      }
+
+      // C. FRASE Y CITA
       const textColor = (logoKey === 'negro') ? '#1e293b' : '#ffffff';
       const subColor = (logoKey === 'negro') ? '#475569' : '#f1f5f9';
 
@@ -596,30 +652,10 @@
       ctx.fillStyle = subColor;
       ctx.fillText(citation, canvas.width / 2, y + 90);
 
-      // D. MARCA DE AGUA / USUARIO EDITABLE (Footer)
+      // D. MARCA DE AGUA
       ctx.font = '600 32px "Montserrat", sans-serif';
       ctx.fillStyle = (logoKey === 'negro') ? 'rgba(0,0,0,0.6)' : 'rgba(255, 255, 255, 0.85)';
       ctx.fillText(handleText || '@adventistassv', canvas.width / 2, canvas.height - 80);
-    }
-
-    // Logo Vectorial de respaldo si el PNG aún no se encuentra en GitHub
-    function drawFallbackVectorLogo(ctx, x, y, logoKey) {
-      ctx.save();
-      const mainColor = (logoKey === 'negro') ? '#1e293b' : (logoKey === 'turquesa' ? '#00838f' : '#ffffff');
-      
-      ctx.beginPath();
-      ctx.arc(x, y, 60, 0, Math.PI * 2);
-      ctx.lineWidth = 4;
-      ctx.strokeStyle = mainColor;
-      ctx.stroke();
-
-      ctx.fillStyle = mainColor;
-      ctx.font = 'bold 18px "Montserrat", sans-serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText('ADVENTISTAS', x, y - 10);
-      ctx.fillText('SV', x, y + 15);
-      ctx.restore();
     }
 
     function drawGrad(ctx, canvas, index) {
@@ -642,25 +678,72 @@
       document.getElementById('imageModal').classList.remove('active');
     }
 
+    /* COMPARTIR CON EL MOTOR DEL NAVEGADOR POR DEFECTO + OPCIÓN SECUNDARIA */
     async function shareCanvasCard(canvas, phrase, citation, handle = '@adventistassv') {
       const shareText = `"${phrase}" - ${citation}\n\nVía ${handle}`;
+      currentShareText = shareText;
+      currentShareCanvas = canvas;
 
       canvas.toBlob(async (blob) => {
         const file = new File([blob], 'adventistassv.png', { type: 'image/png' });
 
+        // 1. INTENTO PRINCIPAL: Usar el Motor Nativo del Navegador (Web Share API)
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
           try {
-            await navigator.share({ title: 'Adventistas SV', text: shareText, files: [file] });
-          } catch (err) {}
+            await navigator.share({
+              title: 'Adventistas SV',
+              text: shareText,
+              files: [file]
+            });
+            return; // Compartido exitosamente desde el navegador
+          } catch (err) {
+            // Cancelado o cerrado por el usuario
+            return;
+          }
         } else if (navigator.share) {
           try {
-            await navigator.share({ title: 'Adventistas SV', text: shareText, url: window.location.href });
-          } catch (err) {}
-        } else {
-          navigator.clipboard.writeText(shareText);
-          alert(`¡Texto copiado al portapapeles!\n\n"${shareText}"\n\nPuedes pegarlo junto a tu imagen descargada.`);
+            await navigator.share({
+              title: 'Adventistas SV',
+              text: shareText,
+              url: window.location.href
+            });
+            return;
+          } catch (err) {
+            return;
+          }
         }
+
+        // 2. INTENTO SECUNDARIO: Abrir modal con opciones directas si el motor no está disponible
+        openShareModal(shareText);
       }, 'image/png');
+    }
+
+    function openShareModal(text) {
+      const modal = document.getElementById('shareModal');
+      document.getElementById('shareTextPreview').innerText = text;
+
+      const encodedText = encodeURIComponent(text);
+      document.getElementById('shareWa').href = `https://api.whatsapp.com/send?text=${encodedText}`;
+      document.getElementById('shareTg').href = `https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${encodedText}`;
+      document.getElementById('shareTw').href = `https://twitter.com/intent/tweet?text=${encodedText}`;
+
+      modal.classList.add('active');
+    }
+
+    function closeShareModal() {
+      document.getElementById('shareModal').classList.remove('active');
+    }
+
+    function copyShareText() {
+      navigator.clipboard.writeText(currentShareText);
+      alert('¡Texto copiado al portapapeles!\n\nSe descargará la imagen para que puedas pegarla juntas.');
+      if (currentShareCanvas) {
+        const link = document.createElement('a');
+        link.download = 'adventistassv-frase.png';
+        link.href = currentShareCanvas.toDataURL('image/png');
+        link.click();
+      }
+      closeShareModal();
     }
 
     function updateCustomCanvas() {
@@ -683,6 +766,7 @@
     }
 
     async function initDailyGallery() {
+      await preloadLogos();
       await document.fonts.ready;
 
       const grid = document.getElementById('dailyGrid');
