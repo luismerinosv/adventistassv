@@ -39,20 +39,30 @@
 
     header {
       text-align: center;
-      padding: 20px 15px 12px;
+      padding: 24px 15px 14px;
       background: #090d16;
       border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
     
-    .header-logo {
-      max-height: 65px;
-      width: auto;
-      margin: 0 auto 6px auto;
-      display: block;
-      object-fit: contain;
+    .header-logo-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 70px;
+      margin-bottom: 6px;
     }
 
-    header p { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 12px; }
+    .header-logo {
+      height: 75px;
+      width: auto;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 8px rgba(0,0,0,0.5));
+    }
+
+    header p { color: var(--text-muted); font-size: 0.88rem; margin-bottom: 14px; }
 
     .nav-tabs {
       display: flex;
@@ -308,7 +318,7 @@
       color: #111827;
       border-radius: 14px;
       padding: 8px 0;
-      width: 310px;
+      width: 320px;
       max-width: 92vw;
       box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
       display: flex;
@@ -352,6 +362,16 @@
       margin: 4px 0;
     }
 
+    .share-status-bar {
+      padding: 8px 16px;
+      background: #f0fdf4;
+      color: #166534;
+      font-size: 0.8rem;
+      text-align: center;
+      border-bottom: 1px solid #dcfce7;
+      display: none;
+    }
+
     .hidden { display: none !important; }
 
     @media (max-width: 768px) {
@@ -365,7 +385,7 @@
       .grid-daily {
         grid-template-columns: 1fr;
       }
-      .header-logo { max-height: 52px; }
+      .header-logo { height: 60px; }
       .container { padding: 12px; }
     }
   </style>
@@ -373,7 +393,9 @@
 <body>
 
   <header>
-    <img src="logo.png" alt="Adventistas SV" class="header-logo" onerror="this.style.display='none'">
+    <div class="header-logo-container">
+      <img id="mainLogoHeader" src="logo.png" alt="Adventistas SV" class="header-logo" onload="processHeaderLogo(this)">
+    </div>
     <p>Frases e inspiración diaria • @adventistassv</p>
 
     <div class="nav-tabs">
@@ -482,7 +504,8 @@
   <!-- MENÚ FLOTANTE DE OPCIONES DE COMPARTIR -->
   <div id="shareModal" class="modal" onclick="closeShareModal()">
     <div class="share-menu-card" onclick="event.stopPropagation()">
-      
+      <div id="shareStatusBar" class="share-status-bar">⏳ Subiendo imagen pública...</div>
+
       <!-- 1. Facebook -->
       <button class="share-menu-item" onclick="shareImageOption('facebook')">
         <svg fill="#1877F2" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
@@ -638,6 +661,53 @@
     let currentShareCanvas = null;
     let currentDownloadConfig = null;
 
+    /* RECORTADOR AUTOMÁTICO DE MÁRGENES VACÍOS DEL LOGO */
+    function processHeaderLogo(img) {
+      if (img.dataset.processed) return;
+      try {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const w = img.naturalWidth || img.width;
+        const h = img.naturalHeight || img.height;
+        if (!w || !h) return;
+
+        canvas.width = w;
+        canvas.height = h;
+        ctx.drawImage(img, 0, 0);
+
+        const imageData = ctx.getImageData(0, 0, w, h);
+        const data = imageData.data;
+        let minX = w, minY = h, maxX = 0, maxY = 0;
+
+        for (let y = 0; y < h; y++) {
+          for (let x = 0; x < w; x++) {
+            const alpha = data[(y * w + x) * 4 + 3];
+            if (alpha > 10) {
+              if (x < minX) minX = x;
+              if (x > maxX) maxX = x;
+              if (y < minY) minY = y;
+              if (y > maxY) maxY = y;
+            }
+          }
+        }
+
+        if (maxX > minX && maxY > minY) {
+          const cropW = maxX - minX + 1;
+          const cropH = maxY - minY + 1;
+          const croppedCanvas = document.createElement('canvas');
+          croppedCanvas.width = cropW;
+          croppedCanvas.height = cropH;
+          const croppedCtx = croppedCanvas.getContext('2d');
+          croppedCtx.drawImage(canvas, minX, minY, cropW, cropH, 0, 0, cropW, cropH);
+
+          img.dataset.processed = "true";
+          img.src = croppedCanvas.toDataURL();
+        }
+      } catch (e) {
+        console.warn("No se pudo auto-recortar logo:", e);
+      }
+    }
+
     function loadImage(src) {
       return new Promise((resolve, reject) => {
         const img = new Image();
@@ -660,6 +730,32 @@
         u8arr[n] = bstr.charCodeAt(n);
       }
       return new File([u8arr], filename, { type: mime });
+    }
+
+    /* SUBIDA AUTOMÁTICA DE IMAGEN PARA CREAR URL PÚBLICA TEMPORAL */
+    async function uploadImageToPublicUrl(canvas) {
+      try {
+        const dataUrl = canvas.toDataURL('image/png');
+        const base64Data = dataUrl.split(',')[1];
+        const formData = new FormData();
+        formData.append('image', base64Data);
+        formData.append('type', 'base64');
+
+        const res = await fetch('https://api.imgur.com/3/image', {
+          method: 'POST',
+          headers: {
+            Authorization: 'Client-ID 5467435223b39e1'
+          },
+          body: formData
+        });
+        const json = await res.json();
+        if (json.success && json.data && json.data.link) {
+          return json.data.link;
+        }
+      } catch (e) {
+        console.warn('Subida temporal a URL no disponible:', e);
+      }
+      return null;
     }
 
     async function preloadLogos() {
@@ -919,6 +1015,7 @@
     function shareCanvasCard(canvas, phrase, citation, handle = '@adventistassv') {
       currentShareText = `"${phrase}" - ${citation}\n\nVía ${handle}`;
       currentShareCanvas = canvas;
+      document.getElementById('shareStatusBar').style.display = 'none';
       document.getElementById('shareModal').classList.add('active');
     }
 
@@ -967,14 +1064,15 @@
       });
     }
 
-    /* GESTIONAR ENVÍO REAL DE LA IMAGEN EN MÓVILES O DESCARGA EN PC */
+    /* COMPARTIR CON SUBIDA AUTOMÁTICA DE URL TEMPORAL PARA CADA RED SOCIAL */
     async function shareImageOption(platform) {
       if (!currentShareCanvas) return;
 
       const file = dataURLtoFile(currentShareCanvas.toDataURL('image/png'), 'adventistassv-frase.png');
       const shareText = currentShareText;
 
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      // 1. Si el teléfono soporta compartir archivos nativamente
+      if (platform === 'native' && navigator.canShare && navigator.canShare({ files: [file] })) {
         try {
           await navigator.share({
             title: 'Adventistas SV',
@@ -984,40 +1082,47 @@
           closeShareModal();
           return;
         } catch (err) {
-          if (err.name === 'AbortError') {
-            closeShareModal();
-            return;
-          }
+          if (err.name === 'AbortError') { closeShareModal(); return; }
         }
       }
 
-      const link = document.createElement('a');
-      link.download = 'adventistassv-frase.png';
-      link.href = currentShareCanvas.toDataURL('image/png');
-      link.click();
+      // 2. Para redes web (Facebook, Pinterest, X), subir imagen pública temporal en tiempo real
+      const statusBar = document.getElementById('shareStatusBar');
+      statusBar.style.display = 'block';
+      statusBar.innerText = '⌛ Generando imagen pública para compartir...';
 
-      navigator.clipboard.writeText(shareText);
+      const publicImageUrl = await uploadImageToPublicUrl(currentShareCanvas);
+      statusBar.style.display = 'none';
 
+      const targetUrl = publicImageUrl || window.location.href;
       const encodedText = encodeURIComponent(shareText);
-      const siteUrl = encodeURIComponent(window.location.href);
+      const encodedImg = encodeURIComponent(targetUrl);
 
       if (platform === 'facebook') {
-        alert('Se ha descargado la imagen PNG y copiado el texto.\nAdjunta la imagen en tu publicación de Facebook.');
-        window.open(`https://www.facebook.com/sharer/sharer.php?u=${siteUrl}`, '_blank');
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodedImg}&quote=${encodedText}`, '_blank');
       } else if (platform === 'instagram') {
-        alert('Se ha descargado la imagen PNG y copiado el texto.\nAbre Instagram y sube la imagen descargada a tus Historias o Feed.');
+        alert('Se ha descargado la imagen PNG y copiado el texto al portapapeles.\nSúbela directamente a tu Historia o Feed de Instagram.');
+        downloadCanvasImage(currentShareCanvas);
         window.open('https://www.instagram.com/', '_blank');
       } else if (platform === 'twitter') {
-        alert('Se ha descargado la imagen PNG y copiado el texto.\nAdjunta la imagen descargada en tu Tweet.');
-        window.open(`https://twitter.com/intent/tweet?text=${encodedText}`, '_blank');
+        window.open(`https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedImg}`, '_blank');
       } else if (platform === 'pinterest') {
-        alert('Se ha descargado la imagen PNG y copiado el texto.\nSube la imagen a tu tablero de Pinterest.');
-        window.open(`https://pinterest.com/pin/create/button/`, '_blank');
+        window.open(`https://pinterest.com/pin/create/button/?url=${encodeURIComponent(window.location.href)}&media=${encodedImg}&description=${encodedText}`, '_blank');
       } else if (platform === 'mail') {
-        window.location.href = `mailto:?subject=Adventistas%20SV&body=${encodedText}`;
+        window.location.href = `mailto:?subject=Adventistas%20SV&body=${encodedText}%20${encodedImg}`;
+      } else {
+        // Nativo o general
+        downloadCanvasImage(currentShareCanvas);
       }
 
       closeShareModal();
+    }
+
+    function downloadCanvasImage(canvas) {
+      const link = document.createElement('a');
+      link.download = 'adventistassv-frase.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
     }
 
     function closeShareModal() {
@@ -1028,10 +1133,7 @@
       navigator.clipboard.writeText(currentShareText);
       alert('¡Texto copiado al portapapeles!\n\nSe descargará la imagen para que puedas publicarla.');
       if (currentShareCanvas) {
-        const link = document.createElement('a');
-        link.download = 'adventistassv-frase.png';
-        link.href = currentShareCanvas.toDataURL('image/png');
-        link.click();
+        downloadCanvasImage(currentShareCanvas);
       }
       closeShareModal();
     }
@@ -1122,6 +1224,12 @@
     async function initDailyGallery() {
       await preloadLogos();
       await document.fonts.ready;
+      
+      const imgHeader = document.getElementById('mainLogoHeader');
+      if (imgHeader && imgHeader.complete) {
+        processHeaderLogo(imgHeader);
+      }
+
       renderDailyGrid(QUOTES_BANK.slice(0, 10));
     }
 
