@@ -45,14 +45,13 @@
     }
     
     .header-logo {
-      max-height: 55px;
+      max-height: 65px;
       width: auto;
-      margin: 0 auto 8px auto;
+      margin: 0 auto 6px auto;
       display: block;
       object-fit: contain;
     }
 
-    header h1 { font-size: 1.5rem; color: #fff; margin-bottom: 4px; }
     header p { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 12px; }
 
     .nav-tabs {
@@ -274,7 +273,7 @@
       box-shadow: 0 0 8px var(--accent);
     }
 
-    /* Modal Base */
+    /* Modales */
     .modal {
       display: none;
       position: fixed;
@@ -303,14 +302,14 @@
       display: flex; align-items: center; justify-content: center;
     }
 
-    /* Menú de Compartir */
+    /* Menús Flotantes (Compartir y Descargar) */
     .share-menu-card {
       background: #ffffff;
       color: #111827;
       border-radius: 14px;
       padding: 8px 0;
-      width: 290px;
-      max-width: 90vw;
+      width: 310px;
+      max-width: 92vw;
       box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
       display: flex;
       flex-direction: column;
@@ -329,7 +328,7 @@
       padding: 12px 20px;
       color: #1f2937;
       text-decoration: none;
-      font-size: 0.95rem;
+      font-size: 0.92rem;
       font-weight: 500;
       cursor: pointer;
       transition: background 0.15s ease;
@@ -366,8 +365,7 @@
       .grid-daily {
         grid-template-columns: 1fr;
       }
-      header h1 { font-size: 1.3rem; }
-      .header-logo { max-height: 45px; }
+      .header-logo { max-height: 52px; }
       .container { padding: 12px; }
     }
   </style>
@@ -376,7 +374,6 @@
 
   <header>
     <img src="logo.png" alt="Adventistas SV" class="header-logo" onerror="this.style.display='none'">
-    <h1>ADVENTISTAS SV</h1>
     <p>Frases e inspiración diaria • @adventistassv</p>
 
     <div class="nav-tabs">
@@ -476,6 +473,7 @@
     </div>
   </div>
 
+  <!-- MODAL DE VISUALIZACIÓN -->
   <div id="imageModal" class="modal" onclick="closeModal()">
     <button class="modal-close" onclick="closeModal()">✕</button>
     <img id="modalImg" class="modal-content" src="" alt="Vista Previa" onclick="event.stopPropagation()">
@@ -507,7 +505,7 @@
       <button class="share-menu-item" onclick="shareImageOption('pinterest')">
         <svg fill="#E60023" viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.372 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738.098.119.112.224.083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.631-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12 0-6.628-5.373-12-12-12z"/></svg>
         Pinterest
-      </a>
+      </button>
 
       <!-- 5. Correo electrónico -->
       <button class="share-menu-item" onclick="shareImageOption('mail')">
@@ -531,6 +529,36 @@
         Copiar enlace / Texto
       </button>
 
+    </div>
+  </div>
+
+  <!-- MENÚ FLOTANTE DE OPCIONES DE DESCARGA (TAMAÑOS) -->
+  <div id="downloadModal" class="modal" onclick="closeDownloadModal()">
+    <div class="share-menu-card" onclick="event.stopPropagation()">
+      <div style="padding: 12px 20px 8px; border-bottom: 1px solid #e5e7eb; font-weight: 700; font-size: 0.95rem; color: #111827;">
+        ⬇️ Elige el formato para descargar:
+      </div>
+      
+      <button class="share-menu-item" onclick="triggerDownload('4:5')">
+        <div style="display:flex; flex-direction:column; align-items:flex-start;">
+          <span style="font-weight:600; color:#1f2937;">4:5 • Post Feed (Instagram/Facebook)</span>
+          <span style="font-size:0.78rem; color:#6b7280;">1080 × 1350 px</span>
+        </div>
+      </button>
+
+      <button class="share-menu-item" onclick="triggerDownload('9:16')">
+        <div style="display:flex; flex-direction:column; align-items:flex-start;">
+          <span style="font-weight:600; color:#1f2937;">9:16 • Historia / Reel / TikTok</span>
+          <span style="font-size:0.78rem; color:#6b7280;">1080 × 1920 px</span>
+        </div>
+      </button>
+
+      <button class="share-menu-item" onclick="triggerDownload('1:1')">
+        <div style="display:flex; flex-direction:column; align-items:flex-start;">
+          <span style="font-weight:600; color:#1f2937;">1:1 • Cuadrado Tradicional</span>
+          <span style="font-size:0.78rem; color:#6b7280;">1080 × 1080 px</span>
+        </div>
+      </button>
     </div>
   </div>
 
@@ -608,6 +636,7 @@
     let userCustomImg = null;
     let currentShareText = '';
     let currentShareCanvas = null;
+    let currentDownloadConfig = null;
 
     function loadImage(src) {
       return new Promise((resolve, reject) => {
@@ -747,7 +776,7 @@
       canvas.height = targetHeight;
 
       const previewBox = document.getElementById('previewBox');
-      if (previewBox) {
+      if (previewBox && canvas.id === 'customCanvas') {
         if (ratioKey === '9:16') previewBox.style.aspectRatio = '9 / 16';
         else if (ratioKey === '1:1') previewBox.style.aspectRatio = '1 / 1';
         else previewBox.style.aspectRatio = '4 / 5';
@@ -893,6 +922,51 @@
       document.getElementById('shareModal').classList.add('active');
     }
 
+    /* GESTIONAR DESCARGA CON SELECCIÓN DE TAMAÑOS */
+    function openDownloadModal(config) {
+      currentDownloadConfig = config;
+      document.getElementById('downloadModal').classList.add('active');
+    }
+
+    function closeDownloadModal() {
+      document.getElementById('downloadModal').classList.remove('active');
+    }
+
+    async function triggerDownload(ratioKey) {
+      if (!currentDownloadConfig) return;
+
+      const tempCanvas = document.createElement('canvas');
+      await drawCanvasCard(
+        tempCanvas,
+        currentDownloadConfig.phrase,
+        currentDownloadConfig.citation,
+        currentDownloadConfig.font,
+        currentDownloadConfig.logo,
+        currentDownloadConfig.bg,
+        currentDownloadConfig.handle,
+        ratioKey
+      );
+
+      const link = document.createElement('a');
+      const cleanRatio = ratioKey.replace(':', 'x');
+      link.download = `adventistassv-${cleanRatio}.png`;
+      link.href = tempCanvas.toDataURL('image/png');
+      link.click();
+
+      closeDownloadModal();
+    }
+
+    function downloadCustomImage() {
+      openDownloadModal({
+        phrase: document.getElementById('inputPhrase').value || '',
+        citation: document.getElementById('inputCitation').value || '',
+        font: document.getElementById('selectFont').value,
+        logo: document.getElementById('selectLogo').value,
+        bg: selectedBg,
+        handle: document.getElementById('inputHandle').value || '@adventistassv'
+      });
+    }
+
     /* GESTIONAR ENVÍO REAL DE LA IMAGEN EN MÓVILES O DESCARGA EN PC */
     async function shareImageOption(platform) {
       if (!currentShareCanvas) return;
@@ -974,14 +1048,6 @@
       drawCanvasCard(canvas, phrase, citation, font, logo, selectedBg, handle, ratio);
     }
 
-    function downloadCustomImage() {
-      const canvas = document.getElementById('customCanvas');
-      const link = document.createElement('a');
-      link.download = 'adventistassv-creacion.png';
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-    }
-
     async function generateNewQuotesSet() {
       const shuffledQuotes = [...QUOTES_BANK].sort(() => 0.5 - Math.random()).slice(0, 10);
       const shuffledPhotos = [...ALL_STOCK_PHOTOS].sort(() => 0.5 - Math.random());
@@ -1001,6 +1067,7 @@
         const item = quotesList[i];
         const fontName = fontKeys[i % fontKeys.length];
         const logoKey = logoRotation[i % logoRotation.length];
+        const bgType = (i % 2 === 0) ? `photo_${i % STOCK_PHOTOS.length}` : `grad_${i % GRADIENTS.length}`;
 
         const card = document.createElement('div');
         card.className = 'card';
@@ -1030,10 +1097,14 @@
         btnDownload.innerHTML = '⬇️ Descargar';
         btnDownload.onclick = (e) => {
           e.stopPropagation();
-          const link = document.createElement('a');
-          link.download = `adventistassv-${i + 1}.png`;
-          link.href = canvas.toDataURL('image/png');
-          link.click();
+          openDownloadModal({
+            phrase: item.frase,
+            citation: item.cita,
+            font: fontName,
+            logo: logoKey,
+            bg: bgType,
+            handle: '@adventistassv'
+          });
         };
 
         actions.appendChild(btnView);
@@ -1044,7 +1115,6 @@
         card.appendChild(actions);
         grid.appendChild(card);
 
-        const bgType = (i % 2 === 0) ? `photo_${i % STOCK_PHOTOS.length}` : `grad_${i % GRADIENTS.length}`;
         drawCanvasCard(canvas, item.frase, item.cita, fontName, logoKey, bgType, '@adventistassv', '4:5');
       }
     }
