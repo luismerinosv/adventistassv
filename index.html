@@ -7,6 +7,24 @@
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="logo-turquesa.png">
+
+  <!-- Meta etiquetas Open Graph / Facebook / WhatsApp / Telegram -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://luismerinosv.github.io/adventistassv/">
+  <meta property="og:title" content="Adventistas SV • Frases e inspiración diaria">
+  <meta property="og:description" content="Encuentra inspiración diaria y diseña tus propias imágenes y videos con frases adventistas para compartir en tus redes sociales.">
+  <meta property="og:image" content="https://luismerinosv.github.io/adventistassv/og-image.jpg">
+  <meta property="og:image:secure_url" content="https://luismerinosv.github.io/adventistassv/og-image.jpg">
+  <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:image:width" content="1280">
+  <meta property="og:image:height" content="720">
+
+  <!-- Meta etiquetas para Twitter / X -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="https://luismerinosv.github.io/adventistassv/">
+  <meta name="twitter:title" content="Adventistas SV • Frases e inspiración diaria">
+  <meta name="twitter:description" content="Encuentra inspiración diaria y diseña tus propias imágenes y videos con frases adventistas para compartir en tus redes sociales.">
+  <meta name="twitter:image" content="https://luismerinosv.github.io/adventistassv/og-image.jpg">
   
   <!-- Tipografías Google Fonts Ampliadas -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -460,10 +478,11 @@
           <div id="previewBox" class="canvas-container" style="max-width: 380px; border-radius: 10px; overflow: hidden;" onclick="openCanvasModal(document.getElementById('customCanvas'))">
             <canvas id="customCanvas"></canvas>
           </div>
-          <div style="display: flex; gap: 8px; width: 100%; max-width: 380px;">
-            <button class="btn btn-secondary" onclick="openCanvasModal(document.getElementById('customCanvas'))">Ver</button>
-            <button class="btn btn-secondary" onclick="shareCanvasCard(document.getElementById('customCanvas'), document.getElementById('inputPhrase').value, document.getElementById('inputCitation').value, document.getElementById('inputHandle').value)">Compartir</button>
-            <button class="btn" onclick="downloadCustomImage()">Descargar</button>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px; width: 100%; max-width: 380px;">
+            <button class="btn btn-secondary" style="flex: 1;" onclick="openCanvasModal(document.getElementById('customCanvas'))">Ver</button>
+            <button class="btn btn-secondary" style="flex: 1;" onclick="shareCanvasCard(document.getElementById('customCanvas'), document.getElementById('inputPhrase').value, document.getElementById('inputCitation').value, document.getElementById('inputHandle').value)">Compartir</button>
+            <button class="btn" style="flex: 1;" onclick="downloadCustomImage()">Descargar PNG</button>
+            <button id="btnDescargarVideo" class="btn" style="width: 100%; background: #00838f; margin-top: 4px; font-weight: 600;" onclick="generarVideoAnimado()">🎬 Descargar Video Animado (Reel/Story)</button>
           </div>
         </div>
 
@@ -1277,6 +1296,88 @@
         bg: selectedBg,
         handle: document.getElementById('inputHandle').value || '@adventistassv'
       });
+    }
+
+    /**
+     * GENERADOR DE VIDEO ANIMADO (REEL / STORY / TIKTOK)
+     */
+    async function generarVideoAnimado() {
+      const canvas = document.getElementById('customCanvas');
+      const btn = document.getElementById('btnDescargarVideo');
+
+      if (!canvas) {
+        alert("No se encontró el lienzo para generar el video.");
+        return;
+      }
+
+      const originalText = btn.innerHTML;
+      btn.innerHTML = "⏳ Generando video (5s)...";
+      btn.disabled = true;
+
+      const duracionSegundos = 5;
+      const fps = 30;
+
+      const stream = canvas.captureStream(fps);
+      const recordedChunks = [];
+
+      let options = { mimeType: 'video/webm;codecs=vp9' };
+      if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+        options = { mimeType: 'video/webm' };
+      }
+
+      let mediaRecorder;
+      try {
+        mediaRecorder = new MediaRecorder(stream, options);
+      } catch (e) {
+        mediaRecorder = new MediaRecorder(stream);
+      }
+
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data && e.data.size > 0) {
+          recordedChunks.push(e.data);
+        }
+      };
+
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(recordedChunks, { type: mediaRecorder.mimeType || 'video/webm' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        const selectedDate = document.getElementById('historyDate')?.value || 'frase';
+        a.download = `adventistassv-video-${selectedDate}.webm`;
+        a.click();
+        URL.revokeObjectURL(url);
+
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        updateCustomCanvas();
+      };
+
+      mediaRecorder.start();
+
+      let startTime = null;
+
+      function animarVideo(timestamp) {
+        if (!startTime) startTime = timestamp;
+        const tiempoTranscurrido = (timestamp - startTime) / 1000;
+
+        updateCustomCanvas();
+
+        const ctx = canvas.getContext('2d');
+        if (tiempoTranscurrido < 1.2) {
+          const alpha = 1 - (tiempoTranscurrido / 1.2);
+          ctx.fillStyle = `rgba(15, 23, 42, ${alpha})`;
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        if (tiempoTranscurrido < duracionSegundos) {
+          requestAnimationFrame(animarVideo);
+        } else {
+          mediaRecorder.stop();
+        }
+      }
+
+      requestAnimationFrame(animarVideo);
     }
 
     function updateCustomCanvas() {
