@@ -78,9 +78,17 @@
       padding: 16px;
     }
 
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
     .section-title {
       font-size: 1.2rem;
-      margin-bottom: 16px;
       color: #fff;
     }
 
@@ -139,6 +147,7 @@
       gap: 4px;
       transition: background 0.2s;
       min-height: 40px;
+      text-decoration: none;
     }
     .btn:hover { background: var(--accent-hover); }
     .btn-secondary {
@@ -365,7 +374,10 @@
   <div class="container">
     <!-- GALERÍA DIARIA -->
     <div id="gallerySection">
-      <h2 class="section-title">✨ 10 Frases de Hoy</h2>
+      <div class="section-header">
+        <h2 class="section-title">✨ 10 Frases de Hoy</h2>
+        <button class="btn btn-secondary" style="max-width: 220px;" onclick="generateNewQuotesSet()">🔄 Generar 10 Frases Nuevas</button>
+      </div>
       <div id="dailyGrid" class="grid-daily"></div>
     </div>
 
@@ -455,29 +467,29 @@
     <img id="modalImg" class="modal-content" src="" alt="Vista Previa" onclick="event.stopPropagation()">
   </div>
 
-  <!-- MENÚ DE COMPARTIR -->
+  <!-- MENÚ DE COMPARTIR MEJORADO -->
   <div id="shareModal" class="modal" onclick="closeShareModal()">
     <div class="share-menu-card" onclick="event.stopPropagation()">
       
-      <button class="share-menu-item" onclick="triggerNativeShare()">
+      <a id="shareFb" class="share-menu-item" target="_blank">
         <svg fill="#1877F2" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
         Facebook
-      </button>
+      </a>
 
-      <button class="share-menu-item" onclick="triggerNativeShare()">
+      <a id="sharePin" class="share-menu-item" target="_blank">
         <svg fill="#E60023" viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.372 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738.098.119.112.224.083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.631-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12 0-6.628-5.373-12-12-12z"/></svg>
         Pinterest
-      </button>
+      </a>
 
-      <button class="share-menu-item" onclick="triggerNativeShare()">
+      <a id="shareTw" class="share-menu-item" target="_blank">
         <svg fill="#000000" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
         Twitter
-      </button>
+      </a>
 
-      <button class="share-menu-item" onclick="triggerNativeShare()">
+      <a id="shareMail" class="share-menu-item">
         <svg fill="#4b5563" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
         Correo electrónico
-      </button>
+      </a>
 
       <div class="share-divider"></div>
 
@@ -515,6 +527,7 @@
       'Lora': { main: '600 50px "Lora", serif', cita: 'italic 32px "Poppins", sans-serif', lineH: 68 }
     };
 
+    // BANCO EXTENDIDO DE FRASES
     const QUOTES_BANK = [
       { frase: "DE LA MANO DE DIOS PUEDES CON TODO ¡NO TE RINDAS!", cita: "Filipenses 4:13" },
       { frase: "NO HAY NADA QUE PUEDAS HACER PARA QUE DIOS DEJE DE AMARTE.", cita: "El Camino a Cristo, p. 15" },
@@ -525,10 +538,21 @@
       { frase: "CADA AMANECER ES UNA NUEVA OPORTUNIDAD PARA CONFIAR EN DIOS.", cita: "Lamentaciones 3:22-23" },
       { frase: "DIOS NUNCA LLEGA TARDE; SU TIEMPO ES PERFECTO.", cita: "Eclesiastés 3:1" },
       { frase: "LA PAZ DE DIOS SOBREPASARÁ TODO TU ENTENDIMIENTO.", cita: "Filipenses 4:7" },
-      { frase: "NUESTRA ÚNICA SEGURIDAD ESTÁ EN LA DIRECCIÓN DE DIOS.", cita: "El Deseado de Todas las Gentes, p. 62" }
+      { frase: "NUESTRA ÚNICA SEGURIDAD ESTÁ EN LA DIRECCIÓN DE DIOS.", cita: "El Deseado de Todas las Gentes, p. 62" },
+      { frase: "BUSCAD PRIMERO EL REINO DE DIOS Y SU JUSTICIA.", cita: "Mateo 6:33" },
+      { frase: "LA FE ES LA CERTEZA DE LO QUE SE ESPERA, LA CONVICCIÓN DE LO QUE NO SE VE.", cita: "Hebreos 11:1" },
+      { frase: "EN EL AMOR NO HAY TEMOR, SINO QUE EL PERFECTO AMOR ECHA FUERA EL TEMOR.", cita: "1 Juan 4:18" },
+      { frase: "PERSEVERAD EN LA ORACIÓN, VELANDO EN ELLA CON ACCIÓN DE GRACIAS.", cita: "Colosenses 4:2" },
+      { frase: "CUAN GRANDE ES ÉL, CUAN GRANDE ES ÉL.", cita: "Himno Adventista" },
+      { frase: "LA LUZ DE LA VERDAD DEBE BRILLAR EN MEDIO DE LAS TINIEBLAS.", cita: "Joyas de los Testimonios, t. 2" },
+      { frase: "EL SEÑOR ES MI LUZ Y MI SALVACIÓN; ¿DE QUIÉN TEMERÉ?", cita: "Salmos 27:1" },
+      { frase: "NADA PODRÁ SEPARARNOS DEL AMOR DE DIOS QUE ES EN CRISTO JESÚS.", cita: "Romanos 8:39" },
+      { frase: "CANCIONES DE ESPERANZA Y FE RESONARÁN EN NUESTRO CORAZÓN.", cita: "El Ministerio de Curación, p. 195" },
+      { frase: "DIOS ES NUESTRO AMPARO Y FORTALEZA, NUESTRO PRONTO AUXILIO.", cita: "Salmos 46:1" }
     ];
 
-    let STOCK_PHOTOS = [
+    // POOL EXTENDIDO DE FOTOS DE STOCK VÁLIDAS
+    const ALL_STOCK_PHOTOS = [
       'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1470240731273-7821a6eeb6bd?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=800&q=80',
@@ -536,8 +560,17 @@
       'https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1513002749550-c59d786b8e6c?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=800&q=80'
+      'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1507499739999-097706ad8914?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1518837695005-2083093ee35b?auto=format&fit=crop&w=800&q=80'
     ];
+
+    let STOCK_PHOTOS = ALL_STOCK_PHOTOS.slice(0, 8);
 
     const GRADIENTS = [
       ['#0f172a', '#1e3a8a'],
@@ -590,11 +623,10 @@
       }
     }
 
+    // REFRESCO REAL DE FOTOS DE STOCK
     function refreshStockPhotos() {
-      const randomSeeds = ['nature,sky', 'mountains', 'forest', 'sea', 'stars', 'sunrise', 'landscape', 'calm'];
-      STOCK_PHOTOS = randomSeeds.map((seed) => 
-        `https://images.unsplash.com/photo-1500000000000?auto=format&fit=crop&w=800&q=80&sig=${Math.floor(Math.random()*10000)}&${seed}`
-      );
+      const shuffled = [...ALL_STOCK_PHOTOS].sort(() => 0.5 - Math.random());
+      STOCK_PHOTOS = shuffled.slice(0, 8);
       renderBgThumbnails(true);
       updateCustomCanvas();
     }
@@ -690,7 +722,7 @@
       const marginX = 100;
       const maxWidth = canvas.width - (marginX * 2);
 
-      // A. FONDO CON CAPA PROTECTORA DE CONTRASTE (OVERLAY OSCURO)
+      // FONDO Y CAPA PROTECTORA
       if (bgType === 'user_custom' && userCustomImg) {
         drawCoverImage(ctx, userCustomImg, canvas.width, canvas.height);
         ctx.fillStyle = 'rgba(0, 0, 0, 0.48)';
@@ -710,7 +742,7 @@
         drawGrad(ctx, canvas, gIndex);
       }
 
-      // VIGNETTES
+      // DEGRADADOS
       const topGradHeight = (ratioKey === '9:16') ? 320 : 260;
       const topGrad = ctx.createLinearGradient(0, 0, 0, topGradHeight);
       topGrad.addColorStop(0, 'rgba(0, 0, 0, 0.70)');
@@ -725,7 +757,7 @@
       ctx.fillStyle = botGrad;
       ctx.fillRect(0, canvas.height - botGradHeight, canvas.width, botGradHeight);
 
-      // B. LOGO OFICIAL
+      // LOGO
       let logoImg = loadedLogos[logoKey];
       if (!logoImg) {
         try {
@@ -746,16 +778,12 @@
         ctx.drawImage(logoImg, logoX, logoY, logoWidth, logoHeight);
       }
 
-      // C. FRASE Y CITA (TEXTO BLANCO SIEMPRE LEGIBLE CON SOMBRA INTENSA)
-      const textColor = '#ffffff';
-      const subColor = '#f1f5f9';
-
+      // TEXTO BLANCO Y SOMBRAS
       ctx.save();
       ctx.textAlign = 'center';
-      ctx.fillStyle = textColor;
+      ctx.fillStyle = '#ffffff';
       ctx.font = fontCfg.main;
 
-      // Sombra oscura proyectada para garantizar lectura sobre cualquier imagen
       ctx.shadowColor = 'rgba(0, 0, 0, 0.95)';
       ctx.shadowBlur = 14;
       ctx.shadowOffsetX = 0;
@@ -791,11 +819,11 @@
 
       // Cita
       ctx.font = fontCfg.cita;
-      ctx.fillStyle = subColor;
+      ctx.fillStyle = '#f1f5f9';
       ctx.fillText(citation, canvas.width / 2, y + 45);
       ctx.restore();
 
-      // D. USER FOOTER
+      // FOOTER
       let footerY = canvas.height - 70;
       if (ratioKey === '9:16') footerY = canvas.height - 110;
       if (ratioKey === '1:1') footerY = canvas.height - 45;
@@ -829,17 +857,23 @@
       document.getElementById('imageModal').classList.remove('active');
     }
 
-    /* PREPARAR Y ENVIAR LA IMAGEN ESPECÍFICA DE LA TARJETA */
+    /* CONFIGURACIÓN DEL MENÚ DE COMPARTIR CON ENLACES INDIVIDUALES Y NATIVO */
     function shareCanvasCard(canvas, phrase, citation, handle = '@adventistassv') {
       const shareText = `"${phrase}" - ${citation}\n\nVía ${handle}`;
       currentShareText = shareText;
       currentShareCanvas = canvas;
 
-      // Abrir menú emergente de opciones
+      const encodedText = encodeURIComponent(shareText);
+      const siteUrl = encodeURIComponent(window.location.href);
+
+      document.getElementById('shareFb').href = `https://www.facebook.com/sharer/sharer.php?u=${siteUrl}&quote=${encodedText}`;
+      document.getElementById('sharePin').href = `https://pinterest.com/pin/create/button/?url=${siteUrl}&description=${encodedText}`;
+      document.getElementById('shareTw').href = `https://twitter.com/intent/tweet?text=${encodedText}`;
+      document.getElementById('shareMail').href = `mailto:?subject=Adventistas%20SV&body=${encodedText}`;
+
       document.getElementById('shareModal').classList.add('active');
     }
 
-    /* COMPARTIR EL ARCHIVO DE IMAGEN PNG DIRECTAMENTE A LAS APLICACIONES */
     async function triggerNativeShare() {
       if (!currentShareCanvas) return;
 
@@ -906,18 +940,24 @@
       link.click();
     }
 
-    async function initDailyGallery() {
-      await preloadLogos();
-      await document.fonts.ready;
+    // GENERAR 10 FRASES NUEVAS DINÁMICAS
+    async function generateNewQuotesSet() {
+      const shuffledQuotes = [...QUOTES_BANK].sort(() => 0.5 - Math.random()).slice(0, 10);
+      const shuffledPhotos = [...ALL_STOCK_PHOTOS].sort(() => 0.5 - Math.random());
+      STOCK_PHOTOS = shuffledPhotos.slice(0, 8);
 
+      renderDailyGrid(shuffledQuotes);
+    }
+
+    async function renderDailyGrid(quotesList) {
       const grid = document.getElementById('dailyGrid');
       grid.innerHTML = '';
 
       const fontKeys = Object.keys(FONT_MAP);
       const logoRotation = ['blanco', 'turquesa', 'blanco', 'blanco', 'turquesa'];
 
-      for (let i = 0; i < QUOTES_BANK.length; i++) {
-        const item = QUOTES_BANK[i];
+      for (let i = 0; i < quotesList.length; i++) {
+        const item = quotesList[i];
         const fontName = fontKeys[i % fontKeys.length];
         const logoKey = logoRotation[i % logoRotation.length];
 
@@ -966,6 +1006,12 @@
         const bgType = (i % 2 === 0) ? `photo_${i % STOCK_PHOTOS.length}` : `grad_${i % GRADIENTS.length}`;
         drawCanvasCard(canvas, item.frase, item.cita, fontName, logoKey, bgType, '@adventistassv', '4:5');
       }
+    }
+
+    async function initDailyGallery() {
+      await preloadLogos();
+      await document.fonts.ready;
+      renderDailyGrid(QUOTES_BANK.slice(0, 10));
     }
 
     window.onload = initDailyGallery;
