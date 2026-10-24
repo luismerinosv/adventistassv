@@ -30,7 +30,7 @@
       padding-bottom: 40px;
     }
 
-    /* Encabezado */
+    /* Header */
     header {
       text-align: center;
       padding: 25px 20px 15px;
@@ -40,7 +40,7 @@
     header h1 { font-size: 1.8rem; color: #fff; margin-bottom: 4px; }
     header p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 15px; }
 
-    /* Pestañas de Navegación */
+    /* Pestañas */
     .nav-tabs {
       display: flex;
       justify-content: center;
@@ -65,7 +65,6 @@
       border-color: var(--accent);
     }
 
-    /* Contenedor Principal */
     .container {
       max-width: 1200px;
       margin: 0 auto;
@@ -108,7 +107,6 @@
       display: block;
     }
 
-    /* Acciones: 3 Botones por Tarjeta */
     .card-actions {
       padding: 10px;
       display: flex;
@@ -133,7 +131,6 @@
       justify-content: center;
       gap: 4px;
       transition: background 0.2s;
-      white-space: nowrap;
     }
     .btn:hover { background: var(--accent-hover); }
     .btn-secondary {
@@ -143,7 +140,7 @@
     }
     .btn-secondary:hover { background: rgba(255, 255, 255, 0.08); }
 
-    /* Módulo Editor Personalizado */
+    /* Módulo Editor */
     .editor-layout {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -153,12 +150,12 @@
 
     .editor-controls {
       background: var(--card-bg);
-      padding: 25px;
+      padding: 22px;
       border-radius: 12px;
       border: 1px solid var(--border);
       display: flex;
       flex-direction: column;
-      gap: 18px;
+      gap: 16px;
     }
 
     .form-group {
@@ -190,7 +187,37 @@
 
     textarea.form-control {
       resize: vertical;
-      min-height: 80px;
+      min-height: 70px;
+    }
+
+    /* Galería Visual de Miniaturas */
+    .bg-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(65px, 1fr));
+      gap: 8px;
+      max-height: 220px;
+      overflow-y: auto;
+      padding: 6px;
+      background: var(--bg-dark);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+
+    .bg-thumb {
+      aspect-ratio: 4 / 5;
+      border-radius: 6px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      object-fit: cover;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.15s, border-color 0.15s;
+    }
+
+    .bg-thumb:hover { transform: scale(1.05); }
+    .bg-thumb.active {
+      border-color: var(--accent);
+      box-shadow: 0 0 8px var(--accent);
     }
 
     .editor-preview {
@@ -204,7 +231,7 @@
       gap: 15px;
     }
 
-    /* Modal / Visor a Pantalla Completa */
+    /* Modal Visor */
     .modal {
       display: none;
       position: fixed;
@@ -221,7 +248,6 @@
       max-width: 90vw;
       max-height: 85vh;
       border-radius: 12px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
       object-fit: contain;
     }
     .modal-close {
@@ -233,11 +259,9 @@
       cursor: pointer;
       display: flex; align-items: center; justify-content: center;
     }
-    .modal-close:hover { background: rgba(255,255,255,0.4); }
 
     .hidden { display: none !important; }
 
-    /* Responsivo Móvil */
     @media (max-width: 768px) {
       .editor-layout { grid-template-columns: 1fr; }
       .grid-daily { grid-template-columns: 1fr; }
@@ -304,18 +328,10 @@
             </select>
           </div>
 
+          <!-- Selector de Fondos con Miniaturas -->
           <div class="form-group">
-            <label>Estilo de Fondo:</label>
-            <select id="selectBg" class="form-control" onchange="updateCustomCanvas()">
-              <option value="photo_0">Fotografía: Playa y Calma</option>
-              <option value="photo_1">Fotografía: Montañas y Niebla</option>
-              <option value="photo_2">Fotografía: Noche Estrellada</option>
-              <option value="photo_3">Fotografía: Atardecer Cálido</option>
-              <option value="grad_0">Degradado: Azul Profundo</option>
-              <option value="grad_1">Degradado: Violeta Nocturno</option>
-              <option value="grad_2">Degradado: Verde Esmeralda</option>
-              <option value="grad_3">Degradado: Ocaso Cobre</option>
-            </select>
+            <label>Selecciona un Fondo (Haz clic en una miniatura):</label>
+            <div id="bgThumbnailGrid" class="bg-grid"></div>
           </div>
         </div>
 
@@ -334,7 +350,7 @@
     </div>
   </div>
 
-  <!-- VISOR PANTALLA COMPLETA (MODAL) -->
+  <!-- VISOR PANTALLA COMPLETA -->
   <div id="imageModal" class="modal" onclick="closeModal()">
     <button class="modal-close" onclick="closeModal()">✕</button>
     <img id="modalImg" class="modal-content" src="" alt="Vista Previa" onclick="event.stopPropagation()">
@@ -362,7 +378,7 @@
       { frase: "NO HAY NADA QUE PUEDAS HACER PARA QUE DIOS DEJE DE AMARTE.", cita: "El Camino a Cristo, p. 15" },
       { frase: "TU VIDA HABLA MÁS FUERTE QUE TUS PALABRAS. VIVE LO QUE PREDICAS.", cita: "1 Corintios 11:1" },
       { frase: "EL AMOR DE DIOS NO TIENE LÍMITES NI CONDICIONES.", cita: "Jeremías 31:3" },
-      { frase: "LA ORACIÓN ES EL LLAVE EN LA MANO DE LA FE PARA ABRIR EL ALMACÉN DEL CIELO.", cita: "El Camino a Cristo, p. 94" },
+      { frase: "LA ORACIÓN ES LA LLAVE EN LA MANO DE LA FE PARA ABRIR EL ALMACÉN DEL CIELO.", cita: "El Camino a Cristo, p. 94" },
       { frase: "JEHOVÁ ES MI PASTOR; NADA ME FALTARÁ.", cita: "Salmos 23:1" },
       { frase: "CADA AMANECER ES UNA NUEVA OPORTUNIDAD PARA CONFIAR EN DIOS.", cita: "Lamentaciones 3:22-23" },
       { frase: "DIOS NUNCA LLEGA TARDE; SU TIEMPO ES PERFECTO.", cita: "Eclesiastés 3:1" },
@@ -370,26 +386,41 @@
       { frase: "NUESTRA ÚNICA SEGURIDAD ESTÁ EN LA DIRECCIÓN DE DIOS.", cita: "El Deseado de Todas las Gentes, p. 62" }
     ];
 
+    // Colección ampliada de 12 fotografías
     const STOCK_PHOTOS = [
-      'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1080&q=80',
-      'https://images.unsplash.com/photo-1470240731273-7821a6eeb6bd?auto=format&fit=crop&w=1080&q=80',
-      'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1080&q=80',
-      'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1080&q=80'
+      'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1470240731273-7821a6eeb6bd?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1513002749550-c59d786b8e6c?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1507499739999-097706ad8914?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=600&q=80'
     ];
 
     const GRADIENTS = [
       ['#0f172a', '#1e3a8a'],
       ['#2d124d', '#1e1b4b'],
       ['#134e4a', '#064e3b'],
-      ['#7c2d12', '#451a03']
+      ['#7c2d12', '#451a03'],
+      ['#312e81', '#4c1d95']
     ];
 
+    let selectedBg = 'photo_0';
+
+    // Carga de imágenes corregida para evitar bloqueo CORS en archivos locales
     function loadImage(src) {
       return new Promise((resolve, reject) => {
         const img = new Image();
-        img.crossOrigin = 'Anonymous';
+        if (src.startsWith('http://') || src.startsWith('https://')) {
+          img.crossOrigin = 'Anonymous';
+        }
         img.onload = () => resolve(img);
-        img.onerror = () => reject(new Error(`Error: ${src}`));
+        img.onerror = (e) => reject(e);
         img.src = src;
       });
     }
@@ -409,8 +440,43 @@
         eSec.classList.remove('hidden');
         btns[0].classList.remove('active');
         btns[1].classList.add('active');
+        renderBgThumbnails();
         updateCustomCanvas();
       }
+    }
+
+    // Generar la galería de miniaturas visuales
+    function renderBgThumbnails() {
+      const container = document.getElementById('bgThumbnailGrid');
+      if (container.children.length > 0) return; // Evitar duplicar
+
+      // Miniaturas de fotos
+      STOCK_PHOTOS.forEach((url, i) => {
+        const img = document.createElement('img');
+        img.src = url;
+        img.className = `bg-thumb ${selectedBg === 'photo_' + i ? 'active' : ''}`;
+        img.onclick = () => {
+          document.querySelectorAll('.bg-thumb').forEach(t => t.classList.remove('active'));
+          img.classList.add('active');
+          selectedBg = 'photo_' + i;
+          updateCustomCanvas();
+        };
+        container.appendChild(img);
+      });
+
+      // Miniaturas de degradados
+      GRADIENTS.forEach((grad, i) => {
+        const div = document.createElement('div');
+        div.className = `bg-thumb ${selectedBg === 'grad_' + i ? 'active' : ''}`;
+        div.style.background = `linear-gradient(135deg, ${grad[0]}, ${grad[1]})`;
+        div.onclick = () => {
+          document.querySelectorAll('.bg-thumb').forEach(t => t.classList.remove('active'));
+          div.classList.add('active');
+          selectedBg = 'grad_' + i;
+          updateCustomCanvas();
+        };
+        container.appendChild(div);
+      });
     }
 
     async function drawCanvasCard(canvas, phrase, citation, fontName, logoKey, bgType) {
@@ -424,7 +490,7 @@
       if (bgType.startsWith('photo_')) {
         const pIndex = parseInt(bgType.split('_')[1]);
         try {
-          const bgImg = await loadImage(STOCK_PHOTOS[pIndex]);
+          const bgImg = await loadImage(STOCK_PHOTOS[pIndex % STOCK_PHOTOS.length]);
           ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
           ctx.fillStyle = 'rgba(0, 0, 0, 0.48)';
           ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -442,7 +508,9 @@
         const logoSize = 160;
         const logoX = (canvas.width - logoSize) / 2;
         ctx.drawImage(logoImg, logoX, 70, logoSize, logoSize);
-      } catch (err) {}
+      } catch (err) {
+        console.warn("Recuerda subir " + LOGOS[logoKey] + " a la raíz de tu repositorio en GitHub.");
+      }
 
       // C. TEXTO
       const textColor = (logoKey === 'negro') ? '#1e293b' : '#ffffff';
@@ -490,7 +558,6 @@
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
 
-    /* VISTA EN GRANDE (MODAL) */
     function openCanvasModal(canvas) {
       const modal = document.getElementById('imageModal');
       const modalImg = document.getElementById('modalImg');
@@ -502,7 +569,6 @@
       document.getElementById('imageModal').classList.remove('active');
     }
 
-    /* COMPARTIR CON TEXTO + CITA DE LA IMAGEN */
     async function shareCanvasCard(canvas, phrase, citation) {
       const shareText = `"${phrase}" - ${citation}\n\nVía @adventistassv`;
 
@@ -516,9 +582,7 @@
               text: shareText,
               files: [file]
             });
-          } catch (err) {
-            console.log('Compartir cancelado por el usuario.');
-          }
+          } catch (err) {}
         } else if (navigator.share) {
           try {
             await navigator.share({
@@ -528,9 +592,8 @@
             });
           } catch (err) {}
         } else {
-          // Fallback para PC
           navigator.clipboard.writeText(shareText);
-          alert(`¡Texto copiado al portapapeles!\n\n"${shareText}"\n\nPuedes pegarlo en tus redes sociales junto a la imagen descargada.`);
+          alert(`¡Texto copiado al portapapeles!\n\n"${shareText}"\n\nPuedes pegarlo junto a tu imagen descargada.`);
         }
       }, 'image/png');
     }
@@ -540,10 +603,9 @@
       const citation = document.getElementById('inputCitation').value || '';
       const font = document.getElementById('selectFont').value;
       const logo = document.getElementById('selectLogo').value;
-      const bg = document.getElementById('selectBg').value;
 
       const canvas = document.getElementById('customCanvas');
-      drawCanvasCard(canvas, phrase, citation, font, logo, bg);
+      drawCanvasCard(canvas, phrase, citation, font, logo, selectedBg);
     }
 
     function downloadCustomImage() {
@@ -579,19 +641,16 @@
         const actions = document.createElement('div');
         actions.className = 'card-actions';
 
-        // 1. Botón Ver en grande
         const btnView = document.createElement('button');
         btnView.className = 'btn btn-secondary';
         btnView.innerHTML = '🔍 Ver';
         btnView.onclick = (e) => { e.stopPropagation(); openCanvasModal(canvas); };
 
-        // 2. Botón Compartir
         const btnShare = document.createElement('button');
         btnShare.className = 'btn btn-secondary';
         btnShare.innerHTML = '📲 Compartir';
         btnShare.onclick = (e) => { e.stopPropagation(); shareCanvasCard(canvas, item.frase, item.cita); };
 
-        // 3. Botón Descargar
         const btnDownload = document.createElement('button');
         btnDownload.className = 'btn';
         btnDownload.innerHTML = '⬇️ Descargar';
