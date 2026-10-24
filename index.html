@@ -37,7 +37,7 @@
       padding-bottom: 40px;
     }
 
-    /* ENCABEZADO FIJO EN LA PARTE SUPERIOR */
+    /* ENCABEZADO FIJO */
     header {
       position: sticky;
       top: 0;
@@ -102,9 +102,6 @@
       border-color: rgba(255, 255, 255, 0.15);
       color: var(--text);
     }
-    .tab-btn-share:hover {
-      background: rgba(255, 255, 255, 0.1);
-    }
 
     .container {
       width: 100%;
@@ -119,13 +116,20 @@
       align-items: center;
       margin-bottom: 16px;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 12px;
     }
 
     .section-title {
       font-size: 1.15rem;
       font-weight: 600;
       color: #fff;
+    }
+
+    .date-selector-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
     }
 
     .grid-daily {
@@ -158,7 +162,7 @@
       display: block;
     }
 
-    /* ACCIONES DE TARJETA CON ICONOS MINIMALISTAS */
+    /* ACCIONES DE TARJETA CON ICONOS */
     .card-actions {
       padding: 8px;
       display: flex;
@@ -353,13 +357,12 @@
       display: flex; align-items: center; justify-content: center;
     }
 
-    /* Tarjetas de Menú Flotante Minimalistas */
     .minimal-menu-card {
       background: #1e293b;
       color: #f8fafc;
       border-radius: 12px;
       padding: 12px 0;
-      width: 300px;
+      width: 320px;
       max-width: 90vw;
       border: 1px solid var(--border);
       box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
@@ -434,11 +437,15 @@
   </header>
 
   <div class="container">
-    <!-- GALERÍA DIARIA -->
+    <!-- GALERÍA DIARIA CON SELECTOR DE FECHAS -->
     <div id="gallerySection">
       <div class="section-header">
-        <h2 class="section-title">Frases e Inspiración Diaria</h2>
-        <button class="btn btn-secondary" style="max-width: 200px;" onclick="generateNewQuotesSet()">Generar Nuevas</button>
+        <h2 class="section-title" id="galleryTitle">Frases del Día</h2>
+        <div class="date-selector-group">
+          <label for="historyDate" style="font-size: 0.82rem; color: var(--text-muted);">Fecha:</label>
+          <input type="date" id="historyDate" class="form-control" style="width: auto; min-height: 36px; padding: 4px 10px;" onchange="loadQuotesForSelectedDate(this.value)">
+          <button class="btn btn-secondary" style="min-height: 36px; padding: 4px 10px;" onclick="resetToTodayDate()">Hoy</button>
+        </div>
       </div>
       <div id="dailyGrid" class="grid-daily"></div>
     </div>
@@ -484,7 +491,6 @@
             </select>
           </div>
 
-          <!-- FUENTES SEPARADAS PARA FRASE Y CITA -->
           <div class="form-group">
             <label>Fuente de la Frase (Texto Principal):</label>
             <select id="selectFontPhrase" class="form-control" onchange="updateCustomCanvas()">
@@ -547,36 +553,35 @@
     <img id="modalImg" class="modal-content" src="" alt="Vista Previa" onclick="event.stopPropagation()">
   </div>
 
-  <!-- RESPALDO MINIMALISTA DE COMPARTIR FRASES (DESKTOP) -->
+  <!-- RESPALDO DE COMPARTIR -->
   <div id="shareModal" class="modal" onclick="closeShareModal()">
     <div class="minimal-menu-card" onclick="event.stopPropagation()">
       <div class="minimal-menu-title">Compartir contenido</div>
-      
       <button class="minimal-menu-item" onclick="shareToPlatform('whatsapp')">WhatsApp</button>
       <button class="minimal-menu-item" onclick="shareToPlatform('facebook')">Facebook</button>
-      
       <div class="minimal-divider"></div>
-      
-      <button class="minimal-menu-item" onclick="copyShareTextAndDownload()">Copiar Texto y Descargar</button>
+      <button class="minimal-menu-item" onclick="copyShareTextAndDownload()">Copiar Texto y Descargar PNG</button>
     </div>
   </div>
 
-  <!-- MENÚ MINIMALISTA DE SELECCIÓN DE TAMAÑO PARA DESCARGAR -->
+  <!-- SELECCIÓN DE TAMAÑO Y FORMATO PARA DESCARGAR -->
   <div id="downloadModal" class="modal" onclick="closeDownloadModal()">
     <div class="minimal-menu-card" onclick="event.stopPropagation()">
-      <div class="minimal-menu-title">Selecciona el tamaño:</div>
+      <div class="minimal-menu-title">Opciones de Descarga</div>
       
-      <button class="minimal-menu-item" onclick="triggerDownload('4:5')">
-        4:5 — Post Feed (1080 × 1350 px)
-      </button>
+      <div style="padding: 10px 18px 6px;">
+        <label style="font-size:0.8rem; color:var(--text-muted); display:block; margin-bottom:4px;">Formato de Archivo:</label>
+        <select id="modalFileFormat" class="form-control" style="min-height:36px; font-size:0.82rem;">
+          <option value="png" selected>PNG (Calidad Máxima - Recomendado)</option>
+          <option value="webp">WebP (Comprimido - Para Almacenamiento)</option>
+        </select>
+      </div>
 
-      <button class="minimal-menu-item" onclick="triggerDownload('9:16')">
-        9:16 — Historias / Reels (1080 × 1920 px)
-      </button>
+      <div class="minimal-divider"></div>
 
-      <button class="minimal-menu-item" onclick="triggerDownload('1:1')">
-        1:1 — Cuadrado (1080 × 1080 px)
-      </button>
+      <button class="minimal-menu-item" onclick="triggerDownload('4:5')">4:5 — Post Feed (1080 × 1350 px)</button>
+      <button class="minimal-menu-item" onclick="triggerDownload('9:16')">9:16 — Historias / Reels (1080 × 1920 px)</button>
+      <button class="minimal-menu-item" onclick="triggerDownload('1:1')">1:1 — Cuadrado (1080 × 1080 px)</button>
     </div>
   </div>
 
@@ -589,7 +594,6 @@
 
     const loadedLogos = {};
 
-    /* MAPA TIPOGRÁFICO AMPLIADO */
     const FONT_MAP = {
       'Montserrat': { main: '700 48px "Montserrat", sans-serif', cita: 'italic 34px "Montserrat", sans-serif', lineH: 66 },
       'Bebas Neue': { main: '700 68px "Bebas Neue", sans-serif', cita: '400 36px "Bebas Neue", sans-serif', lineH: 72 },
@@ -607,7 +611,7 @@
       'Great Vibes': { main: '400 64px "Great Vibes", cursive', cita: '400 40px "Great Vibes", cursive', lineH: 76 }
     };
 
-    /* BANCO MASIVO DE FRASES (3000+ COMBINACIONES POTENCIALES) */
+    /* BANCO MASIVO */
     const RAW_BIBLIA = [
       { frase: "JEHOVÁ ES MI PASTOR; NADA ME FALTARÁ.", cita: "Salmos 23:1" },
       { frase: "EN LUGARES DE DELICADOS PASTOS ME HARÁ DESCANSAR; JUNTO A AGUAS DE REPOSO ME PASTOREARÁ.", cita: "Salmos 23:2" },
@@ -659,7 +663,6 @@
 
     function buildExpandedQuoteBank() {
       let bank = [...RAW_BIBLIA, ...RAW_ESCRITOS, ...RAW_HIMNOS];
-      
       const bibliaPromesas = [
         "EN CRISTO HAY SIEMPRE ESPERANZA Y NUEVA VIDA.",
         "NADA ES IMPOSIBLE PARA EL QUE TIENE FE EN DIOS.",
@@ -685,34 +688,11 @@
         }
       }
 
-      const escritosPromesas = [
-        "LA ORACIÓN SINCERA CONECTA AL CORAZÓN HUMANO CON EL PODER INFINITO.",
-        "CADA PRUEBA ES UNA OPORTUNIDAD PARA VER LA MANO DE DIOS ACTUAR.",
-        "EL SERVICIO A LOS DEMÁS ES LA MÁS ALTA MANIFESTACIÓN DEL AMOR CRISTIANO.",
-        "UN CORAZÓN AGRADECIDO ATRAE LA BENDICIÓN CELESTIAL.",
-        "EN LA SIMPLICIDAD DE LA FE ENCONTRAMOS LA VERDADERA PAZ DEL ALMA."
-      ];
-
-      const escritosCitas = [
-        "El Camino a Cristo", "El Deseado de Todas las Gentes", 
-        "El Gran Conflicto", "La Educación", "El Ministerio de Curación", 
-        "Joyas de los Testimonios", "Palabras de Vida del Gran Maestro"
-      ];
-
-      for (let ep of escritosPromesas) {
-        for (let ec of escritosCitas) {
-          for (let pag = 10; pag <= 300; pag += 10) {
-            bank.push({ frase: ep, cita: `${ec}, p. ${pag}` });
-          }
-        }
-      }
-
       return bank;
     }
 
     const QUOTES_BANK = buildExpandedQuoteBank();
 
-    /* BANCOS DE FONDOS */
     const ALL_STOCK_PHOTOS = [
       'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1470240731273-7821a6eeb6bd?auto=format&fit=crop&w=800&q=80',
@@ -723,33 +703,14 @@
       'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1507499739999-097706ad8914?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1518837695005-2083093ee35b?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1499209974431-9dac3ada0097?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1426604966848-d7adac402bff?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1475924156734-496f6cac6ec1?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=800&q=80'
+      'https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?auto=format&fit=crop&w=800&q=80'
     ];
 
     const ALL_PATTERNS = [
       'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1604076913837-52ab5629fba9?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1518640467707-6811f4a6ab73?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1508739773434-c26b3d09e071?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1528459801416-a9e53bbf4e17?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1550684847-75bdda21cc95?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1579546929662-711aa81148cf?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1563089145-599997674d42?auto=format&fit=crop&w=800&q=80'
+      'https://images.unsplash.com/photo-1604076913837-52ab5629fba9?auto=format&fit=crop&w=800&q=80'
     ];
 
     const ALL_GRADIENTS = [
@@ -757,12 +718,7 @@
       ['#2d124d', '#1e1b4b'],
       ['#134e4a', '#064e3b'],
       ['#7c2d12', '#451a03'],
-      ['#312e81', '#4c1d95'],
-      ['#4c0519', '#881337'],
-      ['#18181b', '#3f3f46'],
-      ['#0284c7', '#0f172a'],
-      ['#451a03', '#78350f'],
-      ['#022c22', '#065f46']
+      ['#312e81', '#4c1d95']
     ];
 
     let activePhotos = [];
@@ -775,12 +731,36 @@
     let currentShareCanvas = null;
     let currentDownloadConfig = null;
 
+    function getDateSeed(dateStr) {
+      let hash = 0;
+      for (let i = 0; i < dateStr.length; i++) {
+        hash = dateStr.charCodeAt(i) + ((hash << 5) - hash);
+      }
+      return Math.abs(hash);
+    }
+
+    function seededRandom(seed) {
+      const x = Math.sin(seed) * 10000;
+      return x - Math.floor(x);
+    }
+
     function getRandomItems(arr, count) {
       const shuffled = [...arr].sort(() => 0.5 - Math.random());
       return shuffled.slice(0, count);
     }
 
-    /* CARGAR FRASE DE TARJETA DIRECTO AL EDITOR */
+    function getQuotesForDate(dateStr, count = 10) {
+      const baseSeed = getDateSeed(dateStr);
+      const quotes = [];
+      const totalAvailable = QUOTES_BANK.length;
+
+      for (let i = 0; i < count; i++) {
+        const index = Math.floor(seededRandom(baseSeed + i) * totalAvailable);
+        quotes.push(QUOTES_BANK[index % totalAvailable]);
+      }
+      return quotes;
+    }
+
     function editCardQuote(phrase, citation, fontPhrase, fontCitation, logo, bg) {
       document.getElementById('inputPhrase').value = phrase;
       document.getElementById('inputCitation').value = citation;
@@ -795,7 +775,6 @@
       document.getElementById('editorSection').scrollIntoView({ behavior: 'smooth' });
     }
 
-    /* COMPARTIR LA PÁGINA WEB COMPLETA */
     async function shareWebsite() {
       const shareData = {
         title: 'Adventistas SV - Frases e Imágenes',
@@ -816,7 +795,6 @@
       alert('¡Enlace de la página copiado al portapapeles!');
     }
 
-    /* RECORTADOR AUTOMÁTICO DE TRANSPARENCIAS DEL LOGO */
     function processHeaderLogo(img) {
       if (img.dataset.processed) return;
       try {
@@ -945,7 +923,6 @@
       if (container.children.length > 0 && !force) return;
       container.innerHTML = '';
 
-      // 1. SECCIÓN DE FOTOGRAFÍAS (15)
       const secPhotos = document.createElement('div');
       secPhotos.innerHTML = `<div class="bg-section-title">📷 Fotografías (15)</div>`;
       const gridPhotos = document.createElement('div');
@@ -966,7 +943,6 @@
       secPhotos.appendChild(gridPhotos);
       container.appendChild(secPhotos);
 
-      // 2. SECCIÓN DE PATRONES Y TEXTURAS (10)
       const secPatterns = document.createElement('div');
       secPatterns.innerHTML = `<div class="bg-section-title">🎨 Patrones y Texturas (10)</div>`;
       const gridPatterns = document.createElement('div');
@@ -987,7 +963,6 @@
       secPatterns.appendChild(gridPatterns);
       container.appendChild(secPatterns);
 
-      // 3. SECCIÓN DE DEGRADADOS (5)
       const secGrads = document.createElement('div');
       secGrads.innerHTML = `<div class="bg-section-title">🌈 Degradados Elegantes (5)</div>`;
       const gridGrads = document.createElement('div');
@@ -1028,7 +1003,6 @@
       ctx.drawImage(img, offsetX, offsetY, renderW, renderH);
     }
 
-    /* GENERACIÓN DE IMAGEN CON FUENTES SEPARADAS Y CENTRADO EXACTO */
     async function drawCanvasCard(canvas, phrase, citation, fontPhraseName, fontCitationName, logoKey, bgType, handleText = '@adventistassv', ratioKey = '4:5') {
       const ctx = canvas.getContext('2d');
       
@@ -1102,7 +1076,6 @@
         } catch(e) {}
       }
 
-      // MÁRGENES DE SEGURIDAD DEL LOGO SUPERIOR (CENTRADO)
       let logoY = 90;
       if (ratioKey === '9:16') logoY = 150;
       if (ratioKey === '1:1') logoY = 90;
@@ -1116,7 +1089,6 @@
         ctx.drawImage(logoImg, logoX, logoY, logoWidth, logoHeight);
       }
 
-      // TEXTO PRINCIPAL DE LA FRASE
       ctx.save();
       ctx.textAlign = 'center';
       ctx.textBaseline = 'alphabetic';
@@ -1156,13 +1128,11 @@
         y += phraseFontCfg.lineH;
       }
 
-      // FUENTE SEPARADA PARA LA CITA / REFERENCIA
       ctx.font = citationFontCfg.cita;
       ctx.fillStyle = '#f1f5f9';
       ctx.fillText(citation, canvas.width / 2, y + 45);
       ctx.restore();
 
-      // PIE DE PÁGINA (USUARIO CON FUENTE PREDEFINIDA Y CENTRADO EXACTO)
       let footerY = canvas.height - 90;
       if (ratioKey === '9:16') footerY = canvas.height - 140;
       if (ratioKey === '1:1') footerY = canvas.height - 90;
@@ -1200,7 +1170,6 @@
       document.getElementById('imageModal').classList.remove('active');
     }
 
-    /* COMPARTIR NATIVO DIRECTO */
     async function shareCanvasCard(canvas, phrase, citation, handle = '@adventistassv') {
       const siteUrl = window.location.href;
       const shareText = `"${phrase}" - ${citation}\n\nVía ${handle}\n${siteUrl}`;
@@ -1251,7 +1220,6 @@
       document.getElementById('shareModal').classList.remove('active');
     }
 
-    /* GESTIONAR DESCARGA CON TAMAÑOS */
     function openDownloadModal(config) {
       currentDownloadConfig = config;
       document.getElementById('downloadModal').classList.add('active');
@@ -1263,6 +1231,10 @@
 
     async function triggerDownload(ratioKey) {
       if (!currentDownloadConfig) return;
+
+      const format = document.getElementById('modalFileFormat').value || 'png';
+      const mimeType = (format === 'webp') ? 'image/webp' : 'image/png';
+      const fileExt = (format === 'webp') ? 'webp' : 'png';
 
       const tempCanvas = document.createElement('canvas');
       await drawCanvasCard(
@@ -1279,8 +1251,9 @@
 
       const link = document.createElement('a');
       const cleanRatio = ratioKey.replace(':', 'x');
-      link.download = `adventistassv-${cleanRatio}.png`;
-      link.href = tempCanvas.toDataURL('image/png');
+      const selectedDate = document.getElementById('historyDate').value || 'hoy';
+      link.download = `adventistassv-${selectedDate}-${cleanRatio}.${fileExt}`;
+      link.href = tempCanvas.toDataURL(mimeType, 0.95);
       link.click();
 
       closeDownloadModal();
@@ -1311,13 +1284,19 @@
       drawCanvasCard(canvas, phrase, citation, fontPhrase, fontCitation, logo, selectedBg, handle, ratio);
     }
 
-    async function generateNewQuotesSet() {
-      const shuffledQuotes = [...QUOTES_BANK].sort(() => 0.5 - Math.random()).slice(0, 10);
-      refreshAllBackgrounds();
-      renderDailyGrid(shuffledQuotes);
+    function loadQuotesForSelectedDate(dateStr) {
+      if (!dateStr) return;
+      const quotes = getQuotesForDate(dateStr, 10);
+      document.getElementById('galleryTitle').innerText = `Frases del Día (${dateStr})`;
+      renderDailyGrid(quotes);
     }
 
-    /* ICONOS VECTORIALES PARA LAS TARJETAS DE LA GALERÍA */
+    function resetToTodayDate() {
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('historyDate').value = today;
+      loadQuotesForSelectedDate(today);
+    }
+
     async function renderDailyGrid(quotesList) {
       const grid = document.getElementById('dailyGrid');
       grid.innerHTML = '';
@@ -1325,7 +1304,6 @@
       const fontKeys = Object.keys(FONT_MAP);
       const logoRotation = ['blanco', 'turquesa', 'blanco', 'blanco', 'turquesa'];
 
-      // SVG ICONS
       const svgEye = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
       const svgEdit = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>`;
       const svgShare = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`;
@@ -1351,14 +1329,12 @@
         const actions = document.createElement('div');
         actions.className = 'card-actions';
 
-        // 1. VER
         const btnView = document.createElement('button');
         btnView.className = 'btn btn-secondary';
         btnView.title = 'Ver imagen';
         btnView.innerHTML = svgEye;
         btnView.onclick = (e) => { e.stopPropagation(); openCanvasModal(canvas); };
 
-        // 2. EDITAR
         const btnEdit = document.createElement('button');
         btnEdit.className = 'btn btn-secondary';
         btnEdit.title = 'Editar frase';
@@ -1368,14 +1344,12 @@
           editCardQuote(item.frase, item.cita, fontPhraseName, fontCitationName, logoKey, bgType);
         };
 
-        // 3. COMPARTIR
         const btnShare = document.createElement('button');
         btnShare.className = 'btn btn-secondary';
         btnShare.title = 'Compartir';
         btnShare.innerHTML = svgShare;
         btnShare.onclick = (e) => { e.stopPropagation(); shareCanvasCard(canvas, item.frase, item.cita, '@adventistassv'); };
 
-        // 4. DESCARGAR
         const btnDownload = document.createElement('button');
         btnDownload.className = 'btn';
         btnDownload.title = 'Descargar';
@@ -1416,8 +1390,7 @@
       }
 
       refreshAllBackgrounds();
-      const initialQuotes = [...QUOTES_BANK].sort(() => 0.5 - Math.random()).slice(0, 10);
-      renderDailyGrid(initialQuotes);
+      resetToTodayDate();
     }
 
     window.onload = initDailyGallery;
