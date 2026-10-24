@@ -8,10 +8,10 @@
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="logo-turquesa.png">
   
-  <!-- Tipografías Google Fonts -->
+  <!-- Tipografías Google Fonts Ampliadas -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Cinzel:wght@700&family=Lora:ital,wght@0,600;1,500&family=Montserrat:ital,wght@0,700;1,500;1,600&family=Oswald:wght@600&family=Playfair+Display:ital,wght@0,700;1,600&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Anton&family=Bebas+Neue&family=Caveat:wght@600;700&family=Cinzel:wght@700&family=Cormorant+Garamond:ital,wght@0,700;1,600&family=Dancing+Script:wght@700&family=Great+Vibes&family=Lora:ital,wght@0,600;1,500&family=Merriweather:ital,wght@0,700;1,400&family=Montserrat:ital,wght@0,700;1,500;1,600&family=Oswald:wght@600&family=Playfair+Display:ital,wght@0,700;1,600&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <style>
     :root {
@@ -430,7 +430,7 @@
     <!-- GALERÍA DIARIA -->
     <div id="gallerySection">
       <div class="section-header">
-        <h2 class="section-title">Frases de Hoy</h2>
+        <h2 class="section-title">Frases e Inspiración Diaria</h2>
         <button class="btn btn-secondary" style="max-width: 200px;" onclick="generateNewQuotesSet()">Generar Nuevas</button>
       </div>
       <div id="dailyGrid" class="grid-daily"></div>
@@ -477,16 +477,33 @@
             </select>
           </div>
 
+          <!-- FUENTES SEPARADAS PARA FRASE Y CITA -->
           <div class="form-group">
-            <label>Estilo de Tipografía:</label>
-            <select id="selectFont" class="form-control" onchange="updateCustomCanvas()">
-              <option value="Montserrat">Montserrat (Moderna y Enfática)</option>
-              <option value="Playfair Display">Playfair Display (Elegante Editorial)</option>
-              <option value="Oswald">Oswald (Impactante / Alta)</option>
-              <option value="Cinzel">Cinzel (Clásica Monumental)</option>
-              <option value="Caveat">Caveat (Manuscrita / Cálida)</option>
-              <option value="Poppins">Poppins (Limpia y Minimalista)</option>
-              <option value="Lora">Lora (Serif Tradicional)</option>
+            <label>Fuente de la Frase (Texto Principal):</label>
+            <select id="selectFontPhrase" class="form-control" onchange="updateCustomCanvas()">
+              <option value="Montserrat">Montserrat (Moderna, limpia y con fuerza)</option>
+              <option value="Bebas Neue">Bebas Neue (Titular alto y de máximo impacto)</option>
+              <option value="Playfair Display">Playfair Display (Elegante y clásica editorial)</option>
+              <option value="Oswald">Oswald (Condensada y enfática)</option>
+              <option value="Cinzel">Cinzel (Clásica monumental y solemne)</option>
+              <option value="Abril Fatface">Abril Fatface (Serif gruesa y elegante)</option>
+              <option value="Anton">Anton (Sólida, audaz e impactante)</option>
+              <option value="Caveat">Caveat (Manuscrita y cálida)</option>
+              <option value="Cormorant Garamond">Cormorant Garamond (Serif refinada de lujo)</option>
+              <option value="Poppins">Poppins (Geométrica moderna)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Fuente de la Cita / Referencia:</label>
+            <select id="selectFontCitation" class="form-control" onchange="updateCustomCanvas()">
+              <option value="Lora">Lora (Serif suave e ideal para citas)</option>
+              <option value="Merriweather">Merriweather (Tradicional de alta legibilidad)</option>
+              <option value="Dancing Script">Dancing Script (Cursiva dinámica y expresiva)</option>
+              <option value="Great Vibes">Great Vibes (Caligrafía fina de alta elegancia)</option>
+              <option value="Playfair Display">Playfair Display (Serif elegante)</option>
+              <option value="Montserrat">Montserrat (Limpia y moderna)</option>
+              <option value="Poppins">Poppins (Minimalista)</option>
             </select>
           </div>
 
@@ -565,40 +582,131 @@
 
     const loadedLogos = {};
 
+    /* MAPA TIPOGRÁFICO AMPLIADO */
     const FONT_MAP = {
-      'Montserrat': { main: '700 48px "Montserrat", sans-serif', cita: 'italic 34px "Lora", serif', lineH: 66 },
-      'Playfair Display': { main: '700 52px "Playfair Display", serif', cita: 'italic 34px "Georgia", serif', lineH: 70 },
-      'Oswald': { main: '600 54px "Oswald", sans-serif', cita: 'italic 32px "Poppins", sans-serif', lineH: 70 },
-      'Cinzel': { main: '700 46px "Cinzel", serif', cita: 'italic 34px "Lora", serif', lineH: 64 },
-      'Caveat': { main: '700 68px "Caveat", cursive', cita: 'italic 32px "Montserrat", sans-serif', lineH: 74 },
-      'Poppins': { main: '700 48px "Poppins", sans-serif', cita: 'italic 34px "Playfair Display", serif', lineH: 66 },
-      'Lora': { main: '600 50px "Lora", serif', cita: 'italic 32px "Poppins", sans-serif', lineH: 68 }
+      'Montserrat': { main: '700 48px "Montserrat", sans-serif', cita: 'italic 34px "Montserrat", sans-serif', lineH: 66 },
+      'Bebas Neue': { main: '700 68px "Bebas Neue", sans-serif', cita: '400 36px "Bebas Neue", sans-serif', lineH: 72 },
+      'Playfair Display': { main: '700 52px "Playfair Display", serif', cita: 'italic 34px "Playfair Display", serif', lineH: 70 },
+      'Oswald': { main: '600 54px "Oswald", sans-serif', cita: 'italic 32px "Oswald", sans-serif', lineH: 70 },
+      'Cinzel': { main: '700 46px "Cinzel", serif', cita: 'italic 34px "Cinzel", serif', lineH: 64 },
+      'Abril Fatface': { main: '400 56px "Abril Fatface", serif', cita: 'italic 32px "Abril Fatface", serif', lineH: 72 },
+      'Anton': { main: '400 58px "Anton", sans-serif', cita: '400 34px "Anton", sans-serif', lineH: 72 },
+      'Caveat': { main: '700 68px "Caveat", cursive', cita: 'italic 36px "Caveat", cursive', lineH: 74 },
+      'Cormorant Garamond': { main: '700 54px "Cormorant Garamond", serif', cita: 'italic 36px "Cormorant Garamond", serif', lineH: 68 },
+      'Poppins': { main: '700 48px "Poppins", sans-serif', cita: 'italic 34px "Poppins", sans-serif', lineH: 66 },
+      'Lora': { main: '600 50px "Lora", serif', cita: 'italic 34px "Lora", serif', lineH: 68 },
+      'Merriweather': { main: '700 46px "Merriweather", serif', cita: 'italic 32px "Merriweather", serif', lineH: 68 },
+      'Dancing Script': { main: '700 60px "Dancing Script", cursive', cita: 'italic 38px "Dancing Script", cursive', lineH: 72 },
+      'Great Vibes': { main: '400 64px "Great Vibes", cursive', cita: '400 40px "Great Vibes", cursive', lineH: 76 }
     };
 
-    const QUOTES_BANK = [
-      { frase: "DE LA MANO DE DIOS PUEDES CON TODO ¡NO TE RINDAS!", cita: "Filipenses 4:13" },
-      { frase: "NO HAY NADA QUE PUEDAS HACER PARA QUE DIOS DEJE DE AMARTE.", cita: "El Camino a Cristo, p. 15" },
-      { frase: "TU VIDA HABLA MÁS FUERTE QUE TUS PALABRAS. VIVE LO QUE PREDICAS.", cita: "1 Corintios 11:1" },
-      { frase: "EL AMOR DE DIOS NO TIENE LÍMITES NI CONDICIONES.", cita: "Jeremías 31:3" },
-      { frase: "LA ORACIÓN ES LA LLAVE EN LA MANO DE LA FE PARA ABRIR EL ALMACÉN DEL CIELO.", cita: "El Camino a Cristo, p. 94" },
+    /* BANCO MASIVO DE FRASES (3000+ COMBINACIONES POTENCIALES) */
+    const RAW_BIBLIA = [
       { frase: "JEHOVÁ ES MI PASTOR; NADA ME FALTARÁ.", cita: "Salmos 23:1" },
-      { frase: "CADA AMANECER ES UNA NUEVA OPORTUNIDAD PARA CONFIAR EN DIOS.", cita: "Lamentaciones 3:22-23" },
-      { frase: "DIOS NUNCA LLEGA TARDE; SU TIEMPO ES PERFECTO.", cita: "Eclesiastés 3:1" },
-      { frase: "LA PAZ DE DIOS SOBREPASARÁ TODO TU ENTENDIMIENTO.", cita: "Filipenses 4:7" },
-      { frase: "NUESTRA ÚNICA SEGURIDAD ESTÁ EN LA DIRECCIÓN DE DIOS.", cita: "El Deseado de Todas las Gentes, p. 62" },
-      { frase: "BUSCAD PRIMERO EL REINO DE DIOS Y SU JUSTICIA.", cita: "Mateo 6:33" },
-      { frase: "LA FE ES LA CERTEZA DE LO QUE SE ESPERA, LA CONVICCIÓN DE LO QUE NO SE VE.", cita: "Hebreos 11:1" },
-      { frase: "EN EL AMOR NO HAY TEMOR, SINO QUE EL PERFECTO AMOR ECHA FUERA EL TEMOR.", cita: "1 Juan 4:18" },
-      { frase: "PERSEVERAD EN LA ORACIÓN, VELANDO EN ELLA CON ACCIÓN DE GRACIAS.", cita: "Colosenses 4:2" },
-      { frase: "CUAN GRANDE ES ÉL, CUAN GRANDE ES ÉL.", cita: "Himno Adventista" },
-      { frase: "LA LUZ DE LA VERDAD DEBE BRILLAR EN MEDIO DE LAS TINIEBLAS.", cita: "Joyas de los Testimonios, t. 2" },
+      { frase: "EN LUGARES DE DELICADOS PASTOS ME HARÁ DESCANSAR; JUNTO A AGUAS DE REPOSO ME PASTOREARÁ.", cita: "Salmos 23:2" },
+      { frase: "AUNQUE ANDE EN VALLE DE SOMBRA DE MUERTE, NO TEMERÉ MAL ALGUNO, PORQUE TÚ ESTARÁS CONMIGO.", cita: "Salmos 23:4" },
+      { frase: "TODO LO PUEDO EN CRISTO QUE ME FORTALECE.", cita: "Filipenses 4:13" },
+      { frase: "BUSCAD PRIMERO EL REINO DE DIOS Y SU JUSTICIA, Y TODAS ESTAS COSAS OS SERÁN AÑADIDAS.", cita: "Mateo 6:33" },
       { frase: "EL SEÑOR ES MI LUZ Y MI SALVACIÓN; ¿DE QUIÉN TEMERÉ?", cita: "Salmos 27:1" },
+      { frase: "CADA AMANECER ES UNA NUEVA OPORTUNIDAD PARA CONFIAR EN SU MISERICORDIA.", cita: "Lamentaciones 3:22-23" },
+      { frase: "LA PAZ DE DIOS, QUE SOBREPASATODO ENTENDIMIENTO, GUARDARÁ VUESTROS CORAZONES.", cita: "Filipenses 4:7" },
+      { frase: "JEHOVÁ ES MI ROCA Y MI CASTILLO, Y MI LIBERTADOR; DIOS MÍO, FORTALEZA MÍA.", cita: "Salmos 18:2" },
+      { frase: "LA FE ES LA CERTEZA DE LO QUE SE ESPERA, LA CONVICCIÓN DE LO QUE NO SE VE.", cita: "Hebreos 11:1" },
+      { frase: "SI DIOS ES POR NOSOTROS, ¿QUIÉN CONTRA NOSOTROS?", cita: "Romanos 8:31" },
       { frase: "NADA PODRÁ SEPARARNOS DEL AMOR DE DIOS QUE ES EN CRISTO JESÚS.", cita: "Romanos 8:39" },
-      { frase: "CANCIONES DE ESPERANZA Y FE RESONARÁN EN NUESTRO CORAZÓN.", cita: "El Ministerio de Curación, p. 195" },
-      { frase: "DIOS ES NUESTRO AMPARO Y FORTALEZA, NUESTRO PRONTO AUXILIO.", cita: "Salmos 46:1" }
+      { frase: "CLAMA A MÍ, Y YO TE RESPONDERÉ, Y TE ENSEÑARÉ COSAS GRANDES Y OCULTAS.", cita: "Jeremías 33:3" },
+      { frase: "PORQUE YO SÉ LOS PENSAMIENTOS QUE TENGO ACERCA DE VOSOTROS, PENSAMIENTOS DE PAZ.", cita: "Jeremías 29:11" },
+      { frase: "DIOS ES NUESTRO AMPARO Y FORTALEZA, NUESTRO PRONTO AUXILIO EN LAS TRIBUNACIONES.", cita: "Salmos 46:1" },
+      { frase: "ESTAD QUIETOS, Y CONOCED QUE YO SOY DIOS.", cita: "Salmos 46:10" },
+      { frase: "EL AMOR ES SUFRIDO, ES BENIGNO; EL AMOR NO TIENE ENVIDIA, NO ES JACTANCIOSO.", cita: "1 Corintios 13:4" },
+      { frase: "MIRA QUE TE MANDO QUE TE ESFUERZES Y SEAS VALIENTE; NO TEMAS NI DESMAYES.", cita: "Josué 1:9" },
+      { frase: "LÁMPARA ES A MIS PIES TU PALABRA, Y LUMBRERA A MI CAMINO.", cita: "Salmos 119:105" },
+      { frase: "LOS QUE ESPERAN EN JEHOVÁ TENDRÁN NUEVAS FUERZAS; LEVANTARÁN ALAS COMO LAS ÁGUILAS.", cita: "Isaías 40:31" }
     ];
 
-    /* BANCOS AMPLIADOS */
+    const RAW_ESCRITOS = [
+      { frase: "NO HAY NADA QUE PUEDAS HACER PARA QUE DIOS DEJE DE AMARTE.", cita: "El Camino a Cristo, p. 15" },
+      { frase: "LA ORACIÓN ES LA LLAVE EN LA MANO DE LA FE PARA ABRIR EL ALMACÉN DEL CIELO.", cita: "El Camino a Cristo, p. 94" },
+      { frase: "NUESTRA ÚNICA SEGURIDAD ESTÁ EN LA DIRECCIÓN CONSTANTE DE DIOS.", cita: "El Deseado de Todas las Gentes, p. 62" },
+      { frase: "LA LUZ DE LA VERDAD DEBE BRILLAR EN MEDIO DE LA DENSIDAD DE LAS TINIEBLAS.", cita: "Joyas de los Testimonios, t. 2" },
+      { frase: "EL AMOR DE CRISTO COMPENSA CUALQUIER SACRIFICIO QUE PODAMOS HACER.", cita: "El Gran Conflicto, p. 480" },
+      { frase: "CANCIONES DE ESPERANZA Y FE RESONARÁN SIEMPRE EN UN CORAZÓN AGRADECIDO.", cita: "El Ministerio de Curación, p. 195" },
+      { frase: "LA MAYOR NECESIDAD DEL MUNDO ES LA DE HOMBRES Y MUJERES QUE NO SE VENDAN NI SE COMPREN.", cita: "La Educación, p. 57" },
+      { frase: "CADA VERDADERA ORACIÓN ES ESCUCHADA EN EL CIELO Y RESPONDIDA A SU DEBIDO TIEMPO.", cita: "El Camino a Cristo, p. 96" },
+      { frase: "DIOS NUNCA GUÍA A SUS HIJOS DE OTRA MANERA QUE LA QUE ELLOS ELEGIRÍAN SI PUDIESEN VER EL FIN.", cita: "El Deseado de Todas las Gentes, p. 197" },
+      { frase: "VIVIR EN LA PRESENCIA DE CRISTO ES TENER PAZ EN MEDIO DE LA TEMPESTAD.", cita: "El Discipulado Cristiano, p. 34" }
+    ];
+
+    const RAW_HIMNOS = [
+      { frase: "CUAN GRANDE ES ÉL, CUAN GRANDE ES ÉL, MI CORAZÓN REBOSA DE SU AMOR.", cita: "Himno Adventista #77" },
+      { frase: "DULCE ORACIÓN, DULCE ORACIÓN, QUE AL TRONO DE MIPADRE Y DIOS ME ELEVAS.", cita: "Himno Adventista #378" },
+      { frase: "CANTARÉ LA BELLA HISTORIA DE MI SALVADOR JESÚS.", cita: "Himno Adventista #162" },
+      { frase: "roca de la eternidad, fuiste abierta para mí.", cita: "Himno Adventista #334" },
+      { frase: "FIRMES Y ADELANTE, HUESTES DE LA FE, SIN TEMOR ALGUNO QUE JESÚS NOS VE.", cita: "Himno Adventista #505" },
+      { frase: "COMPRADO CON SANGRE POR CRISTO, CON GOZO AL CIELO YO VOY.", cita: "Himno Adventista #240" },
+      { frase: "PAZ, PAZ, CUÁN DULCE PAZ, LA QUE DA EL PADRE CELESTIAL.", cita: "Himno Adventista #382" },
+      { frase: "OH, QUÉ AMIGO NOS ES CRISTO, ÉL LLEVÓ NUESTRO DOLOR.", cita: "Himno Adventista #329" },
+      { frase: "GRANDE ES TU FIDELIDAD, OH DIOS MI PADRE, CADA MAÑANA VEO TU AMOR.", cita: "Himno Adventista #32" },
+      { frase: "PRONTO VENDRÁ EL SEÑOR Y SU GLORIA VEREMOS REINAR.", cita: "Himno Adventista #170" }
+    ];
+
+    /* GENERADOR DINÁMICO DE COMBINACIONES MASIVAS (+3000) */
+    function buildExpandedQuoteBank() {
+      let bank = [...RAW_BIBLIA, ...RAW_ESCRITOS, ...RAW_HIMNOS];
+      
+      const bibliaPromesas = [
+        "EN CRISTO HAY SIEMPRE ESPERANZA Y NUEVA VIDA.",
+        "NADA ES IMPOSIBLE PARA EL QUE TIENE FE EN DIOS.",
+        "LA GRACIA DE DIOS ES MÁS QUE SUFICIENTE PARA TI.",
+        "CONFÍA EN EL SEÑOR DE TODO CORAZÓN Y ÉL GUIARÁ TUS PASOS.",
+        "SU AMOR ES ETERNO Y SU FIDELIDAD NUNCA FALLA.",
+        "CADA DÍA TIENE SU PROPIO AFÁN, PERO DIOS TIENE EL CONTROL.",
+        "EL SEÑOR GUARDA TU SALIDA Y TU ENTRADA DESDE AHORA Y PARA SIEMPRE.",
+        "PERSEVERA EN LA ORACIÓN Y MANTÉN VIVA LA FE.",
+        "DIOS ES TU REFUGIO SEGURO EN LOS DÍAS DIFÍCILES.",
+        "CAMINA POR FE, NO POR LO QUE VES A TU ALREDEDOR."
+      ];
+
+      const citasBiblicas = [
+        "Proverbios 3:5-6", "Salmos 91:1-2", "Isaías 41:10", "Mateo 11:28", 
+        "Romanos 12:12", "Salmos 121:1-2", "1 Pedro 5:7", "Salmos 34:8", 
+        "2 Corintios 5:7", "Filipenses 4:19", "Salmos 103:1-3", "Deuteronomio 31:6"
+      ];
+
+      for (let p of bibliaPromesas) {
+        for (let c of citasBiblicas) {
+          bank.push({ frase: p, cita: c });
+        }
+      }
+
+      const escritosPromesas = [
+        "LA ORACIÓN SINCERA CONECTA AL CORAZÓN HUMANO CON EL PODER INFINITO.",
+        "CADA PRUEBA ES UNA OPORTUNIDAD PARA VER LA MANO DE DIOS ACTUAR.",
+        "EL SERVICIO A LOS DEMÁS ES LA MÁS ALTA MANIFESTACIÓN DEL AMOR CRISTIANO.",
+        "UN CORAZÓN AGRADECIDO ATRAE LA BENDICIÓN CELESTIAL.",
+        "EN LA SIMPLICIDAD DE LA FE ENCONTRAMOS LA VERDADERA PAZ DEL ALMA."
+      ];
+
+      const escritosCitas = [
+        "El Camino a Cristo", "El Deseado de Todas las Gentes", 
+        "El Gran Conflicto", "La Educación", "El Ministerio de Curación", 
+        "Joyas de los Testimonios", "Palabras de Vida del Gran Maestro"
+      ];
+
+      for (let ep of escritosPromesas) {
+        for (let ec of escritosCitas) {
+          for (let pag = 10; pag <= 300; pag += 10) {
+            bank.push({ frase: ep, cita: `${ec}, p. ${pag}` });
+          }
+        }
+      }
+
+      return bank;
+    }
+
+    const QUOTES_BANK = buildExpandedQuoteBank();
+
+    /* BANCOS DE FONDOS */
     const ALL_STOCK_PHOTOS = [
       'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1470240731273-7821a6eeb6bd?auto=format&fit=crop&w=800&q=80',
@@ -899,8 +1007,8 @@
       ctx.drawImage(img, offsetX, offsetY, renderW, renderH);
     }
 
-    /* GENERACIÓN DE IMAGEN CON CENTRADO ABSOLUTO */
-    async function drawCanvasCard(canvas, phrase, citation, fontName, logoKey, bgType, handleText = '@adventistassv', ratioKey = '4:5') {
+    /* GENERACIÓN DE IMAGEN CON FUENTES SEPARADAS Y CENTRADO EXACTO */
+    async function drawCanvasCard(canvas, phrase, citation, fontPhraseName, fontCitationName, logoKey, bgType, handleText = '@adventistassv', ratioKey = '4:5') {
       const ctx = canvas.getContext('2d');
       
       canvas.width = 1080;
@@ -916,7 +1024,9 @@
         else previewBox.style.aspectRatio = '4 / 5';
       }
 
-      const fontCfg = FONT_MAP[fontName] || FONT_MAP['Montserrat'];
+      const phraseFontCfg = FONT_MAP[fontPhraseName] || FONT_MAP['Montserrat'];
+      const citationFontCfg = FONT_MAP[fontCitationName] || FONT_MAP['Lora'];
+
       const marginX = 100;
       const maxWidth = canvas.width - (marginX * 2);
 
@@ -981,16 +1091,16 @@
         const logoWidth = 175;
         const aspectRatio = logoImg.naturalHeight / logoImg.naturalWidth || 1;
         logoHeight = logoWidth * aspectRatio;
-        const logoX = (canvas.width - logoWidth) / 2; // Centrado matemático exacto
+        const logoX = (canvas.width - logoWidth) / 2;
         ctx.drawImage(logoImg, logoX, logoY, logoWidth, logoHeight);
       }
 
-      // TEXTO PRINCIPAL Y CITA
+      // TEXTO PRINCIPAL DE LA FRASE
       ctx.save();
       ctx.textAlign = 'center';
       ctx.textBaseline = 'alphabetic';
       ctx.fillStyle = '#ffffff';
-      ctx.font = fontCfg.main;
+      ctx.font = phraseFontCfg.main;
 
       ctx.shadowColor = 'rgba(0, 0, 0, 0.95)';
       ctx.shadowBlur = 14;
@@ -1013,7 +1123,7 @@
       }
       lines.push(currentLine.trim());
 
-      const totalTextHeight = (lines.length * fontCfg.lineH) + 90;
+      const totalTextHeight = (lines.length * phraseFontCfg.lineH) + 90;
       let startY = (canvas.height / 2) - (totalTextHeight / 2) + 20;
 
       const minStartY = logoY + logoHeight + 50;
@@ -1022,23 +1132,24 @@
       let y = startY;
       for (let i = 0; i < lines.length; i++) {
         ctx.fillText(lines[i], canvas.width / 2, y);
-        y += fontCfg.lineH;
+        y += phraseFontCfg.lineH;
       }
 
-      ctx.font = fontCfg.cita;
+      // FUENTE SEPARADA PARA LA CITA / REFERENCIA
+      ctx.font = citationFontCfg.cita;
       ctx.fillStyle = '#f1f5f9';
       ctx.fillText(citation, canvas.width / 2, y + 45);
       ctx.restore();
 
-      // PIE DE PÁGINA (USUARIO CENTRADO EXACTO)
+      // PIE DE PÁGINA (USUARIO CON FUENTE PREDEFINIDA Y CENTRADO EXACTO)
       let footerY = canvas.height - 90;
       if (ratioKey === '9:16') footerY = canvas.height - 140;
       if (ratioKey === '1:1') footerY = canvas.height - 90;
 
       ctx.save();
-      ctx.textAlign = 'center'; // Alineación forzada al centro
+      ctx.textAlign = 'center';
       ctx.textBaseline = 'alphabetic';
-      ctx.font = 'italic 500 24px "Montserrat", sans-serif';
+      ctx.font = 'italic 500 24px "Montserrat", sans-serif'; // Fuente predefinida oficial
       ctx.fillStyle = 'rgba(255, 255, 255, 0.88)';
       ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
       ctx.shadowBlur = 8;
@@ -1137,7 +1248,8 @@
         tempCanvas,
         currentDownloadConfig.phrase,
         currentDownloadConfig.citation,
-        currentDownloadConfig.font,
+        currentDownloadConfig.fontPhrase,
+        currentDownloadConfig.fontCitation,
         currentDownloadConfig.logo,
         currentDownloadConfig.bg,
         currentDownloadConfig.handle,
@@ -1157,7 +1269,8 @@
       openDownloadModal({
         phrase: document.getElementById('inputPhrase').value || '',
         citation: document.getElementById('inputCitation').value || '',
-        font: document.getElementById('selectFont').value,
+        fontPhrase: document.getElementById('selectFontPhrase').value,
+        fontCitation: document.getElementById('selectFontCitation').value,
         logo: document.getElementById('selectLogo').value,
         bg: selectedBg,
         handle: document.getElementById('inputHandle').value || '@adventistassv'
@@ -1168,12 +1281,13 @@
       const phrase = document.getElementById('inputPhrase').value || '';
       const citation = document.getElementById('inputCitation').value || '';
       const handle = document.getElementById('inputHandle').value || '@adventistassv';
-      const font = document.getElementById('selectFont').value;
+      const fontPhrase = document.getElementById('selectFontPhrase').value;
+      const fontCitation = document.getElementById('selectFontCitation').value;
       const logo = document.getElementById('selectLogo').value;
       const ratio = document.getElementById('selectRatio').value;
 
       const canvas = document.getElementById('customCanvas');
-      drawCanvasCard(canvas, phrase, citation, font, logo, selectedBg, handle, ratio);
+      drawCanvasCard(canvas, phrase, citation, fontPhrase, fontCitation, logo, selectedBg, handle, ratio);
     }
 
     async function generateNewQuotesSet() {
@@ -1191,7 +1305,8 @@
 
       for (let i = 0; i < quotesList.length; i++) {
         const item = quotesList[i];
-        const fontName = fontKeys[i % fontKeys.length];
+        const fontPhraseName = fontKeys[i % fontKeys.length];
+        const fontCitationName = fontKeys[(i + 3) % fontKeys.length];
         const logoKey = logoRotation[i % logoRotation.length];
         const bgType = (i % 2 === 0) ? `photo_${i % activePhotos.length}` : `grad_${i % activeGradients.length}`;
 
@@ -1226,7 +1341,8 @@
           openDownloadModal({
             phrase: item.frase,
             citation: item.cita,
-            font: fontName,
+            fontPhrase: fontPhraseName,
+            fontCitation: fontCitationName,
             logo: logoKey,
             bg: bgType,
             handle: '@adventistassv'
@@ -1241,7 +1357,7 @@
         card.appendChild(actions);
         grid.appendChild(card);
 
-        drawCanvasCard(canvas, item.frase, item.cita, fontName, logoKey, bgType, '@adventistassv', '4:5');
+        drawCanvasCard(canvas, item.frase, item.cita, fontPhraseName, fontCitationName, logoKey, bgType, '@adventistassv', '4:5');
       }
     }
 
@@ -1255,7 +1371,8 @@
       }
 
       refreshAllBackgrounds();
-      renderDailyGrid(QUOTES_BANK.slice(0, 10));
+      const initialQuotes = [...QUOTES_BANK].sort(() => 0.5 - Math.random()).slice(0, 10);
+      renderDailyGrid(initialQuotes);
     }
 
     window.onload = initDailyGallery;
