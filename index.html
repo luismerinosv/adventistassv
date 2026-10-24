@@ -8,7 +8,7 @@
   <!-- Tipografías Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Cinzel:wght@700&family=Lora:ital,wght@0,600;1,500&family=Montserrat:wght@700;800&family=Oswald:wght@600&family=Playfair+Display:ital,wght@0,700;1,600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Cinzel:wght@700&family=Lora:ital,wght@0,600;1,500&family=Montserrat:ital,wght@0,700;1,500;1,600&family=Oswald:wght@600&family=Playfair+Display:ital,wght@0,700;1,600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
 
   <style>
     :root {
@@ -340,6 +340,16 @@
             <input type="text" id="inputHandle" class="form-control" value="@adventistassv" oninput="updateCustomCanvas()">
           </div>
 
+          <!-- Selector de Tamaño / Formato de Redes Sociales -->
+          <div class="form-group">
+            <label>Formato / Tamaños de Publicación:</label>
+            <select id="selectRatio" class="form-control" onchange="updateCustomCanvas()">
+              <option value="4:5">4:5 (Post Feed Instagram/Facebook - 1080x1350)</option>
+              <option value="9:16">9:16 (Historias / Reels / TikTok - 1080x1920)</option>
+              <option value="1:1">1:1 (Cuadrado Tradicional - 1080x1080)</option>
+            </select>
+          </div>
+
           <div class="form-group">
             <label>Estilo de Tipografía:</label>
             <select id="selectFont" class="form-control" onchange="updateCustomCanvas()">
@@ -377,7 +387,7 @@
         </div>
 
         <div class="editor-preview">
-          <div class="canvas-container" style="max-width: 400px; border-radius: 10px; overflow: hidden;" onclick="openCanvasModal(document.getElementById('customCanvas'))">
+          <div id="previewBox" class="canvas-container" style="max-width: 400px; border-radius: 10px; overflow: hidden;" onclick="openCanvasModal(document.getElementById('customCanvas'))">
             <canvas id="customCanvas"></canvas>
           </div>
           <div style="display: flex; gap: 8px; width: 100%; max-width: 400px;">
@@ -566,24 +576,60 @@
       });
     }
 
-    async function drawCanvasCard(canvas, phrase, citation, fontName, logoKey, bgType, handleText = '@adventistassv') {
+    // Ajuste de imagen completa al ratio
+    function drawCoverImage(ctx, img, targetW, targetH) {
+      const imgRatio = img.naturalWidth / img.naturalHeight;
+      const targetRatio = targetW / targetH;
+      let renderW, renderH, offsetX, offsetY;
+
+      if (imgRatio > targetRatio) {
+        renderH = targetH;
+        renderW = targetH * imgRatio;
+        offsetX = (targetW - renderW) / 2;
+        offsetY = 0;
+      } else {
+        renderW = targetW;
+        renderH = targetW / imgRatio;
+        offsetX = 0;
+        offsetY = (targetH - renderH) / 2;
+      }
+      ctx.drawImage(img, offsetX, offsetY, renderW, renderH);
+    }
+
+    // Dibujo de tarjeta respetando formato y márgenes
+    async function drawCanvasCard(canvas, phrase, citation, fontName, logoKey, bgType, handleText = '@adventistassv', ratioKey = '4:5') {
       const ctx = canvas.getContext('2d');
+      
+      // Dimensiones dinámicas por Formato
       canvas.width = 1080;
-      canvas.height = 1350;
+      let targetHeight = 1350;
+      if (ratioKey === '9:16') targetHeight = 1920;
+      if (ratioKey === '1:1') targetHeight = 1080;
+      canvas.height = targetHeight;
+
+      // Ajuste visual de caja en preview
+      const previewBox = document.getElementById('previewBox');
+      if (previewBox) {
+        if (ratioKey === '9:16') previewBox.style.aspectRatio = '9 / 16';
+        else if (ratioKey === '1:1') previewBox.style.aspectRatio = '1 / 1';
+        else previewBox.style.aspectRatio = '4 / 5';
+      }
 
       const fontCfg = FONT_MAP[fontName] || FONT_MAP['Montserrat'];
+      const marginX = 100;
+      const maxWidth = canvas.width - (marginX * 2);
 
       // A. FONDO
       if (bgType === 'user_custom' && userCustomImg) {
-        ctx.drawImage(userCustomImg, 0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+        drawCoverImage(ctx, userCustomImg, canvas.width, canvas.height);
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.38)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
       } else if (bgType.startsWith('photo_')) {
         const pIndex = parseInt(bgType.split('_')[1]);
         try {
           const bgImg = await loadImage(STOCK_PHOTOS[pIndex % STOCK_PHOTOS.length]);
-          ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
-          ctx.fillStyle = 'rgba(0, 0, 0, 0.48)';
+          drawCoverImage(ctx, bgImg, canvas.width, canvas.height);
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.40)';
           ctx.fillRect(0, 0, canvas.width, canvas.height);
         } catch(e) {
           drawGrad(ctx, canvas, 0);
@@ -593,7 +639,22 @@
         drawGrad(ctx, canvas, gIndex);
       }
 
-      // B. LOGO OFICIAL CON ESCALA PROPORCIONAL
+      // DEGRADADOS EN EXTREMOS (Sombra superior e inferior para lectura limpia)
+      const topGradHeight = (ratioKey === '9:16') ? 320 : 260;
+      const topGrad = ctx.createLinearGradient(0, 0, 0, topGradHeight);
+      topGrad.addColorStop(0, logoKey === 'negro' ? 'rgba(255, 255, 255, 0.65)' : 'rgba(0, 0, 0, 0.68)');
+      topGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      ctx.fillStyle = topGrad;
+      ctx.fillRect(0, 0, canvas.width, topGradHeight);
+
+      const botGradHeight = (ratioKey === '9:16') ? 280 : 220;
+      const botGrad = ctx.createLinearGradient(0, canvas.height - botGradHeight, 0, canvas.height);
+      botGrad.addColorStop(0, 'rgba(0, 0, 0, 0)');
+      botGrad.addColorStop(1, logoKey === 'negro' ? 'rgba(255, 255, 255, 0.65)' : 'rgba(0, 0, 0, 0.68)');
+      ctx.fillStyle = botGrad;
+      ctx.fillRect(0, canvas.height - botGradHeight, canvas.width, botGradHeight);
+
+      // B. LOGO OFICIAL
       let logoImg = loadedLogos[logoKey];
       if (!logoImg) {
         try {
@@ -602,50 +663,67 @@
         } catch(e) {}
       }
 
+      let logoY = 65;
+      if (ratioKey === '9:16') logoY = 125; // Margen superior amplio para historias
+      if (ratioKey === '1:1') logoY = 50;
+
       if (logoImg) {
-        const logoWidth = 180;
+        const logoWidth = 175;
         const aspectRatio = logoImg.naturalHeight / logoImg.naturalWidth || 1;
         const logoHeight = logoWidth * aspectRatio;
         const logoX = (canvas.width - logoWidth) / 2;
-        const logoY = 60;
         ctx.drawImage(logoImg, logoX, logoY, logoWidth, logoHeight);
       }
 
-      // C. FRASE Y CITA
-      const textColor = (logoKey === 'negro') ? '#1e293b' : '#ffffff';
-      const subColor = (logoKey === 'negro') ? '#475569' : '#f1f5f9';
+      // C. FRASE Y CITA (Calculando centro y respetando márgenes)
+      const textColor = (logoKey === 'negro') ? '#0f172a' : '#ffffff';
+      const subColor = (logoKey === 'negro') ? '#334155' : '#f1f5f9';
 
       ctx.textAlign = 'center';
       ctx.fillStyle = textColor;
       ctx.font = fontCfg.main;
 
       const words = phrase.toUpperCase().split(' ');
-      let line = '';
-      let y = 600;
-      const maxWidth = 880;
+      let lines = [];
+      let currentLine = '';
 
       for (let n = 0; n < words.length; n++) {
-        let testLine = line + words[n] + ' ';
+        let testLine = currentLine + words[n] + ' ';
         let metrics = ctx.measureText(testLine);
         if (metrics.width > maxWidth && n > 0) {
-          ctx.fillText(line, canvas.width / 2, y);
-          line = words[n] + ' ';
-          y += fontCfg.lineH;
+          lines.push(currentLine.trim());
+          currentLine = words[n] + ' ';
         } else {
-          line = testLine;
+          currentLine = testLine;
         }
       }
-      ctx.fillText(line, canvas.width / 2, y);
+      lines.push(currentLine.trim());
+
+      const totalTextHeight = (lines.length * fontCfg.lineH) + 90;
+      let startY = (canvas.height / 2) - (totalTextHeight / 2) + 20;
+
+      const minStartY = logoY + 160;
+      if (startY < minStartY) startY = minStartY;
+
+      let y = startY;
+      for (let i = 0; i < lines.length; i++) {
+        ctx.fillText(lines[i], canvas.width / 2, y);
+        y += fontCfg.lineH;
+      }
 
       // Cita
       ctx.font = fontCfg.cita;
       ctx.fillStyle = subColor;
-      ctx.fillText(citation, canvas.width / 2, y + 90);
+      ctx.fillText(citation, canvas.width / 2, y + 45);
 
-      // D. MARCA DE AGUA
-      ctx.font = '600 32px "Montserrat", sans-serif';
-      ctx.fillStyle = (logoKey === 'negro') ? 'rgba(0,0,0,0.6)' : 'rgba(255, 255, 255, 0.85)';
-      ctx.fillText(handleText || '@adventistassv', canvas.width / 2, canvas.height - 80);
+      // D. MARCA DE AGUA / USUARIO (Más pequeño, elegante y en Cursiva)
+      let footerY = canvas.height - 70;
+      if (ratioKey === '9:16') footerY = canvas.height - 110; // Margen seguro inferior para historias
+      if (ratioKey === '1:1') footerY = canvas.height - 45;
+
+      ctx.font = 'italic 500 24px "Montserrat", sans-serif';
+      ctx.fillStyle = (logoKey === 'negro') ? 'rgba(15, 23, 42, 0.85)' : 'rgba(255, 255, 255, 0.85)';
+      ctx.fillText(handleText || '@adventistassv', canvas.width / 2, footerY);
     }
 
     function drawGrad(ctx, canvas, index) {
@@ -738,9 +816,10 @@
       const handle = document.getElementById('inputHandle').value || '@adventistassv';
       const font = document.getElementById('selectFont').value;
       const logo = document.getElementById('selectLogo').value;
+      const ratio = document.getElementById('selectRatio').value;
 
       const canvas = document.getElementById('customCanvas');
-      drawCanvasCard(canvas, phrase, citation, font, logo, selectedBg, handle);
+      drawCanvasCard(canvas, phrase, citation, font, logo, selectedBg, handle, ratio);
     }
 
     function downloadCustomImage() {
@@ -759,10 +838,13 @@
       grid.innerHTML = '';
 
       const fontKeys = Object.keys(FONT_MAP);
+      // Rotación inteligente de logos para no repetir siempre el mismo
+      const logoRotation = ['blanco', 'turquesa', 'blanco', 'negro', 'blanco'];
 
       for (let i = 0; i < QUOTES_BANK.length; i++) {
         const item = QUOTES_BANK[i];
         const fontName = fontKeys[i % fontKeys.length];
+        const logoKey = logoRotation[i % logoRotation.length];
 
         const card = document.createElement('div');
         card.className = 'card';
@@ -807,7 +889,7 @@
         grid.appendChild(card);
 
         const bgType = (i % 2 === 0) ? `photo_${i % STOCK_PHOTOS.length}` : `grad_${i % GRADIENTS.length}`;
-        drawCanvasCard(canvas, item.frase, item.cita, fontName, 'blanco', bgType, '@adventistassv');
+        drawCanvasCard(canvas, item.frase, item.cita, fontName, logoKey, bgType, '@adventistassv', '4:5');
       }
     }
 
