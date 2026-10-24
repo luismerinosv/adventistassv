@@ -3,7 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Adventistas SV - Frases Diarias</title>
+  <title>Adventistas SV - Frases e Imágenes</title>
+  
+  <!-- Tipografías de Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Cinzel:wght@700&family=Lora:ital,wght@0,600;1,500&family=Montserrat:wght@700;800&family=Oswald:wght@600&family=Playfair+Display:ital,wght@0,700;1,600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+
   <style>
     :root {
       --bg-dark: #0f172a;
@@ -12,26 +18,54 @@
       --accent-hover: #006064;
       --text: #f8fafc;
       --text-muted: #94a3b8;
+      --border: #334155;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-family: 'Poppins', system-ui, -apple-system, sans-serif;
       background-color: var(--bg-dark);
       color: var(--text);
       line-height: 1.5;
       padding-bottom: 40px;
     }
 
+    /* Encabezado */
     header {
       text-align: center;
-      padding: 30px 20px;
+      padding: 25px 20px 15px;
       background: #090d16;
-      border-bottom: 1px solid #334155;
+      border-bottom: 1px solid var(--border);
     }
-    header h1 { font-size: 1.8rem; color: #fff; margin-bottom: 5px; }
-    header p { color: var(--text-muted); font-size: 0.95rem; }
+    header h1 { font-size: 1.8rem; color: #fff; margin-bottom: 4px; }
+    header p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 15px; }
 
+    /* Pestañas de Navegación */
+    .nav-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .tab-btn {
+      padding: 10px 20px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-muted);
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+    }
+    .tab-btn:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
+    .tab-btn.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    /* Contenedor Principal */
     .container {
       max-width: 1200px;
       margin: 0 auto;
@@ -39,14 +73,12 @@
     }
 
     .section-title {
-      font-size: 1.4rem;
-      margin: 20px 0 15px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
+      font-size: 1.3rem;
+      margin-bottom: 20px;
+      color: #fff;
     }
 
-    /* Galería 10 imágenes */
+    /* Galería Diaria */
     .grid-daily {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -57,7 +89,7 @@
       background: var(--card-bg);
       border-radius: 12px;
       overflow: hidden;
-      border: 1px solid #334155;
+      border: 1px solid var(--border);
       display: flex;
       flex-direction: column;
     }
@@ -67,6 +99,7 @@
       aspect-ratio: 4 / 5;
       position: relative;
       background: #000;
+      cursor: pointer;
     }
 
     canvas {
@@ -75,15 +108,18 @@
       display: block;
     }
 
+    /* Acciones: 3 Botones por Tarjeta */
     .card-actions {
-      padding: 12px;
+      padding: 10px;
       display: flex;
-      gap: 8px;
+      gap: 6px;
+      background: #172033;
+      border-top: 1px solid var(--border);
     }
 
     .btn {
       flex: 1;
-      padding: 10px;
+      padding: 9px 4px;
       border: none;
       border-radius: 6px;
       background: var(--accent);
@@ -91,25 +127,123 @@
       font-weight: 600;
       cursor: pointer;
       text-align: center;
-      font-size: 0.85rem;
-      text-decoration: none;
+      font-size: 0.78rem;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 5px;
+      gap: 4px;
+      transition: background 0.2s;
+      white-space: nowrap;
     }
     .btn:hover { background: var(--accent-hover); }
-    .btn-outline {
+    .btn-secondary {
       background: transparent;
-      border: 1px solid #475569;
+      border: 1px solid var(--border);
       color: var(--text);
     }
-    .btn-outline:hover { background: #334155; }
+    .btn-secondary:hover { background: rgba(255, 255, 255, 0.08); }
+
+    /* Módulo Editor Personalizado */
+    .editor-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      align-items: start;
+    }
+
+    .editor-controls {
+      background: var(--card-bg);
+      padding: 25px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .form-control {
+      background: var(--bg-dark);
+      border: 1px solid var(--border);
+      color: #fff;
+      padding: 10px 12px;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 0.95rem;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    textarea.form-control {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .editor-preview {
+      background: var(--card-bg);
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+    }
+
+    /* Modal / Visor a Pantalla Completa */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      backdrop-filter: blur(5px);
+    }
+    .modal.active { display: flex; }
+    .modal-content {
+      max-width: 90vw;
+      max-height: 85vh;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+      object-fit: contain;
+    }
+    .modal-close {
+      position: absolute;
+      top: 20px; right: 20px;
+      background: rgba(255,255,255,0.2);
+      color: white; border: none; font-size: 24px;
+      border-radius: 50%; width: 44px; height: 44px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .modal-close:hover { background: rgba(255,255,255,0.4); }
+
+    .hidden { display: none !important; }
 
     /* Responsivo Móvil */
-    @media (max-width: 640px) {
+    @media (max-width: 768px) {
+      .editor-layout { grid-template-columns: 1fr; }
       .grid-daily { grid-template-columns: 1fr; }
       header h1 { font-size: 1.4rem; }
+      .nav-tabs { width: 100%; }
+      .tab-btn { flex: 1; padding: 10px 5px; font-size: 0.8rem; }
     }
   </style>
 </head>
@@ -117,108 +251,211 @@
 
   <header>
     <h1>ADVENTISTAS SV</h1>
-    <p>Frases de fe, esperanza e inspiración diaria • @adventistassv</p>
+    <p>Frases e inspiración diaria • @adventistassv</p>
+
+    <div class="nav-tabs">
+      <button class="tab-btn active" onclick="switchTab('gallery')">✨ Frases del Día</button>
+      <button class="tab-btn" onclick="switchTab('editor')">✏️ Creador Personalizado</button>
+    </div>
   </header>
 
   <div class="container">
-    <h2 class="section-title">✨ 10 Frases del Día</h2>
-    <div id="dailyGrid" class="grid-daily"></div>
+    <!-- GALERÍA DIARIA -->
+    <div id="gallerySection">
+      <h2 class="section-title">✨ 10 Frases de Hoy</h2>
+      <div id="dailyGrid" class="grid-daily"></div>
+    </div>
+
+    <!-- CREADOR PERSONALIZADO -->
+    <div id="editorSection" class="hidden">
+      <h2 class="section-title">✏️ Diseña tu propia imagen</h2>
+      <div class="editor-layout">
+        
+        <div class="editor-controls">
+          <div class="form-group">
+            <label>Texto de la Frase:</label>
+            <textarea id="inputPhrase" class="form-control" oninput="updateCustomCanvas()">DE LA MANO DE DIOS PUEDES CON TODO ¡NO TE RINDAS!</textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Cita / Referencia:</label>
+            <input type="text" id="inputCitation" class="form-control" value="Filipenses 4:13" oninput="updateCustomCanvas()">
+          </div>
+
+          <div class="form-group">
+            <label>Estilo de Tipografía:</label>
+            <select id="selectFont" class="form-control" onchange="updateCustomCanvas()">
+              <option value="Montserrat">Montserrat (Moderna y Enfática)</option>
+              <option value="Playfair Display">Playfair Display (Elegante Editorial)</option>
+              <option value="Oswald">Oswald (Impactante / Alta)</option>
+              <option value="Cinzel">Cinzel (Clásica Monumental)</option>
+              <option value="Caveat">Caveat (Manuscrita / Cálida)</option>
+              <option value="Poppins">Poppins (Limpia y Minimalista)</option>
+              <option value="Lora">Lora (Serif Tradicional)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Color de Logo Superior:</label>
+            <select id="selectLogo" class="form-control" onchange="updateCustomCanvas()">
+              <option value="blanco">Texto Blanco (Para fondos oscuros)</option>
+              <option value="negro">Texto Negro (Para fondos muy claros)</option>
+              <option value="turquesa">Texto Turquesa (Estilo Marca)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Estilo de Fondo:</label>
+            <select id="selectBg" class="form-control" onchange="updateCustomCanvas()">
+              <option value="photo_0">Fotografía: Playa y Calma</option>
+              <option value="photo_1">Fotografía: Montañas y Niebla</option>
+              <option value="photo_2">Fotografía: Noche Estrellada</option>
+              <option value="photo_3">Fotografía: Atardecer Cálido</option>
+              <option value="grad_0">Degradado: Azul Profundo</option>
+              <option value="grad_1">Degradado: Violeta Nocturno</option>
+              <option value="grad_2">Degradado: Verde Esmeralda</option>
+              <option value="grad_3">Degradado: Ocaso Cobre</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="editor-preview">
+          <div class="canvas-container" style="max-width: 400px; border-radius: 10px; overflow: hidden;" onclick="openCanvasModal(document.getElementById('customCanvas'))">
+            <canvas id="customCanvas"></canvas>
+          </div>
+          <div style="display: flex; gap: 8px; width: 100%; max-width: 400px;">
+            <button class="btn btn-secondary" onclick="openCanvasModal(document.getElementById('customCanvas'))">🔍 Ver</button>
+            <button class="btn btn-secondary" onclick="shareCanvasCard(document.getElementById('customCanvas'), document.getElementById('inputPhrase').value, document.getElementById('inputCitation').value)">📲 Compartir</button>
+            <button class="btn" onclick="downloadCustomImage()">⬇️ Descargar</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- VISOR PANTALLA COMPLETA (MODAL) -->
+  <div id="imageModal" class="modal" onclick="closeModal()">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <img id="modalImg" class="modal-content" src="" alt="Vista Previa" onclick="event.stopPropagation()">
   </div>
 
   <script>
-    // 1. Banco de Logos Oficiales en la raíz del repositorio
     const LOGOS = {
-      blanco: './logo-blanco.png',
-      negro: './logo-negro.png',
-      turquesa: './logo-turquesa.png'
+      blanco: 'logo-blanco.png',
+      negro: 'logo-negro.png',
+      turquesa: 'logo-turquesa.png'
     };
 
-    // 2. Banco de Citas (RVR1960 y Elena G. White)
+    const FONT_MAP = {
+      'Montserrat': { main: '700 48px "Montserrat", sans-serif', cita: 'italic 34px "Lora", serif', lineH: 66 },
+      'Playfair Display': { main: '700 52px "Playfair Display", serif', cita: 'italic 34px "Georgia", serif', lineH: 70 },
+      'Oswald': { main: '600 54px "Oswald", sans-serif', cita: 'italic 32px "Poppins", sans-serif', lineH: 70 },
+      'Cinzel': { main: '700 46px "Cinzel", serif', cita: 'italic 34px "Lora", serif', lineH: 64 },
+      'Caveat': { main: '700 68px "Caveat", cursive', cita: 'italic 32px "Montserrat", sans-serif', lineH: 74 },
+      'Poppins': { main: '700 48px "Poppins", sans-serif', cita: 'italic 34px "Playfair Display", serif', lineH: 66 },
+      'Lora': { main: '600 50px "Lora", serif', cita: 'italic 32px "Poppins", sans-serif', lineH: 68 }
+    };
+
     const QUOTES_BANK = [
-      { frase: "DE LA MANO DE DIOS PUEDES CON TODO ¡NO TE RINDAS!", cita: "Filipenses 4:13", fuente: "RVR1960" },
-      { frase: "NO HAY NADA QUE PUEDAS HACER PARA QUE DIOS DEJE DE AMARTE.", cita: "El Camino a Cristo, p. 15", fuente: "E.G. White" },
-      { frase: "TU VIDA HABLA MÁS FUERTE QUE TUS PALABRAS. VIVE LO QUE PREDICAS.", cita: "1 Corintios 11:1", fuente: "RVR1960" },
-      { frase: "EL AMOR DE DIOS NO TIENE LÍMITES NI CONDICIONES.", cita: "Jeremías 31:3", fuente: "RVR1960" },
-      { frase: "LA ORACIÓN ES EL LLAVE EN LA MANO DE LA FE PARA ABRIR EL ALMACÉN DEL CIELO.", cita: "El Camino a Cristo, p. 94", fuente: "E.G. White" },
-      { frase: "JEHOVÁ ES MI PASTOR; NADA ME FALTARÁ.", cita: "Salmos 23:1", fuente: "RVR1960" },
-      { frase: "CADA AMANECER ES UNA NUEVA OPORTUNIDAD PARA CONFIAR EN DIOS.", cita: "Lamentaciones 3:22-23", fuente: "RVR1960" },
-      { frase: "DIOS NUNCA LLEGA TARDE; SU TIEMPO ES PERFECTO.", cita: "Eclesiastés 3:1", fuente: "RVR1960" },
-      { frase: "LA PAZ DE DIOS SOBREPASARÁ TODO TU ENTENDIMIENTO.", cita: "Filipenses 4:7", fuente: "RVR1960" },
-      { frase: "NUESTRA ÚNICA SEGURIDAD ESTÁ EN LA DIRECCIÓN DE DIOS.", cita: "El Deseado de Todas las Gentes, p. 62", fuente: "E.G. White" },
-      { frase: "BUSCAD PRIMERO EL REINO DE DIOS Y SU JUSTICIA.", cita: "Mateo 6:33", fuente: "RVR1960" },
-      { frase: "LA FE NO HACE QUE LAS COSAS SEAN FÁCILES, LAS HACE POSIBLES.", cita: "Marcos 9:23", fuente: "RVR1960" }
+      { frase: "DE LA MANO DE DIOS PUEDES CON TODO ¡NO TE RINDAS!", cita: "Filipenses 4:13" },
+      { frase: "NO HAY NADA QUE PUEDAS HACER PARA QUE DIOS DEJE DE AMARTE.", cita: "El Camino a Cristo, p. 15" },
+      { frase: "TU VIDA HABLA MÁS FUERTE QUE TUS PALABRAS. VIVE LO QUE PREDICAS.", cita: "1 Corintios 11:1" },
+      { frase: "EL AMOR DE DIOS NO TIENE LÍMITES NI CONDICIONES.", cita: "Jeremías 31:3" },
+      { frase: "LA ORACIÓN ES EL LLAVE EN LA MANO DE LA FE PARA ABRIR EL ALMACÉN DEL CIELO.", cita: "El Camino a Cristo, p. 94" },
+      { frase: "JEHOVÁ ES MI PASTOR; NADA ME FALTARÁ.", cita: "Salmos 23:1" },
+      { frase: "CADA AMANECER ES UNA NUEVA OPORTUNIDAD PARA CONFIAR EN DIOS.", cita: "Lamentaciones 3:22-23" },
+      { frase: "DIOS NUNCA LLEGA TARDE; SU TIEMPO ES PERFECTO.", cita: "Eclesiastés 3:1" },
+      { frase: "LA PAZ DE DIOS SOBREPASARÁ TODO TU ENTENDIMIENTO.", cita: "Filipenses 4:7" },
+      { frase: "NUESTRA ÚNICA SEGURIDAD ESTÁ EN LA DIRECCIÓN DE DIOS.", cita: "El Deseado de Todas las Gentes, p. 62" }
     ];
 
-    // 3. Fotografías de stock en alta resolución (Orientación vertical)
     const STOCK_PHOTOS = [
       'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1080&q=80',
       'https://images.unsplash.com/photo-1470240731273-7821a6eeb6bd?auto=format&fit=crop&w=1080&q=80',
       'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1080&q=80',
-      'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1080&q=80',
-      'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1080&q=80'
+      'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1080&q=80'
     ];
 
-    // Cargar imágen con promesas para el Canvas
+    const GRADIENTS = [
+      ['#0f172a', '#1e3a8a'],
+      ['#2d124d', '#1e1b4b'],
+      ['#134e4a', '#064e3b'],
+      ['#7c2d12', '#451a03']
+    ];
+
     function loadImage(src) {
       return new Promise((resolve, reject) => {
         const img = new Image();
         img.crossOrigin = 'Anonymous';
         img.onload = () => resolve(img);
-        img.onerror = () => reject(new Error(`No se pudo cargar: ${src}`));
+        img.onerror = () => reject(new Error(`Error: ${src}`));
         img.src = src;
       });
     }
 
-    // Renderizado en Canvas 1080x1350
-    async function renderQuoteCard(canvas, data, bgType, index) {
+    function switchTab(tab) {
+      const gSec = document.getElementById('gallerySection');
+      const eSec = document.getElementById('editorSection');
+      const btns = document.querySelectorAll('.tab-btn');
+
+      if (tab === 'gallery') {
+        gSec.classList.remove('hidden');
+        eSec.classList.add('hidden');
+        btns[0].classList.add('active');
+        btns[1].classList.remove('active');
+      } else {
+        gSec.classList.add('hidden');
+        eSec.classList.remove('hidden');
+        btns[0].classList.remove('active');
+        btns[1].classList.add('active');
+        updateCustomCanvas();
+      }
+    }
+
+    async function drawCanvasCard(canvas, phrase, citation, fontName, logoKey, bgType) {
       const ctx = canvas.getContext('2d');
       canvas.width = 1080;
       canvas.height = 1350;
 
-      // A. DIBUJAR FONDO
-      let logoKey = 'blanco'; // Logo blanco por defecto para fondos oscuros
+      const fontCfg = FONT_MAP[fontName] || FONT_MAP['Montserrat'];
 
-      if (bgType === 'photo') {
-        const photoUrl = STOCK_PHOTOS[index % STOCK_PHOTOS.length];
+      // A. FONDO
+      if (bgType.startsWith('photo_')) {
+        const pIndex = parseInt(bgType.split('_')[1]);
         try {
-          const bgImg = await loadImage(photoUrl);
+          const bgImg = await loadImage(STOCK_PHOTOS[pIndex]);
           ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
-          
-          // Sombra oscura de superposición (Overlay) para asegurar la lectura
-          ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.48)';
           ctx.fillRect(0, 0, canvas.width, canvas.height);
         } catch(e) {
-          drawGradientBackground(ctx, canvas, index);
+          drawGrad(ctx, canvas, 0);
         }
       } else {
-        drawGradientBackground(ctx, canvas, index);
+        const gIndex = parseInt(bgType.split('_')[1]);
+        drawGrad(ctx, canvas, gIndex);
       }
 
-      // B. DIBUJAR LOGO (Header)
+      // B. LOGO
       try {
         const logoImg = await loadImage(LOGOS[logoKey]);
-        const logoSize = 140;
+        const logoSize = 160;
         const logoX = (canvas.width - logoSize) / 2;
-        const logoY = 80; // Margen superior
-        ctx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
-      } catch (err) {
-        // Fallback si la imagen aún no está disponible
-        ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 28px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('ADVENTISTAS SV', canvas.width / 2, 120);
-      }
+        ctx.drawImage(logoImg, logoX, 70, logoSize, logoSize);
+      } catch (err) {}
 
-      // C. DIBUJAR FRASE Y CITA (Zona Central)
+      // C. TEXTO
+      const textColor = (logoKey === 'negro') ? '#1e293b' : '#ffffff';
+      const subColor = (logoKey === 'negro') ? '#475569' : '#f1f5f9';
+
       ctx.textAlign = 'center';
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 50px sans-serif';
+      ctx.fillStyle = textColor;
+      ctx.font = fontCfg.main;
 
-      const words = data.frase.split(' ');
+      const words = phrase.toUpperCase().split(' ');
       let line = '';
-      let y = 620;
-      const maxWidth = 860;
-      const lineHeight = 68;
+      let y = 600;
+      const maxWidth = 880;
 
       for (let n = 0; n < words.length; n++) {
         let testLine = line + words[n] + ' ';
@@ -226,33 +463,26 @@
         if (metrics.width > maxWidth && n > 0) {
           ctx.fillText(line, canvas.width / 2, y);
           line = words[n] + ' ';
-          y += lineHeight;
+          y += fontCfg.lineH;
         } else {
           line = testLine;
         }
       }
       ctx.fillText(line, canvas.width / 2, y);
 
-      // Cita bíblica / libro
-      ctx.font = 'italic 36px Georgia, serif';
-      ctx.fillStyle = '#f1f5f9';
-      ctx.fillText(data.cita, canvas.width / 2, y + 85);
+      // Cita
+      ctx.font = fontCfg.cita;
+      ctx.fillStyle = subColor;
+      ctx.fillText(citation, canvas.width / 2, y + 90);
 
-      // D. DIBUJAR MARCA DE AGUA (Footer)
-      ctx.font = '600 30px sans-serif';
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-      ctx.fillText('@adventistassv', canvas.width / 2, canvas.height - 90);
+      // D. MARCA DE AGUA
+      ctx.font = '600 32px "Montserrat", sans-serif';
+      ctx.fillStyle = (logoKey === 'negro') ? 'rgba(0,0,0,0.6)' : 'rgba(255, 255, 255, 0.85)';
+      ctx.fillText('@adventistassv', canvas.width / 2, canvas.height - 80);
     }
 
-    function drawGradientBackground(ctx, canvas, index) {
-      const gradients = [
-        ['#0f172a', '#1e3a8a'],
-        ['#2d124d', '#1e1b4b'],
-        ['#134e4a', '#064e3b'],
-        ['#7c2d12', '#451a03'],
-        ['#312e81', '#4c1d95']
-      ];
-      const colors = gradients[index % gradients.length];
+    function drawGrad(ctx, canvas, index) {
+      const colors = GRADIENTS[index % GRADIENTS.length];
       const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
       grad.addColorStop(0, colors[0]);
       grad.addColorStop(1, colors[1]);
@@ -260,21 +490,88 @@
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
 
-    // Inicializar las 10 imágenes del día
+    /* VISTA EN GRANDE (MODAL) */
+    function openCanvasModal(canvas) {
+      const modal = document.getElementById('imageModal');
+      const modalImg = document.getElementById('modalImg');
+      modalImg.src = canvas.toDataURL('image/png');
+      modal.classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('imageModal').classList.remove('active');
+    }
+
+    /* COMPARTIR CON TEXTO + CITA DE LA IMAGEN */
+    async function shareCanvasCard(canvas, phrase, citation) {
+      const shareText = `"${phrase}" - ${citation}\n\nVía @adventistassv`;
+
+      canvas.toBlob(async (blob) => {
+        const file = new File([blob], 'adventistassv.png', { type: 'image/png' });
+
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({
+              title: 'Adventistas SV',
+              text: shareText,
+              files: [file]
+            });
+          } catch (err) {
+            console.log('Compartir cancelado por el usuario.');
+          }
+        } else if (navigator.share) {
+          try {
+            await navigator.share({
+              title: 'Adventistas SV',
+              text: shareText,
+              url: window.location.href
+            });
+          } catch (err) {}
+        } else {
+          // Fallback para PC
+          navigator.clipboard.writeText(shareText);
+          alert(`¡Texto copiado al portapapeles!\n\n"${shareText}"\n\nPuedes pegarlo en tus redes sociales junto a la imagen descargada.`);
+        }
+      }, 'image/png');
+    }
+
+    function updateCustomCanvas() {
+      const phrase = document.getElementById('inputPhrase').value || '';
+      const citation = document.getElementById('inputCitation').value || '';
+      const font = document.getElementById('selectFont').value;
+      const logo = document.getElementById('selectLogo').value;
+      const bg = document.getElementById('selectBg').value;
+
+      const canvas = document.getElementById('customCanvas');
+      drawCanvasCard(canvas, phrase, citation, font, logo, bg);
+    }
+
+    function downloadCustomImage() {
+      const canvas = document.getElementById('customCanvas');
+      const link = document.createElement('a');
+      link.download = 'adventistassv-creacion.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+
     async function initDailyGallery() {
+      await document.fonts.ready;
+
       const grid = document.getElementById('dailyGrid');
       grid.innerHTML = '';
 
-      // Selecciona 10 frases aleatorias fijadas
-      const todayQuotes = QUOTES_BANK.slice(0, 10);
+      const fontKeys = Object.keys(FONT_MAP);
 
-      for (let i = 0; i < todayQuotes.length; i++) {
-        const item = todayQuotes[i];
+      for (let i = 0; i < QUOTES_BANK.length; i++) {
+        const item = QUOTES_BANK[i];
+        const fontName = fontKeys[i % fontKeys.length];
+
         const card = document.createElement('div');
         card.className = 'card';
 
         const canvasBox = document.createElement('div');
         canvasBox.className = 'canvas-container';
+        canvasBox.onclick = () => openCanvasModal(canvas);
 
         const canvas = document.createElement('canvas');
         canvasBox.appendChild(canvas);
@@ -282,24 +579,40 @@
         const actions = document.createElement('div');
         actions.className = 'card-actions';
 
+        // 1. Botón Ver en grande
+        const btnView = document.createElement('button');
+        btnView.className = 'btn btn-secondary';
+        btnView.innerHTML = '🔍 Ver';
+        btnView.onclick = (e) => { e.stopPropagation(); openCanvasModal(canvas); };
+
+        // 2. Botón Compartir
+        const btnShare = document.createElement('button');
+        btnShare.className = 'btn btn-secondary';
+        btnShare.innerHTML = '📲 Compartir';
+        btnShare.onclick = (e) => { e.stopPropagation(); shareCanvasCard(canvas, item.frase, item.cita); };
+
+        // 3. Botón Descargar
         const btnDownload = document.createElement('button');
         btnDownload.className = 'btn';
         btnDownload.innerHTML = '⬇️ Descargar';
-        btnDownload.onclick = () => {
+        btnDownload.onclick = (e) => {
+          e.stopPropagation();
           const link = document.createElement('a');
           link.download = `adventistassv-${i + 1}.png`;
           link.href = canvas.toDataURL('image/png');
           link.click();
         };
 
+        actions.appendChild(btnView);
+        actions.appendChild(btnShare);
         actions.appendChild(btnDownload);
+
         card.appendChild(canvasBox);
         card.appendChild(actions);
         grid.appendChild(card);
 
-        // Alternar 5 fotos de stock y 5 degradados
-        const bgType = (i % 2 === 0) ? 'photo' : 'gradient';
-        renderQuoteCard(canvas, item, bgType, i);
+        const bgType = (i % 2 === 0) ? `photo_${i % STOCK_PHOTOS.length}` : `grad_${i % GRADIENTS.length}`;
+        drawCanvasCard(canvas, item.frase, item.cita, fontName, 'blanco', bgType);
       }
     }
 
