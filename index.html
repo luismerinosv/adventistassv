@@ -888,6 +888,15 @@
             </select>
           </div>
 
+          <!-- BÚSQUEDA DE IMÁGENES EXTERNAS DESDE OTROS SERVIDORES -->
+          <div class="form-group" style="margin-top: 4px; padding-top: 10px; border-top: 1px dashed var(--border);">
+            <label>Buscar Imágenes en Tiempo Real (Servidor Externo):</label>
+            <div style="display: flex; gap: 8px;">
+              <input type="text" id="inputImageSearch" class="form-control" placeholder="Escribe tema (ej. fe, naturaleza, cielo, amanecer)..." onkeyup="if(event.key==='Enter') searchExternalImages()">
+              <button id="btnSearchImages" class="btn btn-secondary" style="white-space: nowrap; flex-shrink: 0;" onclick="searchExternalImages()">Buscar Foto</button>
+            </div>
+          </div>
+
           <div class="form-group">
             <label>Subir mi propia Imagen de Fondo:</label>
             <input type="file" id="inputCustomBg" class="form-control" accept="image/*" onchange="handleUserBgUpload(event)">
@@ -896,6 +905,7 @@
           <div class="form-group">
             <div class="bg-grid-header">
               <label>Selecciona un Fondo (20 Animados por Código, 15 Fotos, 10 Texturas, 15 Degradados):</label>
+              <button class="btn btn-secondary" style="min-height: 28px; padding: 2px 8px; font-size: 0.75rem; width: auto; flex: 0 0 auto;" onclick="searchExternalImages()">Recargar Fotos</button>
             </div>
             
             <div id="bgThumbnailGridContainer" class="bg-grid-container"></div>
@@ -1363,6 +1373,29 @@
         }
       } catch (e) {}
       return getCleanBaseUrl();
+    }
+
+    // BÚSQUEDA Y RECARGA DE IMÁGENES EXTERNAS DESDE OTROS SERVIDORES
+    async function searchExternalImages() {
+      const queryInput = document.getElementById('inputImageSearch');
+      const query = (queryInput && queryInput.value.trim()) ? queryInput.value.trim() : 'cielo,fe,naturaleza';
+
+      const searchBtn = document.getElementById('btnSearchImages');
+      if (searchBtn) searchBtn.innerText = 'Buscando...';
+
+      try {
+        const newImages = [];
+        const timeStamp = Date.now();
+        for (let i = 1; i <= 15; i++) {
+          newImages.push(`https://picsum.photos/seed/${encodeURIComponent(query)}_${i}_${timeStamp}/800/1000`);
+        }
+        activePhotos = newImages;
+        renderBgThumbnails(true);
+      } catch (e) {
+        console.warn("Error cargando imágenes externas:", e);
+      } finally {
+        if (searchBtn) searchBtn.innerText = 'Buscar Foto';
+      }
     }
 
     function formatPhraseText(text, fontName) {
