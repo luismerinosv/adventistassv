@@ -518,6 +518,18 @@
           </div>
 
           <div class="form-group">
+            <label>Logo Superior:</label>
+            <select id="selectLogo" class="form-control" onchange="handleLogoChange()">
+              <option value="blanco" selected>Texto Blanco (Para fondos oscuros)</option>
+              <option value="negro">Texto Negro (Para fondos muy claros)</option>
+              <option value="turquesa">Texto Turquesa (Estilo Marca)</option>
+              <option value="custom">📁 Subir mi propio logo (PNG/JPG)</option>
+              <option value="none">🛑 Sin Logo (Desactivar Logo)</option>
+            </select>
+            <input type="file" id="inputCustomLogo" class="form-control hidden" accept="image/*" style="margin-top: 6px;" onchange="handleUserLogoUpload(event)">
+          </div>
+
+          <div class="form-group">
             <label>Transición / Animación de Texto y Elementos:</label>
             <select id="selectAnimation" class="form-control" onchange="previewAnimation()">
               <option value="slide" selected>⬆ Deslizar desde abajo (Slide Up)</option>
@@ -592,7 +604,6 @@
               <option value="Cinzel">Cinzel (Clásica imperial)</option>
               <option value="Satisfy">Satisfy (Caligrafía dinámica)</option>
               <option value="Abril Fatface">Abril Fatface (Serif gruesa)</option>
-
               <option value="Anton">Anton (Sólida y audaz)</option>
               <option value="Caveat">Caveat (Manuscrita cercana)</option>
               <option value="Outfit">Outfit (Geométrica pulida)</option>
@@ -617,15 +628,6 @@
               <option value="Playfair Display">Playfair Display (Serif elegante)</option>
               <option value="Montserrat">Montserrat (Limpia)</option>
               <option value="Poppins">Poppins (Minimalista)</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label>Color de Logo Superior Oficial:</label>
-            <select id="selectLogo" class="form-control" onchange="updateCustomCanvas()">
-              <option value="blanco">Texto Blanco (Para fondos oscuros)</option>
-              <option value="negro">Texto Negro (Para fondos muy claros)</option>
-              <option value="turquesa">Texto Turquesa (Estilo Marca)</option>
             </select>
           </div>
 
@@ -709,6 +711,7 @@
     };
 
     let userCustomAudio = null;
+    let userCustomLogoImg = null;
     let activeAudioEl = null;
 
     const FONT_MAP = {
@@ -904,6 +907,7 @@
       document.getElementById('selectFontPhrase').value = fontPhrase;
       document.getElementById('selectFontCitation').value = fontCitation;
       document.getElementById('selectLogo').value = logo;
+      handleLogoChange();
       selectedBg = bg;
 
       switchTab('editor');
@@ -1011,6 +1015,33 @@
         try {
           loadedLogos[key] = await loadImage(LOGOS[key]);
         } catch (e) {}
+      }
+    }
+
+    function handleLogoChange() {
+      const val = document.getElementById('selectLogo').value;
+      const customInput = document.getElementById('inputCustomLogo');
+      if (val === 'custom') {
+        customInput.classList.remove('hidden');
+      } else {
+        customInput.classList.add('hidden');
+      }
+      updateCustomCanvas();
+    }
+
+    function handleUserLogoUpload(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const img = new Image();
+          img.onload = function() {
+            userCustomLogoImg = img;
+            updateCustomCanvas();
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
       }
     }
 
@@ -1567,12 +1598,17 @@
       }
 
       /* LOGO SUPERIOR */
-      let logoImg = loadedLogos[logoKey];
-      if (!logoImg) {
-        try {
-          logoImg = await loadImage(LOGOS[logoKey]);
-          loadedLogos[logoKey] = logoImg;
-        } catch(e) {}
+      let logoImg = null;
+      if (logoKey === 'custom' && userCustomLogoImg) {
+        logoImg = userCustomLogoImg;
+      } else if (logoKey !== 'none' && logoKey !== 'custom') {
+        logoImg = loadedLogos[logoKey];
+        if (!logoImg) {
+          try {
+            logoImg = await loadImage(LOGOS[logoKey]);
+            loadedLogos[logoKey] = logoImg;
+          } catch(e) {}
+        }
       }
 
       let logoY = 90;
@@ -1581,7 +1617,7 @@
       logoY += logoYOffset;
 
       let logoHeight = 0;
-      if (logoImg && logoAlpha > 0.01) {
+      if (logoKey !== 'none' && logoImg && logoAlpha > 0.01) {
         ctx.save();
         ctx.globalAlpha = logoAlpha;
         const logoWidth = 175;
@@ -1614,7 +1650,7 @@
       const totalTextHeight = (lines.length * phraseFontCfg.lineH) + 90;
       let startY = (canvas.height / 2) - (totalTextHeight / 2) + 20;
 
-      const minStartY = logoY + logoHeight + 50;
+      const minStartY = (logoKey !== 'none' && logoHeight > 0) ? (logoY + logoHeight + 50) : 160;
       if (startY < minStartY) startY = minStartY;
 
       if (phraseAlpha > 0.01) {
