@@ -184,6 +184,16 @@
       flex-wrap: wrap;
     }
 
+    /* ESTILIZADO DE ÍCONO DE CALENDARIO BLANCO / VISIBLE */
+    input[type="date"] {
+      color-scheme: dark;
+    }
+    input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: invert(1) hue-rotate(180deg);
+      cursor: pointer;
+      opacity: 0.9;
+    }
+
     .grid-daily {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -1078,7 +1088,7 @@
           req.onsuccess = () => {
             const all = req.result || [];
             const filtered = all.filter(item => item.date === dateStr);
-            resolve(filtered);
+            resolve(filtered.slice(0, 10)); // Estricto límite a 10 imágenes
           };
           req.onerror = () => resolve([]);
         });
@@ -1373,7 +1383,7 @@
 
       if (totalAvailable <= count) {
         const rng = createPRNG(getDateSeed(dateStr) + manualGenOffset);
-        return seededShuffle(pool, rng);
+        return seededShuffle(pool, rng).slice(0, 10);
       }
 
       const dayEpoch = getDaysEpoch(dateStr) + manualGenOffset;
@@ -1384,48 +1394,63 @@
       const rng = createPRNG(getDateSeed(dateStr) + 777 + manualGenOffset);
       const shuffled = seededShuffle(rotatedPool, rng);
 
-      return shuffled.slice(0, count);
+      return shuffled.slice(0, 10); // Estricto límite de 10
     }
 
-    /* MOTOR DE BÚSQUEDA Y CONEXIÓN EN TIEMPO REAL A SITIOS DE IMÁGENES EXTERNOS */
+    /* MOTOR DE BÚSQUEDA ESPECIALIZADO EN IMÁGENES DE FONDO DE ALTA CALIDAD */
     async function fetchImagesFromWeb(searchTerm) {
       const foundUrls = [];
 
-      // 1. Wikimedia Commons API Libre (Petición directa sin bloqueo CORS)
+      // 1. Unsplash API pública estructurada para Wallpapers / Backgrounds
       try {
-        const q = searchTerm ? encodeURIComponent(searchTerm + ' nature landscape') : 'nature%20landscape';
-        const wikiUrl = `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${q}&gsrnamespace=6&gsrlimit=20&format=json&origin=*&prop=imageinfo&iiprop=url`;
-        const res = await fetch(wikiUrl);
+        const bgQuery = searchTerm ? `${searchTerm} wallpaper background nature portrait vertical` : 'landscape nature wallpaper background';
+        const page = Math.floor(Math.random() * 10) + 1;
+        const res = await fetch(`https://unsplash.com/napi/search/photos?query=${encodeURIComponent(bgQuery)}&per_page=20&page=${page}&orientation=portrait`);
         if (res.ok) {
           const data = await res.json();
-          if (data.query && data.query.pages) {
-            const pages = Object.values(data.query.pages);
-            pages.forEach(p => {
-              if (p.imageinfo && p.imageinfo[0] && p.imageinfo[0].url) {
-                const u = p.imageinfo[0].url;
-                if (u.match(/\.(jpg|jpeg|png|webp)$/i) && !u.includes('logo') && !u.includes('icon') && !u.includes('Flag')) {
-                  foundUrls.push(u);
-                }
+          if (data.results && data.results.length > 0) {
+            data.results.forEach(item => {
+              if (item.urls && item.urls.raw) {
+                foundUrls.push(`${item.urls.raw}&auto=format&fit=crop&w=1080&h=1350&q=80`);
               }
             });
           }
         }
-      } catch(e) {
-        console.warn("Wikimedia API fetch error:", e);
+      } catch (e) {
+        console.warn("Error buscando en Unsplash Wallpapers:", e);
       }
 
-      // 2. Picsum High-Res Photography Engine (Variedad garantizada)
-      try {
-        const randomPage = Math.floor(Math.random() * 25) + 1;
-        const picsumRes = await fetch(`https://picsum.photos/v2/list?page=${randomPage}&limit=15`);
-        if (picsumRes.ok) {
-          const picsumData = await picsumRes.json();
-          picsumData.forEach(item => {
-            foundUrls.push(`https://picsum.photos/id/${item.id}/800/1000`);
-          });
+      // 2. Wikimedia Commons API con parámetros para imágenes de fondo / paisajes
+      if (foundUrls.length < 10) {
+        try {
+          const q = searchTerm ? encodeURIComponent(searchTerm + ' landscape background wallpaper') : 'landscape%20background%20wallpaper';
+          const wikiUrl = `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${q}&gsrnamespace=6&gsrlimit=20&format=json&origin=*&prop=imageinfo&iiprop=url`;
+          const res = await fetch(wikiUrl);
+          if (res.ok) {
+            const data = await res.json();
+            if (data.query && data.query.pages) {
+              const pages = Object.values(data.query.pages);
+              pages.forEach(p => {
+                if (p.imageinfo && p.imageinfo[0] && p.imageinfo[0].url) {
+                  const u = p.imageinfo[0].url;
+                  if (u.match(/\.(jpg|jpeg|png|webp)$/i) && !u.includes('logo') && !u.includes('icon') && !u.includes('Flag') && !u.includes('Map')) {
+                    foundUrls.push(u);
+                  }
+                }
+              });
+            }
+          }
+        } catch(e) {
+          console.warn("Wikimedia API fetch error:", e);
         }
-      } catch(e) {
-        console.warn("Picsum API fetch error:", e);
+      }
+
+      // 3. Picsum Engine de respaldo en alta resolución vertical
+      if (foundUrls.length === 0) {
+        for (let i = 0; i < 15; i++) {
+          const seed = Math.floor(Math.random() * 1000);
+          foundUrls.push(`https://picsum.photos/seed/${seed}/800/1000`);
+        }
       }
 
       return foundUrls;
@@ -1436,7 +1461,7 @@
       if (searchInput) searchInput.value = '';
 
       manualGenOffset += 1;
-      const topics = ['sky', 'mountains', 'sunset', 'ocean', 'forest', 'clouds', 'stars', 'cross', 'landscape', 'waterfall'];
+      const topics = ['cielo estrellas', 'montaña atardecer', 'mar calma', 'bosque sol', 'cruz fe', 'paisaje pacifico', 'nubes luz'];
       const currentTopic = topics[manualGenOffset % topics.length];
 
       const webImages = await fetchImagesFromWeb(currentTopic);
@@ -1472,7 +1497,7 @@
       }
 
       const container = document.getElementById('bgThumbnailGridContainer');
-      container.innerHTML = `<div style="text-align:center; padding:30px 20px; color:var(--text-muted); font-size:0.86rem;">🔍 Buscando imágenes de "${term}" en la web...</div>`;
+      container.innerHTML = `<div style="text-align:center; padding:30px 20px; color:var(--text-muted); font-size:0.86rem;">🔍 Buscando fondos de "${term}" en la web...</div>`;
 
       const results = await fetchImagesFromWeb(term);
 
@@ -1482,7 +1507,7 @@
         renderBgThumbnails(true);
         updateCustomCanvas();
       } else {
-        container.innerHTML = `<div style="text-align:center; padding:30px 20px; color:#f87171; font-size:0.86rem;">No se encontraron resultados para "${term}". Mostrando imágenes destacadas.</div>`;
+        container.innerHTML = `<div style="text-align:center; padding:30px 20px; color:#f87171; font-size:0.86rem;">No se encontraron fondos para "${term}". Mostrando imágenes destacadas.</div>`;
         setTimeout(() => refreshAllBackgrounds(), 1500);
       }
     }
@@ -2492,6 +2517,13 @@
       ctx.restore();
     }
 
+    /* FUNCIÓN DE LÍNEA DE TIEMPO ESCALONADA PARA ANIMACIONES SECUENCIALES */
+    function getStaggerProgress(globalProgress, startAt, endAt) {
+      if (globalProgress <= startAt) return 0;
+      if (globalProgress >= endAt) return 1;
+      return (globalProgress - startAt) / (endAt - startAt);
+    }
+
     async function drawCanvasCard(
       canvas, phrase, citation, fontPhraseName, fontCitationName, 
       logoKey, bgType, handleText = '@adventistassv', ratioKey = '4:5',
@@ -2544,100 +2576,72 @@
       let contentScale = 1.0;
       let contentRotate = 0;
 
-      let logoAlpha = 1.0, logoYOffset = 0, logoXOffset = 0;
-      let phraseAlpha = 1.0, phraseYOffset = 0, phraseXOffset = 0;
-      let citationAlpha = 1.0, citationYOffset = 0, citationXOffset = 0;
-      let handleAlpha = 1.0, handleYOffset = 0, handleXOffset = 0;
+      /* SECUENCIA OBLIGATORIA EN ANIMACIONES:
+         1. LOGO Y USUARIO PRIMERO (0% - 25% del tiempo)
+         2. FRASE DESPUÉS (18% - 65% del tiempo)
+         3. CITA Y SELLO AL FINAL (50% - 95% del tiempo)
+      */
+      const pHeader = easeOutCubic(getStaggerProgress(progress, 0.00, 0.25));  // Logo y Usuario
+      const pPhrase = easeOutCubic(getStaggerProgress(progress, 0.18, 0.65));  // Frase principal
+      const pFooter = easeOutCubic(getStaggerProgress(progress, 0.50, 0.90));  // Cita y Sello
+
+      let logoAlpha = pHeader, logoYOffset = (1 - pHeader) * 40, logoXOffset = 0;
+      let handleAlpha = pHeader, handleYOffset = (1 - pHeader) * 20, handleXOffset = 0;
+
+      let phraseAlpha = pPhrase, phraseYOffset = (1 - pPhrase) * 50, phraseXOffset = 0;
+      let citationAlpha = pFooter, citationYOffset = (1 - pFooter) * 30, citationXOffset = 0;
 
       const formattedPhrase = formatPhraseText(phrase, fontPhraseName);
       let typewriterChars = formattedPhrase.length;
 
-      if (animType === 'fade') {
-        const a = Math.min(progress / 0.25, 1.0);
-        logoAlpha = phraseAlpha = citationAlpha = handleAlpha = a;
-      } else if (animType === 'slide') {
-        const p = Math.min(progress / 0.30, 1.0);
-        const e = easeOutCubic(p);
-        logoYOffset = phraseYOffset = citationYOffset = handleYOffset = (1 - e) * 60;
-        logoAlpha = phraseAlpha = citationAlpha = handleAlpha = e;
+      if (animType === 'slide') {
+        // Desplazamiento progresivo respetando orden
       } else if (animType === 'slideLeft') {
-        const p = Math.min(progress / 0.30, 1.0);
-        const e = easeOutCubic(p);
-        logoXOffset = phraseXOffset = citationXOffset = handleXOffset = (1 - e) * (-250);
-        logoAlpha = phraseAlpha = citationAlpha = handleAlpha = e;
+        logoXOffset = handleXOffset = (1 - pHeader) * (-200);
+        phraseXOffset = (1 - pPhrase) * (-250);
+        citationXOffset = (1 - pFooter) * (-200);
       } else if (animType === 'slideRight') {
-        const p = Math.min(progress / 0.30, 1.0);
-        const e = easeOutCubic(p);
-        logoXOffset = phraseXOffset = citationXOffset = handleXOffset = (1 - e) * (250);
-        logoAlpha = phraseAlpha = citationAlpha = handleAlpha = e;
+        logoXOffset = handleXOffset = (1 - pHeader) * (200);
+        phraseXOffset = (1 - pPhrase) * (250);
+        citationXOffset = (1 - pFooter) * (200);
       } else if (animType === 'slideDown') {
-        const p = Math.min(progress / 0.30, 1.0);
-        const e = easeOutCubic(p);
-        logoYOffset = phraseYOffset = citationYOffset = handleYOffset = (1 - e) * (-150);
-        logoAlpha = phraseAlpha = citationAlpha = handleAlpha = e;
+        logoYOffset = handleYOffset = (1 - pHeader) * (-100);
+        phraseYOffset = (1 - pPhrase) * (-120);
+        citationYOffset = (1 - pFooter) * (-80);
       } else if (animType === 'zoom') {
         bgScale = 1.0 + (progress * 0.12);
-        logoAlpha = phraseAlpha = citationAlpha = handleAlpha = Math.min(progress / 0.20, 1.0);
       } else if (animType === 'zoomText') {
-        const p = Math.min(progress / 0.35, 1.0);
-        const e = easeOutCubic(p);
-        contentScale = 0.5 + (e * 0.5);
-        logoAlpha = phraseAlpha = citationAlpha = handleAlpha = e;
-      } else if (animType === 'sequential') {
-        const eLogo = easeOutCubic(Math.min(progress / 0.15, 1.0));
-        logoAlpha = eLogo; logoYOffset = (1 - eLogo) * 30;
-
-        const ePhrase = easeOutCubic(Math.max(0, Math.min((progress - 0.10) / 0.35, 1.0)));
-        phraseAlpha = ePhrase; phraseYOffset = (1 - ePhrase) * 40;
-
-        const eCit = easeOutCubic(Math.max(0, Math.min((progress - 0.35) / 0.30, 1.0)));
-        citationAlpha = eCit; citationYOffset = (1 - eCit) * 30;
-
-        const eHand = easeOutCubic(Math.max(0, Math.min((progress - 0.50) / 0.30, 1.0)));
-        handleAlpha = eHand; handleYOffset = (1 - eHand) * 20;
+        contentScale = 0.8 + (progress * 0.2);
       } else if (animType === 'typewriter') {
-        const pText = Math.min(progress / 0.55, 1.0);
+        const pText = getStaggerProgress(progress, 0.20, 0.70);
         typewriterChars = Math.floor(pText * formattedPhrase.length);
-        logoAlpha = Math.min(progress / 0.15, 1.0);
         phraseAlpha = 1.0;
-        citationAlpha = Math.max(0, Math.min((progress - 0.50) / 0.25, 1.0));
-        handleAlpha = Math.max(0, Math.min((progress - 0.65) / 0.25, 1.0));
       } else if (animType === 'bounce') {
-        const p = Math.min(progress / 0.45, 1.0);
-        contentScale = Math.max(0.01, easeOutElastic(p));
-        logoAlpha = phraseAlpha = citationAlpha = handleAlpha = Math.min(p * 2, 1.0);
+        const eHeader = easeOutElastic(pHeader);
+        const ePhrase = easeOutElastic(pPhrase);
+        const eFooter = easeOutElastic(pFooter);
+
+        logoYOffset = handleYOffset = (1 - eHeader) * 40;
+        phraseYOffset = (1 - ePhrase) * 60;
+        citationYOffset = (1 - eFooter) * 30;
       } else if (animType === 'rotate') {
-        const p = Math.min(progress / 0.35, 1.0);
-        const e = easeOutCubic(p);
-        contentRotate = (1 - e) * (-0.15);
-        contentScale = 0.7 + (e * 0.3);
-        logoAlpha = phraseAlpha = citationAlpha = handleAlpha = e;
+        contentRotate = (1 - pPhrase) * (-0.10);
       } else if (animType === 'blur') {
-        const a = Math.min(progress / 0.30, 1.0);
-        contentScale = 0.95 + (a * 0.05);
-        logoAlpha = phraseAlpha = citationAlpha = handleAlpha = a;
+        contentScale = 0.95 + (progress * 0.05);
       } else if (animType === 'flipX') {
-        const p = Math.min(progress / 0.40, 1.0);
-        contentScale = Math.abs(Math.cos((1 - p) * Math.PI * 0.5));
-        logoAlpha = phraseAlpha = citationAlpha = handleAlpha = Math.min(p * 1.5, 1.0);
+        contentScale = Math.abs(Math.cos((1 - progress) * Math.PI * 0.5));
       } else if (animType === 'curtain') {
-        const p = Math.min(progress / 0.35, 1.0);
-        const e = easeOutCubic(p);
-        phraseXOffset = (1 - e) * 80;
-        logoAlpha = phraseAlpha = citationAlpha = handleAlpha = e;
+        phraseXOffset = (1 - pPhrase) * 80;
       } else if (animType === 'shimmer') {
-        const p = Math.min(progress / 0.35, 1.0);
-        logoAlpha = phraseAlpha = citationAlpha = handleAlpha = p;
-        contentScale = 1.0 + Math.sin(p * Math.PI) * 0.08;
+        contentScale = 1.0 + Math.sin(progress * Math.PI) * 0.05;
       } else if (animType === 'wave') {
-        phraseYOffset = Math.sin(time * 3) * 12;
-        logoAlpha = phraseAlpha = citationAlpha = handleAlpha = Math.min(progress / 0.25, 1.0);
+        phraseYOffset += Math.sin(time * 3) * 10;
       } else if (animType === 'spiral') {
-        const p = Math.min(progress / 0.45, 1.0);
-        const e = easeOutCubic(p);
-        contentRotate = (1 - e) * Math.PI;
-        contentScale = e;
-        logoAlpha = phraseAlpha = citationAlpha = handleAlpha = e;
+        contentRotate = (1 - pPhrase) * Math.PI * 0.5;
+      } else if (animType === 'none') {
+        logoAlpha = handleAlpha = phraseAlpha = citationAlpha = 1.0;
+        logoYOffset = handleYOffset = phraseYOffset = citationYOffset = 0;
+        logoXOffset = handleXOffset = phraseXOffset = citationXOffset = 0;
       }
 
       if (bgType === 'user_custom' && userCustomImg) {
@@ -2740,9 +2744,9 @@
         handleY = baseFooterY + 25;
       }
 
-      if (hasStampText && handleAlpha > 0.01) {
+      if (hasStampText && citationAlpha > 0.01) {
         ctx.save();
-        ctx.globalAlpha = handleAlpha;
+        ctx.globalAlpha = citationAlpha;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'alphabetic';
         
@@ -3281,7 +3285,7 @@
       
       const storedCards = await getStoredCardsByDate(dateStr);
       if (storedCards && storedCards.length > 0 && manualGenOffset === 0) {
-        renderStoredWebpCards(storedCards);
+        renderStoredWebpCards(storedCards.slice(0, 10));
       } else {
         await refreshAllBackgrounds();
         const quotes = getQuotesForDate(dateStr, 10);
@@ -3300,12 +3304,14 @@
       const grid = document.getElementById('dailyGrid');
       grid.innerHTML = '';
 
+      const itemsToRender = cardsList.slice(0, 10); // Estricto máximo de 10 imágenes
+
       const svgEye = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
       const svgEdit = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>`;
       const svgShare = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`;
       const svgDownload = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`;
 
-      cardsList.forEach(item => {
+      itemsToRender.forEach(item => {
         const card = document.createElement('div');
         card.className = 'card';
 
@@ -3409,8 +3415,10 @@
       const svgShare = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`;
       const svgDownload = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`;
 
-      for (let i = 0; i < quotesList.length; i++) {
-        const item = quotesList[i];
+      const targetQuotes = quotesList.slice(0, 10); // Estricto máximo de 10 frases
+
+      for (let i = 0; i < targetQuotes.length; i++) {
+        const item = targetQuotes[i];
         
         const fontPhraseName = shuffledFonts[i % shuffledFonts.length];
         const fontCitationName = shuffledCitations[i % shuffledCitations.length];
@@ -3494,7 +3502,7 @@
           { show: false, text: 'UNAVOZ27', sub: 'MISIÓN PARA TODOS' }
         );
 
-        /* GUARDADO PERSISTENTE EN WEBP (INDEXEDDB) POR CADA FRUTA/FECHA GENERADA */
+        /* GUARDADO PERSISTENTE EN WEBP (INDEXEDDB) POR CADA FECHA GENERADA */
         const webpDataUrl = canvas.toDataURL('image/webp', 0.85);
         const cardId = `card_${dateStr}_${i}_${manualGenOffset}`;
         saveWebpCardToDB({
