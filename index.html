@@ -184,14 +184,12 @@
       flex-wrap: wrap;
     }
 
-    /* CAMPO DE FECHA CON TEXTO BLANCO E ÍCONO TURQUESA */
     input[type="date"] {
       color-scheme: dark !important;
       color: #ffffff !important;
       background-color: var(--bg-dark);
     }
 
-    /* ÍCONO DEL CALENDARIO EN COLOR TURQUESA (#00838f) */
     input[type="date"]::-webkit-calendar-picker-indicator {
       cursor: pointer;
       filter: invert(35%) sepia(100%) saturate(2000%) hue-rotate(145deg) brightness(95%) contrast(105%) !important;
@@ -256,6 +254,7 @@
       text-decoration: none;
     }
     .btn:hover { background: var(--accent-hover); }
+    .btn:disabled { opacity: 0.65; cursor: not-allowed; }
     .btn-secondary {
       background: transparent;
       border-color: var(--border);
@@ -273,7 +272,6 @@
       flex-shrink: 0;
     }
 
-    /* VISTA DE EDICIÓN */
     .editor-layout {
       display: flex;
       flex-direction: column;
@@ -1020,7 +1018,6 @@
       'Lora', 'Merriweather', 'Quicksand', 'Montserrat', 'Poppins', 'Outfit'
     ];
 
-    /* BASE DE DATOS LOCAL EN WEBP (INDEXEDDB) PARA PERSISTIR DÍA A DÍA */
     const DB_NAME = 'AdventistasSV_DB';
     const CARDS_STORE = 'generated_cards_webp';
     const TRACKS_STORE = 'cached_tracks';
@@ -1063,7 +1060,7 @@
           req.onsuccess = () => {
             const all = req.result || [];
             const filtered = all.filter(item => item.date === dateStr);
-            resolve(filtered.slice(0, 10)); // Estricto límite a 10 imágenes
+            resolve(filtered.slice(0, 10));
           };
           req.onerror = () => resolve([]);
         });
@@ -1112,24 +1109,24 @@
     let manualGenOffset = 0;
 
     const ANIMATIONS_DATA = [
-      { id: 'slide', title: 'Deslizar desde abajo (Slide Up)', desc: 'Desplazamiento vertical suave ascendente' },
-      { id: 'slideLeft', title: 'Deslizar desde la izquierda', desc: 'Entrada lateral desde el borde izquierdo' },
-      { id: 'slideRight', title: 'Deslizar desde la derecha', desc: 'Entrada lateral desde el borde derecho' },
+      { id: 'slide', title: 'Deslizar desde abajo (Slide Up)', desc: 'Entrada y salida con desplazamiento vertical' },
+      { id: 'slideLeft', title: 'Deslizar desde la izquierda', desc: 'Entrada y salida lateral izquierda' },
+      { id: 'slideRight', title: 'Deslizar desde la derecha', desc: 'Entrada y salida lateral derecha' },
       { id: 'slideDown', title: 'Deslizar desde arriba', desc: 'Desplazamiento descendente elegante' },
-      { id: 'fade', title: 'Desvanecer (Fade In)', desc: 'Aparición progresiva por opacidad' },
+      { id: 'fade', title: 'Desvanecer (Fade In/Out)', desc: 'Aparición y desaparición progresiva' },
       { id: 'zoom', title: 'Zoom a Fondo (Ken Burns)', desc: 'Efecto documental cinemático sobre la imagen' },
-      { id: 'zoomText', title: 'Zoom In/Out General', desc: 'Escalado suave del texto al entrar' },
-      { id: 'sequential', title: 'Aparición Escalonada', desc: 'Logo → Frase → Cita → Pie de imagen' },
-      { id: 'typewriter', title: 'Máquina de Escribir', desc: 'Escribe la frase carácter por carácter' },
-      { id: 'bounce', title: 'Rebote Elástico Suave', desc: 'Efecto de movimiento vivaz y moderno' },
+      { id: 'zoomText', title: 'Zoom In/Out General', desc: 'Escalado suave del texto al entrar y salir' },
+      { id: 'sequential', title: 'Aparición Escalonada', desc: 'Logo → Frase → Cita' },
+      { id: 'typewriter', title: 'Máquina de Escribir', desc: 'Escribe la frase y la sostiene para lectura' },
+      { id: 'bounce', title: 'Rebote Elástico Suave', desc: 'Efecto de movimiento vivaz' },
       { id: 'rotate', title: 'Rotación Elegante', desc: 'Giro suave combinado con escalado' },
-      { id: 'blur', title: 'Desenfoque a Claridad', desc: 'Pasa de desenfoque místico a nitidez total' },
-      { id: 'flipX', title: 'Giro 3D Flotante (Flip 3D)', desc: 'Rotación tridimensional sobre el eje' },
+      { id: 'blur', title: 'Desenfoque a Claridad', desc: 'Pasa de desenfoque a nitidez total' },
+      { id: 'flipX', title: 'Giro 3D Flotante (Flip 3D)', desc: 'Rotación tridimensional' },
       { id: 'curtain', title: 'Apertura de Cortina', desc: 'Separación y expansión desde el centro' },
-      { id: 'shimmer', title: 'Destello Luminoso', desc: 'Brillo resplandeciente al materializarse' },
-      { id: 'wave', title: 'Ondulación Suave', desc: 'Movimiento oscilatorio suave de las letras' },
-      { id: 'spiral', title: 'Espiral Sutil', desc: 'Giro en espiral envolvente hacia el centro' },
-      { id: 'none', title: 'Sin Transición', desc: 'Efecto estático sin movimiento de entrada' }
+      { id: 'shimmer', title: 'Destello Luminoso', desc: 'Brillo resplandeciente' },
+      { id: 'wave', title: 'Ondulación Suave', desc: 'Movimiento oscilatorio armónico' },
+      { id: 'spiral', title: 'Espiral Sutil', desc: 'Giro en espiral envolvente' },
+      { id: 'none', title: 'Sin Transición', desc: 'Efecto estático sin movimiento' }
     ];
 
     const EFFECTS_DATA = [
@@ -1137,20 +1134,20 @@
       { id: 'bubbles', title: 'Burbujas Flotantes', desc: 'Esferas translúcidas ascendentes' },
       { id: 'dust', title: 'Polvo Estelar / Luces Doradas', desc: 'Partículas doradas en suspensión' },
       { id: 'snow', title: 'Copos de Luz Suaves', desc: 'Caída de luz serena' },
-      { id: 'rays', title: 'Rayos de Luz Divina', desc: 'Resplandor radial de bendición' },
+      { id: 'rays', title: 'Rayos de Luz Divina', desc: 'Resplandor radial' },
       { id: 'rain', title: 'Lluvia Lenta y Serena', desc: 'Líneas delgadas de lluvia constante' },
       { id: 'petals', title: 'Pétalos Sutiles', desc: 'Pétalos flotantes en suspensión' },
       { id: 'fog', title: 'Bruma Celestial', desc: 'Niebla suave y misterio pacífico' },
-      { id: 'fireflies', title: 'Luciérnagas Nocturnas', desc: 'Luces cálidas de movimiento orgánico' },
-      { id: 'lensflare', title: 'Destellos de Lente', desc: 'Efecto óptico de destello de cámara' },
-      { id: 'bokeh', title: 'Esferas Bokeh Elegantes', desc: 'Círculos desenfocados de luz ambiental' },
+      { id: 'fireflies', title: 'Luciérnagas Nocturnas', desc: 'Luces cálidas orgánicas' },
+      { id: 'lensflare', title: 'Destellos de Lente', desc: 'Efecto óptico de cámara' },
+      { id: 'bokeh', title: 'Esferas Bokeh Elegantes', desc: 'Círculos desenfocados de luz' },
       { id: 'aurora', title: 'Aurora Boreal Espiritual', desc: 'Ondas luminosas celestiales' },
       { id: 'lightleaks', title: 'Fugas de Luz Cinematográficas', desc: 'Reflejos cálidos de película' },
-      { id: 'matrices', title: 'Lluvia de Estrellas Caídas', desc: 'Líneas de estrellas fugaces descendentes' },
+      { id: 'matrices', title: 'Lluvia de Estrellas Caídas', desc: 'Líneas de estrellas fugaces' },
       { id: 'vignette', title: 'Viñeta Cinematográfica', desc: 'Sombra perimetral con pulsación serena' },
       { id: 'cinematicbars', title: 'Franjas Anamórficas', desc: 'Barras negras formato cine' },
-      { id: 'glitch', title: 'Resplandor Neón Contorno', desc: 'Halo resplandeciente en el borde' },
-      { id: 'none', title: 'Sin Efectos', desc: 'Sin capa adicional de movimiento' }
+      { id: 'glitch', title: 'Resplandor Neón Contorno', desc: 'Halo resplandeciente' },
+      { id: 'none', title: 'Sin Efectos', desc: 'Sin capa adicional' }
     ];
 
     const FONT_MAP = {
@@ -1311,7 +1308,6 @@
       return text.toUpperCase();
     }
 
-    /* PRNG SEEDED */
     function getDateSeed(dateStr) {
       let hash = 0;
       for (let i = 0; i < dateStr.length; i++) {
@@ -1368,10 +1364,9 @@
       const rng = createPRNG(getDateSeed(dateStr) + 777 + manualGenOffset);
       const shuffled = seededShuffle(rotatedPool, rng);
 
-      return shuffled.slice(0, 10); // Estricto límite de 10
+      return shuffled.slice(0, 10);
     }
 
-    /* MOTOR DE BÚSQUEDA ESPECIALIZADO EN IMÁGENES DE FONDO DE ALTA CALIDAD */
     async function fetchImagesFromWeb(searchTerm) {
       const foundUrls = [];
 
@@ -1711,7 +1706,7 @@
       stopTestModalAnim();
 
       let startTime = null;
-      const testDur = 4;
+      const testDur = 6;
       const currentEffect = document.getElementById('selectEffect').value;
       const modalCanvas = document.getElementById('animModalCanvas');
 
@@ -1783,7 +1778,7 @@
       stopTestModalAnim();
 
       let startTime = null;
-      const testDur = 4;
+      const testDur = 6;
       const currentAnim = document.getElementById('selectAnimation').value;
       const modalCanvas = document.getElementById('effectModalCanvas');
 
@@ -2164,7 +2159,7 @@
       }
     }
 
-    /* EFECTOS Y OVERLAYS CORREGIDOS: VELOCIDADES SUTILES, ELEGANTES Y NO INFANTILES */
+    /* EFECTOS Y OVERLAYS CON VELOCIDADES PACÍFICAS Y SOLEMNE */
     function drawOverlayEffects(ctx, width, height, effectType, time) {
       if (!effectType || effectType === 'none') return;
 
@@ -2273,12 +2268,11 @@
         }
         ctx.restore();
       } else if (effectType === 'rain') {
-        // LLUVIA SERENA Y LENTA (Corregida de 600px/s a 140px/s)
         const count = 65;
         ctx.strokeStyle = 'rgba(220, 235, 255, 0.35)';
         ctx.lineWidth = 1.2;
         for (let i = 0; i < count; i++) {
-          const speed = 130 + (i % 5) * 30;
+          const speed = 110 + (i % 5) * 25;
           const len = 15 + (i % 4) * 10;
           const x = (i * 97 + time * 30) % (width + 100) - 50;
           const y = (time * speed + i * 120) % (height + 100) - 50;
@@ -2447,12 +2441,7 @@
       ctx.restore();
     }
 
-    function getStaggerProgress(globalProgress, startAt, endAt) {
-      if (globalProgress <= startAt) return 0;
-      if (globalProgress >= endAt) return 1;
-      return (globalProgress - startAt) / (endAt - startAt);
-    }
-
+    /* RENDERIZADOR DE LIENZO CON LÍNEA DE TIEMPO (ENTRADA -> ESPACIO LECTURA -> SALIDA) */
     async function drawCanvasCard(
       canvas, phrase, citation, fontPhraseName, fontCitationName, 
       logoKey, bgType, handleText = '@adventistassv', ratioKey = '4:5',
@@ -2481,13 +2470,30 @@
       const effectType = animOptions.effect || 'none';
       const time = animOptions.time || 0;
       const dur = animOptions.duration || 15;
-      const progress = Math.min(Math.max(time / dur, 0), 1.0);
+
+      // ESTRUCTURA DE TIEMPOS: 1.5s Entrada | Tiempo Medio Lectura | 1.5s Salida
+      const inDur = 1.5;
+      const outDur = 1.5;
+
+      let inProgress = 1.0;
+      let outProgress = 0.0;
+
+      if (time < inDur) {
+        inProgress = time / inDur;
+        outProgress = 0.0;
+      } else if (time <= (dur - outDur)) {
+        inProgress = 1.0; // REPOSO Y LECTURA PERFECTA (100% VISIBLE Y ESTÁTICO)
+        outProgress = 0.0;
+      } else {
+        inProgress = 1.0;
+        outProgress = (time - (dur - outDur)) / outDur;
+      }
 
       const easeOutCubic = (t) => 1 - Math.pow(1 - Math.min(Math.max(t, 0), 1), 3);
-      const easeOutElastic = (x) => {
-        const c4 = (2 * Math.PI) / 3;
-        return x === 0 ? 0 : x === 1 ? 1 : Math.pow(2, -10 * x) * Math.sin((x * 10 - 0.75) * c4) + 1;
-      };
+      const pIn = easeOutCubic(inProgress);
+      const pOut = easeOutCubic(outProgress);
+
+      const netAlpha = Math.max(0, pIn * (1 - pOut));
 
       const showLogo = document.getElementById('chkShowLogo') ? document.getElementById('chkShowLogo').checked : true;
 
@@ -2505,62 +2511,53 @@
       let contentScale = 1.0;
       let contentRotate = 0;
 
-      const pHeader = easeOutCubic(getStaggerProgress(progress, 0.00, 0.25));
-      const pPhrase = easeOutCubic(getStaggerProgress(progress, 0.18, 0.65));
-      const pFooter = easeOutCubic(getStaggerProgress(progress, 0.50, 0.90));
+      let logoAlpha = netAlpha, logoYOffset = (1 - pIn) * 40 - (pOut * 30), logoXOffset = 0;
+      let handleAlpha = netAlpha, handleYOffset = (1 - pIn) * 20 + (pOut * 20), handleXOffset = 0;
 
-      let logoAlpha = pHeader, logoYOffset = (1 - pHeader) * 40, logoXOffset = 0;
-      let handleAlpha = pHeader, handleYOffset = (1 - pHeader) * 20, handleXOffset = 0;
-
-      let phraseAlpha = pPhrase, phraseYOffset = (1 - pPhrase) * 50, phraseXOffset = 0;
-      let citationAlpha = pFooter, citationYOffset = (1 - pFooter) * 30, citationXOffset = 0;
+      let phraseAlpha = netAlpha, phraseYOffset = (1 - pIn) * 60 - (pOut * 40), phraseXOffset = 0;
+      let citationAlpha = netAlpha, citationYOffset = (1 - pIn) * 30 - (pOut * 20), citationXOffset = 0;
 
       const formattedPhrase = formatPhraseText(phrase, fontPhraseName);
       let typewriterChars = formattedPhrase.length;
 
       if (animType === 'slide') {
       } else if (animType === 'slideLeft') {
-        logoXOffset = handleXOffset = (1 - pHeader) * (-200);
-        phraseXOffset = (1 - pPhrase) * (-250);
-        citationXOffset = (1 - pFooter) * (-200);
+        logoXOffset = handleXOffset = (1 - pIn) * (-200) + (pOut * 200);
+        phraseXOffset = (1 - pIn) * (-250) + (pOut * 250);
+        citationXOffset = (1 - pIn) * (-200) + (pOut * 200);
       } else if (animType === 'slideRight') {
-        logoXOffset = handleXOffset = (1 - pHeader) * (200);
-        phraseXOffset = (1 - pPhrase) * (250);
-        citationXOffset = (1 - pFooter) * (200);
+        logoXOffset = handleXOffset = (1 - pIn) * (200) - (pOut * 200);
+        phraseXOffset = (1 - pIn) * (250) - (pOut * 250);
+        citationXOffset = (1 - pIn) * (200) - (pOut * 200);
       } else if (animType === 'slideDown') {
-        logoYOffset = handleYOffset = (1 - pHeader) * (-100);
-        phraseYOffset = (1 - pPhrase) * (-120);
-        citationYOffset = (1 - pFooter) * (-80);
+        logoYOffset = handleYOffset = (1 - pIn) * (-100) + (pOut * 100);
+        phraseYOffset = (1 - pIn) * (-120) + (pOut * 120);
+        citationYOffset = (1 - pIn) * (-80) + (pOut * 80);
       } else if (animType === 'zoom') {
-        bgScale = 1.0 + (progress * 0.10);
+        bgScale = 1.0 + ((time / dur) * 0.10);
       } else if (animType === 'zoomText') {
-        contentScale = 0.85 + (progress * 0.15);
+        contentScale = (0.85 + (pIn * 0.15)) * (1.0 - (pOut * 0.15));
       } else if (animType === 'typewriter') {
-        const pText = getStaggerProgress(progress, 0.15, 0.75);
-        typewriterChars = Math.floor(pText * formattedPhrase.length);
-        phraseAlpha = 1.0;
+        typewriterChars = Math.floor(pIn * formattedPhrase.length);
+        phraseAlpha = netAlpha;
       } else if (animType === 'bounce') {
-        const eHeader = easeOutElastic(pHeader);
-        const ePhrase = easeOutElastic(pPhrase);
-        const eFooter = easeOutElastic(pFooter);
-
-        logoYOffset = handleYOffset = (1 - eHeader) * 40;
-        phraseYOffset = (1 - ePhrase) * 60;
-        citationYOffset = (1 - eFooter) * 30;
+        logoYOffset = handleYOffset = (1 - pIn) * 40 - (pOut * 30);
+        phraseYOffset = (1 - pIn) * 60 - (pOut * 40);
+        citationYOffset = (1 - pIn) * 30 - (pOut * 20);
       } else if (animType === 'rotate') {
-        contentRotate = (1 - pPhrase) * (-0.08);
+        contentRotate = (1 - pIn) * (-0.08) + (pOut * 0.08);
       } else if (animType === 'blur') {
-        contentScale = 0.95 + (progress * 0.05);
+        contentScale = 0.95 + (pIn * 0.05);
       } else if (animType === 'flipX') {
-        contentScale = Math.abs(Math.cos((1 - progress) * Math.PI * 0.5));
+        contentScale = Math.abs(Math.cos((1 - pIn + pOut) * Math.PI * 0.5));
       } else if (animType === 'curtain') {
-        phraseXOffset = (1 - pPhrase) * 60;
+        phraseXOffset = (1 - pIn) * 60 - (pOut * 60);
       } else if (animType === 'shimmer') {
-        contentScale = 1.0 + Math.sin(progress * Math.PI) * 0.04;
+        contentScale = 1.0 + Math.sin(pIn * Math.PI) * 0.04;
       } else if (animType === 'wave') {
-        phraseYOffset += Math.sin(time * 2.5) * 8;
+        phraseYOffset += Math.sin(time * 2.0) * 6;
       } else if (animType === 'spiral') {
-        contentRotate = (1 - pPhrase) * Math.PI * 0.3;
+        contentRotate = (1 - pIn) * Math.PI * 0.2;
       } else if (animType === 'none') {
         logoAlpha = handleAlpha = phraseAlpha = citationAlpha = 1.0;
         logoYOffset = handleYOffset = phraseYOffset = citationYOffset = 0;
@@ -3053,7 +3050,7 @@
       await drawCustomCanvasOnTarget(canvas, time, duration, animType, effectType);
     }
 
-    /* GRABADO DE VIDEO EN TIEMPO REAL SINCRONIZADO 1:1 CON ANIMACIONES */
+    /* SISTEMA DE PROCESAMIENTO OFFLINE FOTOGRAMA A FOTOGRAMA (ESTILO EDITOR DE VIDEO PROFESIONAL) */
     async function generarVideoAnimado() {
       stopPreviewAnimation();
 
@@ -3068,17 +3065,18 @@
       const animType = document.getElementById('selectAnimation').value;
       const effectType = document.getElementById('selectEffect').value;
       const durationSec = parseFloat(document.getElementById('selectDuration').value) || 15;
-      const durationMs = durationSec * 1000;
+      const fps = 30;
+      const totalFrames = Math.round(durationSec * fps);
+      const frameIntervalMs = 1000 / fps;
 
       const originalText = btn.innerText;
-      btn.innerText = "Iniciando grabado...";
       btn.disabled = true;
 
-      // 1. Iniciar pista de audio si existe
       const audioEl = await startAudioPlayback();
 
-      const fps = 30;
-      const canvasStream = canvas.captureStream(fps);
+      // Captura manual de cuadro por cuadro (fps = 0)
+      const canvasStream = canvas.captureStream(0);
+      const videoTrack = canvasStream.getVideoTracks()[0];
       let finalStream = canvasStream;
       let audioCtx = null;
 
@@ -3094,7 +3092,7 @@
           const audioTrack = dest.stream.getAudioTracks()[0];
           if (audioTrack) {
             finalStream = new MediaStream([
-              ...canvasStream.getVideoTracks(),
+              videoTrack,
               audioTrack
             ]);
           }
@@ -3119,23 +3117,20 @@
         if (e.data && e.data.size > 0) recordedChunks.push(e.data);
       };
 
-      let recordStartTime = null;
-
       mediaRecorder.onstop = async () => {
         stopAudioPlayback();
         if (audioCtx) { try { audioCtx.close(); } catch(e){} }
 
-        btn.innerText = "Finalizando archivo...";
+        btn.innerText = "Empaquetando video final...";
+        const durationMs = durationSec * 1000;
         const rawBlob = new Blob(recordedChunks, { type: mediaRecorder.mimeType || 'video/webm' });
 
-        // Inyección de la cabecera EBML de duración
         const fixedBlob = await new Promise((resolve) => {
           const fixFunc = window.ysFixWebmDuration || window.fixWebmDuration;
           if (typeof fixFunc === 'function') {
             try {
               fixFunc(rawBlob, durationMs, (result) => resolve(result));
             } catch(err) {
-              console.warn("Error parcheando duración WebM:", err);
               resolve(rawBlob);
             }
           } else {
@@ -3159,26 +3154,25 @@
 
       mediaRecorder.start(100);
 
-      // Renderizado fluído a tiempo real sincronizado exactamente 1:1 con el tiempo de reloj
-      function renderFrame(now) {
-        if (!recordStartTime) recordStartTime = now;
-        const elapsed = (now - recordStartTime) / 1000;
-        const pct = Math.min(Math.round((elapsed / durationSec) * 100), 100);
+      // BUCLE DETERMINÍSTICO FOTOGRAMA POR FOTOGRAMA
+      for (let frame = 0; frame <= totalFrames; frame++) {
+        const frameTime = frame / fps;
+        const pct = Math.min(Math.round((frame / totalFrames) * 100), 100);
 
-        btn.innerText = `Grabando video (${pct}%)...`;
+        btn.innerText = `Renderizando cuadro ${frame}/${totalFrames} (${pct}%)...`;
 
-        drawCustomCanvasWithAnim(Math.min(elapsed, durationSec), durationSec, animType, effectType);
+        await drawCustomCanvasWithAnim(frameTime, durationSec, animType, effectType);
 
-        if (elapsed < durationSec) {
-          requestAnimationFrame(renderFrame);
-        } else {
-          if (mediaRecorder.state !== 'inactive') {
-            mediaRecorder.stop();
-          }
+        if (videoTrack && typeof videoTrack.requestFrame === 'function') {
+          videoTrack.requestFrame();
         }
+
+        await new Promise(resolve => setTimeout(resolve, frameIntervalMs));
       }
 
-      requestAnimationFrame(renderFrame);
+      if (mediaRecorder.state !== 'inactive') {
+        mediaRecorder.stop();
+      }
     }
 
     function updateCustomCanvas() {
@@ -3231,7 +3225,7 @@
       const grid = document.getElementById('dailyGrid');
       grid.innerHTML = '';
 
-      const itemsToRender = cardsList.slice(0, 10); // Estricto máximo de 10 imágenes
+      const itemsToRender = cardsList.slice(0, 10);
 
       const svgEye = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
       const svgEdit = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>`;
@@ -3342,7 +3336,7 @@
       const svgShare = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`;
       const svgDownload = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`;
 
-      const targetQuotes = quotesList.slice(0, 10); // Estricto máximo de 10 frases
+      const targetQuotes = quotesList.slice(0, 10);
 
       for (let i = 0; i < targetQuotes.length; i++) {
         const item = targetQuotes[i];
@@ -3429,7 +3423,6 @@
           { show: false, text: 'UNAVOZ27', sub: 'MISIÓN PARA TODOS' }
         );
 
-        /* GUARDADO PERSISTENTE EN WEBP (INDEXEDDB) POR CADA FECHA GENERADA */
         const webpDataUrl = canvas.toDataURL('image/webp', 0.85);
         const cardId = `card_${dateStr}_${i}_${manualGenOffset}`;
         saveWebpCardToDB({
