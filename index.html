@@ -55,20 +55,14 @@
       padding-bottom: 40px;
     }
 
-    /* ENCABEZADO FIJO */
+    /* ENCABEZADO NORMAL */
     header {
-      position: sticky;
-      top: 0;
-      z-index: 100;
       text-align: center;
-      padding: 16px 15px 12px;
-      background: rgba(9, 13, 22, 0.95);
-      backdrop-filter: blur(8px);
-      border-bottom: 1px solid var(--border);
+      padding: 16px 15px 8px;
+      background: var(--bg-dark);
       display: flex;
       flex-direction: column;
       align-items: center;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
     }
     
     .header-logo-container {
@@ -85,7 +79,19 @@
       object-fit: contain;
     }
 
-    header p { color: var(--text-muted); font-size: 0.82rem; margin-bottom: 12px; }
+    header p { color: var(--text-muted); font-size: 0.82rem; }
+
+    /* BARRAS DE NAVEGACIÓN FIJA AL SCROLL */
+    .sticky-nav-wrapper {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(9, 13, 22, 0.96);
+      backdrop-filter: blur(10px);
+      padding: 10px 15px;
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
 
     .nav-tabs {
       display: flex;
@@ -437,18 +443,22 @@
 </head>
 <body>
 
+  <!-- ENCABEZADO SUPERIOR CON LOGO (SE OCULTA AL SCROLL) -->
   <header>
     <div class="header-logo-container">
       <img id="mainLogoHeader" src="logo.png" alt="Adventistas SV" class="header-logo" onload="processHeaderLogo(this)">
     </div>
     <p>Frases e inspiración diaria • @adventistassv</p>
+  </header>
 
+  <!-- CONTENEDOR FIJO PARA LOS 3 BOTONES DE MENÚ -->
+  <nav class="sticky-nav-wrapper">
     <div class="nav-tabs">
       <button class="tab-btn active" onclick="switchTab('gallery')">Frases del Día</button>
       <button class="tab-btn" onclick="switchTab('editor')">Creador Personalizado</button>
       <button class="tab-btn tab-btn-share" onclick="shareWebsite()">Compartir Página</button>
     </div>
-  </header>
+  </nav>
 
   <div class="container">
     <!-- GALERÍA DIARIA CON SELECTOR DE FECHAS Y BOTÓN GENERAR NUEVAS -->
@@ -705,6 +715,12 @@
     const loadedLogos = {};
     const imageCache = {};
 
+    /* FUENTES CURSIVAS O CALIGRÁFICAS QUE USAN MAYÚSCULAS SOLO AL INICIO O TRAS PUNTO */
+    const SCRIPT_FONTS = [
+      'Pacifico', 'Satisfy', 'Caveat', 'Dancing Script', 'Great Vibes',
+      'Alex Brush', 'Sacramento', 'Italianno', 'Courgette', 'Abril Fatface'
+    ];
+
     const AUDIO_TRACKS = {
       none: null,
       piano: 'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3',
@@ -860,7 +876,7 @@
       'https://images.unsplash.com/photo-1508739773434-c26b3d09e071?auto=format&fit=crop&w=800&q=80'
     ];
 
-    /* POOL AMPLIADO DE PATRONES Y TEXTURAS (20 ENLACES PROBADOS) */
+    /* POOL AMPLIADO DE PATRONES Y TEXTURAS */
     const ALL_PATTERNS = [
       'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80',
@@ -884,7 +900,7 @@
       'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=800&q=80'
     ];
 
-    /* POOL AMPLIADO DE DEGRADADOS (20 PAREJAS DE COLORES) */
+    /* POOL AMPLIADO DE DEGRADADOS */
     const ALL_GRADIENTS = [
       ['#0f172a', '#1e3a8a'],
       ['#2d124d', '#1e1b4b'],
@@ -920,6 +936,30 @@
 
     let previewAnimId = null;
     let isPreviewPlaying = false;
+
+    /* GENERADOR DE ENLACES CORTOS */
+    async function getShortUrl(longUrl) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3000);
+        const response = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(longUrl)}`, { signal: controller.signal });
+        clearTimeout(timeoutId);
+        if (response.ok) {
+          const shortUrl = await response.text();
+          if (shortUrl && shortUrl.startsWith('http')) return shortUrl.trim();
+        }
+      } catch (e) {}
+      return longUrl;
+    }
+
+    /* FORMATO INTELIGENTE DE TEXTO SEGÚN TIPOGRAFÍA */
+    function formatPhraseText(text, fontName) {
+      if (!text) return '';
+      if (SCRIPT_FONTS.includes(fontName)) {
+        return text.toLowerCase().replace(/(^\s*|[.!?¡¿]\s*)([a-záéíóúñ])/gi, (m, sep, char) => sep + char.toUpperCase());
+      }
+      return text.toUpperCase();
+    }
 
     function getDateSeed(dateStr) {
       let hash = 0;
@@ -975,10 +1015,13 @@
     }
 
     async function shareWebsite() {
+      const rawUrl = window.location.href;
+      const shortUrl = await getShortUrl(rawUrl);
+
       const shareData = {
         title: 'Adventistas SV - Frases e Imágenes',
         text: 'Frases e inspiración diaria en Adventistas SV',
-        url: window.location.href
+        url: shortUrl
       };
 
       if (navigator.share) {
@@ -990,8 +1033,8 @@
         }
       }
 
-      navigator.clipboard.writeText(window.location.href);
-      alert('¡Enlace de la página copiado al portapapeles!');
+      navigator.clipboard.writeText(shortUrl);
+      alert(`¡Enlace corto copiado al portapapeles!\n${shortUrl}`);
     }
 
     function processHeaderLogo(img) {
@@ -1140,7 +1183,7 @@
       }
     }
 
-    /* REFRESCAR Y OBTENER SÍ O SÍ 15 FOTOS, 10 PATRONES Y 10 GRADIENTES NUEVOS */
+    /* REFRESCAR Y OBTENER 15 FOTOS, 10 PATRONES Y 10 GRADIENTES NUEVOS */
     function refreshAllBackgrounds() {
       activePhotos = getRandomItems(ALL_STOCK_PHOTOS, 15);
       activePatterns = getRandomItems(ALL_PATTERNS, 10);
@@ -1533,7 +1576,9 @@
       let citationAlpha = 1.0, citationYOffset = 0, citationXOffset = 0;
       let handleAlpha = 1.0, handleYOffset = 0, handleXOffset = 0;
 
-      let typewriterChars = phrase.length;
+      /* APLICAR FORMATO INTELIGENTE AL TEXTO DE LA FRASE SEGÚN LA TIPOGRAFÍA */
+      const formattedPhrase = formatPhraseText(phrase, fontPhraseName);
+      let typewriterChars = formattedPhrase.length;
 
       if (animType === 'fade') {
         const a = Math.min(progress / 0.25, 1.0);
@@ -1577,7 +1622,7 @@
         handleAlpha = eHand; handleYOffset = (1 - eHand) * 20;
       } else if (animType === 'typewriter') {
         const pText = Math.min(progress / 0.55, 1.0);
-        typewriterChars = Math.floor(pText * phrase.length);
+        typewriterChars = Math.floor(pText * formattedPhrase.length);
         logoAlpha = Math.min(progress / 0.15, 1.0);
         phraseAlpha = 1.0;
         citationAlpha = Math.max(0, Math.min((progress - 0.50) / 0.25, 1.0));
@@ -1649,7 +1694,7 @@
       /* DIBUJAR EFECTOS EN MOVIMIENTO DE PARTÍCULAS */
       drawOverlayEffects(ctx, canvas.width, canvas.height, effectType, time);
 
-      /* TRANSFORMACIÓN GENERAL DEL CONTENIDO (LOGO, FRASE, CITA Y USUARIO) */
+      /* TRANSFORMACIÓN GENERAL DEL CONTENIDO */
       ctx.save();
       if (contentScale !== 1.0 || contentRotate !== 0) {
         ctx.translate(canvas.width / 2, canvas.height / 2);
@@ -1691,9 +1736,9 @@
         ctx.restore();
       }
 
-      /* TEXTO DE LA FRASE */
-      const displayPhrase = (animType === 'typewriter') ? phrase.substring(0, typewriterChars) : phrase;
-      const words = displayPhrase.toUpperCase().split(' ');
+      /* DIBUJAR TEXTO DE LA FRASE */
+      const displayPhrase = (animType === 'typewriter') ? formattedPhrase.substring(0, typewriterChars) : formattedPhrase;
+      const words = displayPhrase.split(' ');
       let lines = [];
       let currentLine = '';
 
@@ -1774,7 +1819,7 @@
         ctx.restore();
       }
 
-      ctx.restore(); // RESTAURAR TRANSFORMACIÓN GENERAL
+      ctx.restore();
     }
 
     function drawGrad(ctx, canvas, index, scale = 1.0) {
@@ -1808,7 +1853,8 @@
 
     async function shareCanvasCard(canvas, phrase, citation, handle = '@adventistassv') {
       const siteUrl = window.location.href;
-      const shareText = `"${phrase}" - ${citation}\n\nVía ${handle}\n${siteUrl}`;
+      const shortUrl = await getShortUrl(siteUrl);
+      const shareText = `"${phrase}" - ${citation}\n\nVía ${handle}\n${shortUrl}`;
       const file = dataURLtoFile(canvas.toDataURL('image/png'), 'adventistassv-frase.png');
 
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
