@@ -31,7 +31,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Alex+Brush&family=Anton&family=Bebas+Neue&family=Caveat:wght@600;700&family=Cinzel+Decorative:wght@700&family=Cinzel:wght@700&family=Cormorant+Garamond:ital,wght@0,700;1,600&family=Courgette&family=Dancing+Script:wght@700&family=Great+Vibes&family=Italianno&family=Lora:ital,wght@0,600;1,500&family=Merriweather:ital,wght@0,700;1,400&family=Montserrat:ital,wght@0,700;0,900;1,500;1,600&family=Oswald:wght@600&family=Outfit:wght@600;700;900&family=Pacifico&family=Playfair+Display:ital,wght@0,700;1,600&family=Poppins:wght@400;500;600;700;900&family=Quicksand:wght@600;700&family=Righteous&family=Sacramento&family=Satisfy&display=swap" rel="stylesheet">
 
-  <!-- Librería Oficial para Inyección de Duración en Encabezados WebM / MP4 -->
+  <!-- Librería Oficial para Inyección de Duración en Encabezados WebM -->
   <script src="https://cdn.jsdelivr.net/npm/fix-webm-duration@1.0.5/fix-webm-duration.js"></script>
 
   <style>
@@ -184,26 +184,18 @@
       flex-wrap: wrap;
     }
 
-    /* ESTILIZADO DE ÍCONO DE CALENDARIO BLANCO / VISIBLE */
-    /* Campo de fecha con texto blanco e ícono turquesa */
-input[type="date"] {
-  color-scheme: dark !important;
-  color: #ffffff !important;
-  background-color: var(--bg-dark);
-}
-
-/* Ícono del calendario en color turquesa (#00838f) */
-input[type="date"]::-webkit-calendar-picker-indicator {
-  cursor: pointer;
-  filter: invert(35%) sepia(100%) saturate(2000%) hue-rotate(145deg) brightness(95%) contrast(105%) !important;
-  opacity: 1 !important;
-}
-
+    /* CAMPO DE FECHA CON TEXTO BLANCO E ÍCONO TURQUESA */
+    input[type="date"] {
+      color-scheme: dark !important;
+      color: #ffffff !important;
+      background-color: var(--bg-dark);
     }
+
+    /* ÍCONO DEL CALENDARIO EN COLOR TURQUESA (#00838f) */
     input[type="date"]::-webkit-calendar-picker-indicator {
-      filter: invert(1) hue-rotate(180deg);
       cursor: pointer;
-      opacity: 0.9;
+      filter: invert(35%) sepia(100%) saturate(2000%) hue-rotate(145deg) brightness(95%) contrast(105%) !important;
+      opacity: 1 !important;
     }
 
     .grid-daily {
@@ -2591,7 +2583,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
       /* SECUENCIA OBLIGATORIA EN ANIMACIONES:
          1. LOGO Y USUARIO PRIMERO (0% - 25% del tiempo)
          2. FRASE DESPUÉS (18% - 65% del tiempo)
-         3. CITA Y SELLO AL FINAL (50% - 95% del tiempo)
+         3. CITA Y SELLO AL FINAL (50% - 90% del tiempo)
       */
       const pHeader = easeOutCubic(getStaggerProgress(progress, 0.00, 0.25));  // Logo y Usuario
       const pPhrase = easeOutCubic(getStaggerProgress(progress, 0.18, 0.65));  // Frase principal
@@ -3142,6 +3134,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
       await drawCustomCanvasOnTarget(canvas, time, duration, animType, effectType);
     }
 
+    /* GRABADO DE VIDEO EN TIEMPO REAL COMPATIBLE CON REDES SOCIALES (INSTAGRAM/FACEBOOK/WHATSAPP) */
     async function generarVideoAnimado() {
       stopPreviewAnimation();
 
@@ -3159,9 +3152,13 @@ input[type="date"]::-webkit-calendar-picker-indicator {
       const durationMs = durationSec * 1000;
 
       const originalText = btn.innerText;
-      btn.innerText = "⏳ Grabando Video (0%)...";
+      btn.innerText = "⏳ Preparando grabado...";
       btn.disabled = true;
 
+      // Pre-carga del primer fotograma
+      await drawCustomCanvasWithAnim(0, durationSec, animType, effectType);
+
+      // Iniciar audio instrumental
       const audioEl = await startAudioPlayback();
 
       const fps = 30;
@@ -3192,8 +3189,8 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
       const recordedChunks = [];
 
-      let mimeType = 'video/webm;codecs=vp9';
-      if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'video/webm;codecs=vp8';
+      let mimeType = 'video/webm;codecs=vp9,opus';
+      if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'video/webm;codecs=vp8,opus';
       if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'video/webm';
 
       let mediaRecorder;
@@ -3209,25 +3206,35 @@ input[type="date"]::-webkit-calendar-picker-indicator {
         }
       };
 
+      let startTime = null;
+
       mediaRecorder.onstop = async () => {
         stopAudioPlayback();
-        if (audioCtx) { audioCtx.close(); }
+        if (audioCtx) { try { audioCtx.close(); } catch(e){} }
 
         const rawBlob = new Blob(recordedChunks, { type: mediaRecorder.mimeType || 'video/webm' });
+        const actualDurationMs = startTime ? (performance.now() - startTime) : durationMs;
 
+        // Inyección de la cabecera de duración EBML para detección automática en galerías móviles
         const applyDurationFix = (blob, duration) => {
           return new Promise((resolve) => {
-            if (typeof window.ysFixWebmDuration === 'function') {
-              window.ysFixWebmDuration(blob, duration, (fixedBlob) => {
-                resolve(fixedBlob);
-              });
+            const fixFunc = window.ysFixWebmDuration || window.fixWebmDuration;
+            if (typeof fixFunc === 'function') {
+              try {
+                fixFunc(blob, duration, (fixedBlob) => {
+                  resolve(fixedBlob);
+                });
+              } catch(err) {
+                console.warn("Error aplicando duración a WebM:", err);
+                resolve(blob);
+              }
             } else {
               resolve(blob);
             }
           });
         };
 
-        const finalBlob = await applyDurationFix(rawBlob, durationMs);
+        const finalBlob = await applyDurationFix(rawBlob, actualDurationMs);
 
         const url = URL.createObjectURL(finalBlob);
         const a = document.createElement('a');
@@ -3244,26 +3251,30 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
       mediaRecorder.start(100);
 
-      const totalFrames = Math.round(durationSec * fps);
-      let currentFrame = 0;
+      // Grabación fluida sincronizada con el reloj en tiempo real
+      let isRecording = true;
 
-      async function renderFrameStep() {
-        if (currentFrame > totalFrames) {
-          mediaRecorder.stop();
-          return;
+      function renderRecordLoop(now) {
+        if (!isRecording) return;
+        if (!startTime) startTime = now;
+
+        const elapsed = (now - startTime) / 1000;
+        const pct = Math.min(Math.round((elapsed / durationSec) * 100), 100);
+        btn.innerText = `🎬 Grabando Video (${pct}%)...`;
+
+        drawCustomCanvasWithAnim(Math.min(elapsed, durationSec), durationSec, animType, effectType);
+
+        if (elapsed >= durationSec) {
+          isRecording = false;
+          if (mediaRecorder.state !== 'inactive') {
+            mediaRecorder.stop();
+          }
+        } else {
+          requestAnimationFrame(renderRecordLoop);
         }
-
-        const elapsed = (currentFrame / fps);
-        const pct = Math.min(Math.round((currentFrame / totalFrames) * 100), 100);
-        btn.innerText = `⏳ Procesando Video (${pct}%)...`;
-
-        await drawCustomCanvasWithAnim(elapsed, durationSec, animType, effectType);
-        currentFrame++;
-
-        setTimeout(renderFrameStep, 1000 / fps);
       }
 
-      renderFrameStep();
+      requestAnimationFrame(renderRecordLoop);
     }
 
     function updateCustomCanvas() {
