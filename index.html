@@ -807,13 +807,14 @@
             <label>Efectos de Movimiento / Partículas Overlay:</label>
             <div class="ig-music-trigger-card" onclick="openEffectModal()">
               <div style="overflow: hidden;">
-                <div id="effectTriggerTitle" style="font-weight: 600; font-size: 0.88rem; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Destellos y Estrellas Brillantes</div>
-                <div id="effectTriggerSub" style="font-size: 0.76rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Toca para seleccionar efecto</div>
+                <div id="effectTriggerTitle" style="font-weight: 600; font-size: 0.88rem; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Sin Efectos de Partículas</div>
+                <div id="effectTriggerSub" style="font-size: 0.76rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Toca para activar efectos (opcional)</div>
               </div>
               <button class="btn btn-secondary" style="min-height: 32px; padding: 4px 10px; font-size: 0.78rem; flex-shrink: 0;">Seleccionar</button>
             </div>
             <select id="selectEffect" class="hidden" onchange="updateCustomCanvas()">
-              <option value="sparkles" selected>Destellos y Estrellas Brillantes</option>
+              <option value="none" selected>Sin Efectos de Partículas</option>
+              <option value="sparkles">Destellos y Estrellas Brillantes</option>
               <option value="bubbles">Burbujas Flotantes</option>
               <option value="dust">Polvo Estelar / Luces Doradas</option>
               <option value="snow">Copos de Luz Suaves</option>
@@ -830,7 +831,6 @@
               <option value="vignette">Viñeta Cinematográfica</option>
               <option value="cinematicbars">Franjas Anamórficas Cinematográficas</option>
               <option value="glitch">Resplandor Neón Contorno</option>
-              <option value="none">Sin Efectos de Partículas</option>
             </select>
           </div>
 
@@ -1165,6 +1165,7 @@
     ];
 
     const EFFECTS_DATA = [
+      { id: 'none', title: 'Sin Efectos', desc: 'Sin capa adicional (Recomendado)' },
       { id: 'sparkles', title: 'Destellos y Estrellas', desc: 'Luces brillantes y destellos suaves' },
       { id: 'bubbles', title: 'Burbujas Flotantes', desc: 'Esferas translúcidas ascendentes' },
       { id: 'dust', title: 'Polvo Estelar / Luces Doradas', desc: 'Partículas doradas en suspensión' },
@@ -1181,8 +1182,7 @@
       { id: 'matrices', title: 'Lluvia de Estrellas Caídas', desc: 'Líneas de estrellas fugaces' },
       { id: 'vignette', title: 'Viñeta Cinematográfica', desc: 'Sombra perimetral con pulsación serena' },
       { id: 'cinematicbars', title: 'Franjas Anamórficas', desc: 'Barras negras formato cine' },
-      { id: 'glitch', title: 'Resplandor Neón Contorno', desc: 'Halo resplandeciente' },
-      { id: 'none', title: 'Sin Efectos', desc: 'Sin capa adicional' }
+      { id: 'glitch', title: 'Resplandor Neón Contorno', desc: 'Halo resplandeciente' }
     ];
 
     const FONT_MAP = {
@@ -1543,6 +1543,12 @@
       selectedBg = bg;
 
       switchTab('editor');
+      
+      if (bg.startsWith('video_')) {
+        const vidObj = ALL_STOCK_VIDEOS.find(v => ('video_' + v.id) === bg);
+        if (vidObj) setupVideoBg(vidObj.url, vidObj.poster);
+      }
+
       updateCustomCanvas();
 
       document.getElementById('editorSection').scrollIntoView({ behavior: 'smooth' });
@@ -2208,7 +2214,7 @@
       container.appendChild(secGrads);
     }
 
-    // CONFIGURACIÓN MEJORADA DE CARGA Y REPRODUCCIÓN DE VIDEO EN VISTA PREVIA
+    // CONFIGURACIÓN CORREGIDA CON VÍNCULO AL DOM PARA RENDERIZADO GARANTIZADO EN CANAVAS
     function setupVideoBg(videoUrl, posterUrl) {
       stopVideoBg();
 
@@ -2222,13 +2228,25 @@
       }
 
       videoBgElement = document.createElement('video');
+      videoBgElement.id = 'appBgVideoElement';
       videoBgElement.crossOrigin = 'anonymous';
       videoBgElement.loop = true;
       videoBgElement.muted = true;
       videoBgElement.defaultMuted = true;
       videoBgElement.playsInline = true;
+      videoBgElement.autoplay = true;
       videoBgElement.setAttribute('playsinline', '');
       videoBgElement.setAttribute('webkit-playsinline', '');
+
+      // Inserción en el DOM en segundo plano para forzar decodificación en navegadores móviles
+      videoBgElement.style.position = 'fixed';
+      videoBgElement.style.top = '-9999px';
+      videoBgElement.style.left = '-9999px';
+      videoBgElement.style.width = '1px';
+      videoBgElement.style.height = '1px';
+      videoBgElement.style.opacity = '0';
+      videoBgElement.style.pointerEvents = 'none';
+      document.body.appendChild(videoBgElement);
 
       videoBgElement.oncanplay = () => {
         videoBgElement.play().catch(e => console.log("Autoplay diferido:", e));
@@ -2254,6 +2272,9 @@
       if (videoBgElement) {
         videoBgElement.pause();
         videoBgElement.currentTime = 0;
+        if (videoBgElement.parentNode) {
+          videoBgElement.parentNode.removeChild(videoBgElement);
+        }
         videoBgElement = null;
       }
       currentVideoPosterImg = null;
@@ -2586,7 +2607,7 @@
       ctx.restore();
     }
 
-    /* RENDERIZADOR DE LIENZO CON LÍNEA DE TIEMPO (ENTRADA -> ESPACIO LECTURA -> SALIDA) */
+    /* RENDERIZADOR DE LIENZO CON LÍNEA DE TIEMPO Y RENDERIZADO FLUIDO DE VIDEO */
     async function drawCanvasCard(
       canvas, phrase, citation, fontPhraseName, fontCitationName, 
       logoKey, bgType, handleText = '@adventistassv', ratioKey = '4:5',
@@ -2627,7 +2648,7 @@
         inProgress = time / inDur;
         outProgress = 0.0;
       } else if (time <= (dur - outDur)) {
-        inProgress = 1.0; // REPOSO Y LECTURA PERFECTA (100% VISIBLE Y ESTÁTICO)
+        inProgress = 1.0;
         outProgress = 0.0;
       } else {
         inProgress = 1.0;
@@ -2709,8 +2730,11 @@
         logoXOffset = handleXOffset = phraseXOffset = citationXOffset = 0;
       }
 
-      // RENDERIZADO MEJORADO DE VIDEO / RESERVA DE POSTER
+      // RENDERIZADO DE VIDEO DE FONDO GARANTIZADO CON SOPORTE COMPLETO
       if (bgType.startsWith('video_') && videoBgElement) {
+        if (videoBgElement.paused) {
+          videoBgElement.play().catch(() => {});
+        }
         if (videoBgElement.readyState >= 2) {
           drawCoverImage(ctx, videoBgElement, canvas.width, canvas.height, bgScale);
         } else if (currentVideoPosterImg) {
@@ -3137,6 +3161,10 @@
 
       stopPreviewAnimation();
 
+      if (selectedBg.startsWith('video_') && videoBgElement) {
+        videoBgElement.play().catch(e => console.log("Video play error:", e));
+      }
+
       const animType = document.getElementById('selectAnimation').value;
       const effectType = document.getElementById('selectEffect').value;
       
@@ -3216,6 +3244,10 @@
       if (!canvas) {
         alert("No se encontró el lienzo para generar el video.");
         return;
+      }
+
+      if (selectedBg.startsWith('video_') && videoBgElement) {
+        videoBgElement.play().catch(e => console.log("Video play error:", e));
       }
 
       const animType = document.getElementById('selectAnimation').value;
