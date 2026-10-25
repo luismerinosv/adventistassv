@@ -726,12 +726,12 @@
           <!-- SELLO / MARCA DE CAMPAÑA (UNAVOZ27) -->
           <div class="form-group" style="margin-top: 4px; padding-top: 6px; border-top: 1px dashed var(--border);">
             <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 600; color: #fff;">
-              <input type="checkbox" id="chkShowStamp" checked onchange="toggleStampInputs(); updateCustomCanvas();" style="width: 18px; height: 18px; accent-color: var(--accent);">
+              <input type="checkbox" id="chkShowStamp" onchange="toggleStampInputs(); updateCustomCanvas();" style="width: 18px; height: 18px; accent-color: var(--accent);">
               Activar Sello / Marca de Campaña (ej. UnaVoz27)
             </label>
           </div>
 
-          <div id="stampInputsContainer" class="form-group" style="display: flex; flex-direction: column; gap: 6px;">
+          <div id="stampInputsContainer" class="form-group hidden" style="display: flex; flex-direction: column; gap: 6px;">
             <label>Texto del Sello (Principal y Subtítulo):</label>
             <div style="display: flex; gap: 8px;">
               <input type="text" id="inputStampText" class="form-control" value="UNAVOZ27" placeholder="Texto Sello (ej. UNAVOZ27)" oninput="updateCustomCanvas()">
@@ -1375,6 +1375,11 @@
       document.getElementById('selectFontCitation').value = fontCitation;
       document.getElementById('chkShowLogo').checked = true;
       document.getElementById('selectLogo').value = logo;
+      
+      const chkStamp = document.getElementById('chkShowStamp');
+      if (chkStamp) chkStamp.checked = false;
+      toggleStampInputs();
+
       handleLogoChange();
       selectedBg = bg;
 
@@ -2395,7 +2400,7 @@
       canvas, phrase, citation, fontPhraseName, fontCitationName, 
       logoKey, bgType, handleText = '@adventistassv', ratioKey = '4:5',
       animOptions = { type: 'none', effect: 'none', time: 0, duration: 15 },
-      stampOptions = { show: true, text: 'UNAVOZ27', sub: 'MISIÓN PARA TODOS' }
+      stampOptions = { show: false, text: 'UNAVOZ27', sub: 'MISIÓN PARA TODOS' }
     ) {
       const ctx = canvas.getContext('2d');
       
@@ -2430,12 +2435,12 @@
       const showLogo = document.getElementById('chkShowLogo') ? document.getElementById('chkShowLogo').checked : true;
 
       /* CONFIGURACIÓN DEL SELLO UNAVOZ27 */
-      let showStamp = stampOptions ? stampOptions.show : true;
+      let showStamp = stampOptions ? stampOptions.show : false;
       let stampText = stampOptions ? stampOptions.text : 'UNAVOZ27';
       let stampSub = stampOptions ? stampOptions.sub : 'MISIÓN PARA TODOS';
 
       if (canvas.id === 'customCanvas') {
-        showStamp = document.getElementById('chkShowStamp') ? document.getElementById('chkShowStamp').checked : true;
+        showStamp = document.getElementById('chkShowStamp') ? document.getElementById('chkShowStamp').checked : false;
         stampText = document.getElementById('inputStampText') ? document.getElementById('inputStampText').value : 'UNAVOZ27';
         stampSub = document.getElementById('inputStampSub') ? document.getElementById('inputStampSub').value : 'MISIÓN PARA TODOS';
       }
@@ -2633,26 +2638,23 @@
       if (ratioKey === '1:1') baseFooterY = canvas.height - 100;
       baseFooterY += handleYOffset;
 
-      /* DIBUJAR SELLO DESTACADO (UNAVOZ27) SI ESTÁ ACTIVO */
       let stampY = baseFooterY;
       let handleY = baseFooterY;
 
       const hasStampText = showStamp && stampText && stampText.trim() !== '';
 
       if (hasStampText) {
-        // El sello se ubica justo arriba del usuario de forma independiente
         stampY = baseFooterY - 45;
         handleY = baseFooterY + 25;
       }
 
-      /* DIBUJO DEL SELLO DESTACADO EN EL LIENZO */
+      /* DIBUJO DEL SELLO DESTACADO EN EL LIENZO SI ESTÁ ACTIVADO */
       if (hasStampText && handleAlpha > 0.01) {
         ctx.save();
         ctx.globalAlpha = handleAlpha;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'alphabetic';
         
-        // Texto Principal del Sello (ej. UNAVOZ27)
         ctx.font = '900 48px "Montserrat", "Outfit", "Bebas Neue", sans-serif';
         ctx.fillStyle = '#ffffff';
         ctx.shadowColor = 'rgba(0, 0, 0, 0.95)';
@@ -2661,7 +2663,6 @@
         ctx.shadowOffsetY = 3;
         ctx.fillText(stampText.toUpperCase(), (canvas.width / 2) + handleXOffset, stampY);
 
-        // Subtítulo del Sello (ej. MISIÓN PARA TODOS)
         if (stampSub && stampSub.trim() !== '') {
           ctx.font = '600 16px "Montserrat", sans-serif';
           ctx.fillStyle = 'rgba(255, 255, 255, 0.90)';
@@ -2704,7 +2705,6 @@
       const minStartY = (showLogo && logoHeight > 0) ? (logoY + logoHeight + 50) : 200;
       if (startY < minStartY) startY = minStartY;
 
-      /* Límite dinámico para evitar colisiones con el sello o usuario */
       const lowestTopY = hasStampText ? (stampY - 35) : (handleY - 35);
       const maxCitationY = lowestTopY - 25;
 
@@ -2884,7 +2884,7 @@
         currentDownloadConfig.handle,
         ratioKey,
         { type: 'none', effect: 'none' },
-        currentDownloadConfig.stamp
+        currentDownloadConfig.stamp || { show: false, text: 'UNAVOZ27', sub: 'MISIÓN PARA TODOS' }
       );
 
       const link = document.createElement('a');
@@ -2911,7 +2911,7 @@
         bg: selectedBg,
         handle: document.getElementById('inputHandle').value || '@adventistassv',
         stamp: {
-          show: chkStamp ? chkStamp.checked : true,
+          show: chkStamp ? chkStamp.checked : false,
           text: inputStampText ? inputStampText.value : 'UNAVOZ27',
           sub: inputStampSub ? inputStampSub.value : 'MISIÓN PARA TODOS'
         }
@@ -3019,7 +3019,7 @@
       const inputStampSub = document.getElementById('inputStampSub');
 
       const stampObj = {
-        show: chkStamp ? chkStamp.checked : true,
+        show: chkStamp ? chkStamp.checked : false,
         text: inputStampText ? inputStampText.value : 'UNAVOZ27',
         sub: inputStampSub ? inputStampSub.value : 'MISIÓN PARA TODOS'
       };
@@ -3178,7 +3178,7 @@
       const inputStampSub = document.getElementById('inputStampSub');
 
       const stampObj = {
-        show: chkStamp ? chkStamp.checked : true,
+        show: chkStamp ? chkStamp.checked : false,
         text: inputStampText ? inputStampText.value : 'UNAVOZ27',
         sub: inputStampSub ? inputStampSub.value : 'MISIÓN PARA TODOS'
       };
@@ -3272,7 +3272,7 @@
             logo: logoKey,
             bg: bgType,
             handle: '@adventistassv',
-            stamp: { show: true, text: 'UNAVOZ27', sub: 'MISIÓN PARA TODOS' }
+            stamp: { show: false, text: 'UNAVOZ27', sub: 'MISIÓN PARA TODOS' }
           });
         };
 
@@ -3289,7 +3289,7 @@
           canvas, item.frase, item.cita, fontPhraseName, fontCitationName, 
           logoKey, bgType, '@adventistassv', '4:5', 
           { type: 'none', effect: 'none' }, 
-          { show: true, text: 'UNAVOZ27', sub: 'MISIÓN PARA TODOS' }
+          { show: false, text: 'UNAVOZ27', sub: 'MISIÓN PARA TODOS' }
         );
       }
     }
