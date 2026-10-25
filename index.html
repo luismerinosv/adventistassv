@@ -653,13 +653,21 @@
             <input type="file" id="inputCustomBg" class="form-control" accept="image/*" onchange="handleUserBgUpload(event)">
           </div>
 
+          <!-- BUSCADOR DE FONDOS POR PALABRAS Y REFRESCADOR DINÁMICO -->
           <div class="form-group">
             <div class="bg-grid-header">
-              <label>Selecciona un Fondo (35 opciones activas):</label>
-              <button class="btn btn-secondary" style="padding: 2px 8px; font-size: 0.75rem; min-height: 26px;" onclick="refreshAllBackgrounds()">🔄 Cambiar Opciones</button>
+              <label>Selecciona o Busca un Fondo:</label>
+              <button class="btn btn-secondary" style="padding: 2px 8px; font-size: 0.75rem; min-height: 26px;" onclick="refreshAllBackgrounds()">🔄 Nuevas Imágenes</button>
             </div>
+            
+            <div style="display: flex; gap: 6px; margin-top: 4px; margin-bottom: 8px;">
+              <input type="text" id="inputBgSearch" class="form-control" placeholder="Buscar temas (ej: cielo, montaña, mar, luz, cruz, bosque)..." onkeyup="if(event.key==='Enter') searchBackgrounds()">
+              <button class="btn" style="min-height: 38px; padding: 4px 12px; flex-shrink: 0;" onclick="searchBackgrounds()">🔍 Buscar</button>
+            </div>
+
             <div id="bgThumbnailGridContainer" class="bg-grid-container"></div>
           </div>
+
         </div>
 
       </div>
@@ -847,36 +855,36 @@
 
     const QUOTES_BANK = buildExpandedQuoteBank();
 
-    /* POOL AMPLIADO DE FOTOGRAFÍAS (25 ENLACES DE ALTA CALIDAD) */
+    /* COLECCIÓN EXTENSA DE FOTOGRAFÍAS CON ETIQUETAS TEMÁTICAS */
     const ALL_STOCK_PHOTOS = [
-      'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1470240731273-7821a6eeb6bd?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1513002749550-c59d786b8e6c?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1518837695005-2083093ee35b?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1426604966848-d7adac402bff?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1475924156734-496f6cac6ec1?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1499209974431-9dddcece7f88?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1497436072909-60f360e1d4b1?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1511497584788-876761c119ef?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1532274402911-5a369e4c4bb5?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1508739773434-c26b3d09e071?auto=format&fit=crop&w=800&q=80'
+      { url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80', tags: 'mar playa sol ocean amanecer sunset luz' },
+      { url: 'https://images.unsplash.com/photo-1470240731273-7821a6eeb6bd?auto=format&fit=crop&w=800&q=80', tags: 'montaña bosque naturaleza sky cielo luz' },
+      { url: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=800&q=80', tags: 'estrellas galaxia noche cielo noche star' },
+      { url: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80', tags: 'lago agua montaña reflejo naturaleza' },
+      { url: 'https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=800&q=80', tags: 'bosque verde arboles pino naturaleza' },
+      { url: 'https://images.unsplash.com/photo-1513002749550-c59d786b8e6c?auto=format&fit=crop&w=800&q=80', tags: 'nubes cielo azul blanco luz sol' },
+      { url: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=800&q=80', tags: 'camino desierto libertad viaje fe' },
+      { url: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=800&q=80', tags: 'paisaje lago paz calma azul' },
+      { url: 'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&w=800&q=80', tags: 'campo verde atardecer sol naturaleza' },
+      { url: 'https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?auto=format&fit=crop&w=800&q=80', tags: 'cascada agua rio roca vida' },
+      { url: 'https://images.unsplash.com/photo-1518837695005-2083093ee35b?auto=format&fit=crop&w=800&q=80', tags: 'mar azul ola agua orilla' },
+      { url: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=800&q=80', tags: 'niebla montaña misterio manana verde' },
+      { url: 'https://images.unsplash.com/photo-1426604966848-d7adac402bff?auto=format&fit=crop&w=800&q=80', tags: 'valle verde montaña cielo rocas' },
+      { url: 'https://images.unsplash.com/photo-1475924156734-496f6cac6ec1?auto=format&fit=crop&w=800&q=80', tags: 'atardecer sol amanecer dorado fuego' },
+      { url: 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=800&q=80', tags: 'arbol hoja naturaleza verde vida' },
+      { url: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=800&q=80', tags: 'montaña cumbre nieve alto cima' },
+      { url: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80', tags: 'campo prado sol luz dorada' },
+      { url: 'https://images.unsplash.com/photo-1499209974431-9dddcece7f88?auto=format&fit=crop&w=800&q=80', tags: 'fe biblia oracion manos paz' },
+      { url: 'https://images.unsplash.com/photo-1497436072909-60f360e1d4b1?auto=format&fit=crop&w=800&q=80', tags: 'agua cristalina rio piedra naturaleza' },
+      { url: 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=800&q=80', tags: 'pino nieve invierno frio paz' },
+      { url: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=800&q=80', tags: 'bosque sol rayos luz arboles' },
+      { url: 'https://images.unsplash.com/photo-1511497584788-876761c119ef?auto=format&fit=crop&w=800&q=80', tags: 'bosque verde arboles naturaleza' },
+      { url: 'https://images.unsplash.com/photo-1532274402911-5a369e4c4bb5?auto=format&fit=crop&w=800&q=80', tags: 'puente lago madera serenidad' },
+      { url: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=800&q=80', tags: 'cruz fe luz cielo esperanza' },
+      { url: 'https://images.unsplash.com/photo-1508739773434-c26b3d09e071?auto=format&fit=crop&w=800&q=80', tags: 'cielo purpura noche estrellas paz' }
     ];
 
-    /* POOL AMPLIADO DE PATRONES Y TEXTURAS */
+    /* POOL DE PATRONES Y TEXTURAS */
     const ALL_PATTERNS = [
       'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80',
@@ -887,20 +895,10 @@
       'https://images.unsplash.com/photo-1508615039623-a25605d2b022?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1550684847-75317f2d3fbe?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1579546929662-711aa81148cf?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1528459801416-a9e53bbf4e17?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1533158307587-828f0a76ef46?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1554188248-986adbb73be4?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1508615070457-7baead006fe0?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1563089145-599997674d42?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1550684848-b4b727402682?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=800&q=80'
+      'https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&w=800&q=80'
     ];
 
-    /* POOL AMPLIADO DE DEGRADADOS */
+    /* POOL DE DEGRADADOS */
     const ALL_GRADIENTS = [
       ['#0f172a', '#1e3a8a'],
       ['#2d124d', '#1e1b4b'],
@@ -911,17 +909,7 @@
       ['#1a2a6c', '#b21f1f'],
       ['#232526', '#414345'],
       ['#1e130c', '#9a8478'],
-      ['#000428', '#004e92'],
-      ['#11998e', '#38ef7d'],
-      ['#3a1c71', '#d76d77'],
-      ['#000000', '#434343'],
-      ['#1f1c2c', '#928dab'],
-      ['#2c3e50', '#000000'],
-      ['#182848', '#4b6cb7'],
-      ['#141e30', '#243b55'],
-      ['#4b1248', '#f0c27b'],
-      ['#0575e6', '#00f260'],
-      ['#2c003e', '#028090']
+      ['#000428', '#004e92']
     ];
 
     let activePhotos = [];
@@ -1189,11 +1177,54 @@
       }
     }
 
-    /* REFRESCAR Y OBTENER 15 FOTOS, 10 PATRONES Y 10 GRADIENTES NUEVOS */
+    /* REFRESCAR Y GENERAR NUEVAS IMÁGENES DINÁMICAMENTE */
     function refreshAllBackgrounds() {
-      activePhotos = getRandomItems(ALL_STOCK_PHOTOS, 15);
-      activePatterns = getRandomItems(ALL_PATTERNS, 10);
-      activeGradients = getRandomItems(ALL_GRADIENTS, 10);
+      const searchInput = document.getElementById('inputBgSearch');
+      if (searchInput) searchInput.value = '';
+
+      // Generar URLs totalmente dinámicas con semillas aleatorias únicas
+      const freshPhotos = [];
+      const timestamp = Date.now();
+      
+      // Seleccionar 10 aleatorias del pool local etiquetado
+      const shuffledLocal = getRandomItems(ALL_STOCK_PHOTOS, 10).map(item => item.url);
+      freshPhotos.push(...shuffledLocal);
+
+      // Generar 10 nuevas imágenes dinámicas vía LoremFlickr / Picsum
+      for (let i = 0; i < 10; i++) {
+        const randomSeed = Math.floor(Math.random() * 900000) + timestamp + i;
+        freshPhotos.push(`https://loremflickr.com/800/1000/nature,sky,cross,mountain/all?lock=${randomSeed}`);
+      }
+
+      activePhotos = freshPhotos;
+      activePatterns = getRandomItems(ALL_PATTERNS, 8);
+      activeGradients = getRandomItems(ALL_GRADIENTS, 8);
+      renderBgThumbnails(true);
+      updateCustomCanvas();
+    }
+
+    /* BÚSQUEDA DE IMÁGENES POR PALABRAS CLAVE EN TIEMPO REAL */
+    function searchBackgrounds() {
+      const term = document.getElementById('inputBgSearch').value.trim().toLowerCase();
+      if (!term) {
+        refreshAllBackgrounds();
+        return;
+      }
+
+      // 1. Filtrar por etiquetas locales
+      const matchedLocal = ALL_STOCK_PHOTOS.filter(item => item.tags.toLowerCase().includes(term)).map(item => item.url);
+
+      // 2. Generar resultados dinámicos basados en la palabra buscada
+      const dynamicResults = [];
+      const cleanTerm = encodeURIComponent(term);
+      const timestamp = Date.now();
+
+      for (let i = 0; i < 12; i++) {
+        const lockId = timestamp + i;
+        dynamicResults.push(`https://loremflickr.com/800/1000/${cleanTerm}/all?lock=${lockId}`);
+      }
+
+      activePhotos = [...matchedLocal, ...dynamicResults];
       renderBgThumbnails(true);
       updateCustomCanvas();
     }
@@ -1226,7 +1257,7 @@
       container.innerHTML = '';
 
       const secPhotos = document.createElement('div');
-      secPhotos.innerHTML = `<div class="bg-section-title">📷 Fotografías (15)</div>`;
+      secPhotos.innerHTML = `<div class="bg-section-title">📷 Fotografías (${activePhotos.length} Encontradas)</div>`;
       const gridPhotos = document.createElement('div');
       gridPhotos.className = 'bg-grid';
 
@@ -1246,7 +1277,7 @@
       container.appendChild(secPhotos);
 
       const secPatterns = document.createElement('div');
-      secPatterns.innerHTML = `<div class="bg-section-title">🎨 Patrones y Texturas (10)</div>`;
+      secPatterns.innerHTML = `<div class="bg-section-title">🎨 Patrones y Texturas</div>`;
       const gridPatterns = document.createElement('div');
       gridPatterns.className = 'bg-grid';
 
@@ -1266,7 +1297,7 @@
       container.appendChild(secPatterns);
 
       const secGrads = document.createElement('div');
-      secGrads.innerHTML = `<div class="bg-section-title">🌈 Degradados Elegantes (10)</div>`;
+      secGrads.innerHTML = `<div class="bg-section-title">🌈 Degradados Elegantes</div>`;
       const gridGrads = document.createElement('div');
       gridGrads.className = 'bg-grid';
 
@@ -1660,7 +1691,7 @@
       } else if (bgType.startsWith('photo_')) {
         const pIndex = parseInt(bgType.split('_')[1]);
         try {
-          const bgImg = await loadImage(activePhotos[pIndex % activePhotos.length] || ALL_STOCK_PHOTOS[0]);
+          const bgImg = await loadImage(activePhotos[pIndex % activePhotos.length] || ALL_STOCK_PHOTOS[0].url);
           drawCoverImage(ctx, bgImg, canvas.width, canvas.height, bgScale);
           ctx.fillStyle = 'rgba(0, 0, 0, 0.52)';
           ctx.fillRect(0, 0, canvas.width, canvas.height);
