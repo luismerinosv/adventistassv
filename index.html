@@ -300,7 +300,7 @@
       min-height: 75px;
     }
 
-    /* TARJETA ACTIVADORA DEL SELECTOR DE MÚSICA */
+    /* TARJETA ACTIVADORA DE SELECTORES INTERACTIVOS */
     .ig-music-trigger-card {
       display: flex;
       align-items: center;
@@ -336,11 +336,11 @@
       object-fit: cover;
     }
 
-    /* MODAL MÚSICA EN TIEMPO REAL */
+    /* MODAL DE SELECTORES */
     .music-modal-card {
       background: #1e293b;
       width: 100%;
-      max-width: 500px;
+      max-width: 520px;
       max-height: 85vh;
       border-radius: 20px;
       display: flex;
@@ -394,7 +394,7 @@
 
     .music-list-container {
       overflow-y: auto;
-      max-height: 420px;
+      max-height: 440px;
       padding: 0 8px 12px;
       display: flex;
       flex-direction: column;
@@ -408,7 +408,7 @@
       border-radius: 10px;
       cursor: pointer;
       transition: background 0.15s ease;
-      margin-bottom: 2px;
+      margin-bottom: 4px;
     }
     .music-track-item:hover {
       background: rgba(255, 255, 255, 0.06);
@@ -419,9 +419,10 @@
     }
 
     .track-preview-btn {
-      width: 36px;
+      min-width: 36px;
       height: 36px;
-      border-radius: 50%;
+      padding: 0 10px;
+      border-radius: 20px;
       border: 1px solid var(--border);
       background: rgba(255, 255, 255, 0.08);
       color: #fff;
@@ -430,8 +431,10 @@
       justify-content: center;
       cursor: pointer;
       transition: all 0.15s ease;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
+      font-weight: 500;
       flex-shrink: 0;
+      gap: 4px;
     }
     .track-preview-btn:hover {
       background: var(--accent);
@@ -642,10 +645,10 @@
             <button class="btn" style="flex: 1;" onclick="downloadCustomImage()">Descargar PNG / JPG</button>
             
             <button id="btnPlayPreview" class="btn btn-secondary" style="width: 100%; margin-top: 4px;" onclick="previewAnimation()">
-              ▶ Previsualizar Animación
+              ▶ Previsualizar Animación Completa
             </button>
             <button id="btnDescargarVideo" class="btn" style="width: 100%; background: #00838f; font-weight: 600;" onclick="generarVideoAnimado()">
-              🎬 Descargar Video Animado (Reel/Story)
+              🎬 Descargar Video MP4 (Reel/Story/WhatsApp)
             </button>
           </div>
         </div>
@@ -694,26 +697,55 @@
             <input type="file" id="inputCustomLogo" class="form-control hidden" accept="image/*" style="margin-top: 6px;" onchange="handleUserLogoUpload(event)">
           </div>
 
+          <!-- SELECTOR INTERACTIVO DE TRANSICIONES DE TEXTO CON VISTA PREVIA -->
           <div class="form-group">
-            <label>Transición / Animación de Texto y Elementos:</label>
-            <select id="selectAnimation" class="form-control" onchange="previewAnimation()">
+            <label>Transición / Animación de Texto:</label>
+            <div class="ig-music-trigger-card" onclick="openAnimModal()">
+              <div style="display: flex; align-items: center; gap: 12px; overflow: hidden;">
+                <div class="ig-music-icon-box" id="animTriggerIcon">⬆️</div>
+                <div style="overflow: hidden;">
+                  <div id="animTriggerTitle" style="font-weight: 600; font-size: 0.88rem; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Deslizar desde abajo (Slide Up)</div>
+                  <div id="animTriggerSub" style="font-size: 0.76rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Toca para probar y seleccionar</div>
+                </div>
+              </div>
+              <button class="btn btn-secondary" style="min-height: 32px; padding: 4px 10px; font-size: 0.78rem; flex-shrink: 0;">Probar 🔍</button>
+            </div>
+            <select id="selectAnimation" class="hidden" onchange="updateCustomCanvas()">
               <option value="slide" selected>⬆ Deslizar desde abajo (Slide Up)</option>
               <option value="slideLeft">⬅ Deslizar desde la izquierda (Slide Left)</option>
+              <option value="slideRight">➡️ Deslizar desde la derecha (Slide Right)</option>
+              <option value="slideDown">⬇️ Deslizar desde arriba (Slide Down)</option>
               <option value="fade">✨ Desvanecer (Fade In General)</option>
               <option value="zoom">🔍 Zoom Suave a Fondo (Ken Burns)</option>
               <option value="zoomText">🔎 Zoom In/Out General</option>
-              <option value="sequential">📜 Aparición Escalonada (Logo → Frase → Cita → Usuario)</option>
+              <option value="sequential">📜 Aparición Escalonada (Logo → Frase → Cita)</option>
               <option value="typewriter">⌨️ Máquina de Escribir (Frase) + Entradas Suaves</option>
               <option value="bounce">⚽ Rebote Elástico General (Bounce In)</option>
               <option value="rotate">🌀 Rotación Elegante (Rotate & Scale)</option>
               <option value="blur">🌫️ Desenfoque a Claridad (Blur Fade)</option>
+              <option value="flipX">🔄 Giro 3D Flotante (Flip 3D)</option>
+              <option value="curtain">🎭 Apertura de Cortina (Separación)</option>
+              <option value="shimmer">⚡ Destello Luminoso al Entrar (Shimmer)</option>
+              <option value="wave">🌊 Ondulación Celestial (Wave)</option>
+              <option value="spiral">🌌 Espiral Mística (Spiral In)</option>
               <option value="none">🛑 Sin Transición (Estático)</option>
             </select>
           </div>
 
+          <!-- SELECTOR INTERACTIVO DE EFECTOS / OVERLAY CON VISTA PREVIA -->
           <div class="form-group">
             <label>Efectos de Movimiento / Partículas Overlay:</label>
-            <select id="selectEffect" class="form-control" onchange="previewAnimation()">
+            <div class="ig-music-trigger-card" onclick="openEffectModal()">
+              <div style="display: flex; align-items: center; gap: 12px; overflow: hidden;">
+                <div class="ig-music-icon-box" id="effectTriggerIcon">✨</div>
+                <div style="overflow: hidden;">
+                  <div id="effectTriggerTitle" style="font-weight: 600; font-size: 0.88rem; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Destellos y Estrellas Brillantes</div>
+                  <div id="effectTriggerSub" style="font-size: 0.76rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Toca para probar y seleccionar</div>
+                </div>
+              </div>
+              <button class="btn btn-secondary" style="min-height: 32px; padding: 4px 10px; font-size: 0.78rem; flex-shrink: 0;">Probar 🔍</button>
+            </div>
+            <select id="selectEffect" class="hidden" onchange="updateCustomCanvas()">
               <option value="sparkles" selected>✨ Destellos y Estrellas Brillantes</option>
               <option value="bubbles">🫧 Burbujas Flotantes</option>
               <option value="dust">🌌 Polvo Estelar / Luces Doradas</option>
@@ -725,6 +757,13 @@
               <option value="fog">🌫️ Bruma Celestial / Humo Místico</option>
               <option value="fireflies">🐝 Luciérnagas de Noche</option>
               <option value="lensflare">💡 Destellos de Lente (Lens Flare)</option>
+              <option value="bokeh">🔮 Esferas Bokeh Mágicas</option>
+              <option value="aurora">🌌 Aurora Boreal Espiritual</option>
+              <option value="lightleaks">📽️ Fugas de Luz Cinematográficas (Light Leaks)</option>
+              <option value="matrices">💫 Lluvia de Estrellas Caídas</option>
+              <option value="vignette">🎬 Viñeta Respirante Cinematográfica</option>
+              <option value="cinematicbars">🎞️ Franjas Anamórficas Cinematográficas</option>
+              <option value="glitch">⚡ Resplandor Místico de Neón</option>
               <option value="none">🛑 Sin Efectos de Partículas</option>
             </select>
           </div>
@@ -744,12 +783,13 @@
             </div>
           </div>
 
+          <!-- DURACIÓN PREDETERMINADA AHORA EN 15 SEGUNDOS -->
           <div class="form-group">
-            <label>Duración del Video (Hasta 30 Segundos):</label>
+            <label>Duración del Video (Predeterminado 15 Segundos):</label>
             <select id="selectDuration" class="form-control" onchange="previewAnimation()">
               <option value="5">5 Segundos</option>
-              <option value="10" selected>10 Segundos (Recomendado)</option>
-              <option value="15">15 Segundos</option>
+              <option value="10">10 Segundos</option>
+              <option value="15" selected>15 Segundos (Predeterminado)</option>
               <option value="30">30 Segundos (Máximo)</option>
             </select>
           </div>
@@ -810,6 +850,28 @@
         </div>
 
       </div>
+    </div>
+  </div>
+
+  <!-- MODAL BUSCADOR Y PROBADOR DE TRANSICIONES DE TEXTO -->
+  <div id="animModal" class="modal" onclick="closeAnimModal()">
+    <div class="music-modal-card" onclick="event.stopPropagation()">
+      <div class="music-modal-header">
+        <span>🎭 Selector y Probador de Transiciones</span>
+        <button class="modal-close" style="position:static;" onclick="closeAnimModal()">✕</button>
+      </div>
+      <div id="animListContainer" class="music-list-container" style="padding-top: 12px;"></div>
+    </div>
+  </div>
+
+  <!-- MODAL BUSCADOR Y PROBADOR DE EFECTOS / OVERLAY -->
+  <div id="effectModal" class="modal" onclick="closeEffectModal()">
+    <div class="music-modal-card" onclick="event.stopPropagation()">
+      <div class="music-modal-header">
+        <span>✨ Selector y Probador de Efectos</span>
+        <button class="modal-close" style="position:static;" onclick="closeEffectModal()">✕</button>
+      </div>
+      <div id="effectListContainer" class="music-list-container" style="padding-top: 12px;"></div>
     </div>
   </div>
 
@@ -949,6 +1011,52 @@
     let userCustomLogoImg = null;
     let activeAudioEl = null;
 
+    let testModalAnimId = null;
+
+    /* DATOS DE TRANSICIONES Y EFECTOS PARA MODALES DE VISTA PREVIA */
+    const ANIMATIONS_DATA = [
+      { id: 'slide', icon: '⬆️', title: 'Deslizar desde abajo (Slide Up)', desc: 'Desplazamiento vertical suave ascendente' },
+      { id: 'slideLeft', icon: '⬅️', title: 'Deslizar desde la izquierda', desc: 'Entrada lateral desde el borde izquierdo' },
+      { id: 'slideRight', icon: '➡️', title: 'Deslizar desde la derecha', desc: 'Entrada lateral desde el borde derecho' },
+      { id: 'slideDown', icon: '⬇️', title: 'Deslizar desde arriba', desc: 'Desplazamiento descendente elegante' },
+      { id: 'fade', icon: '✨', title: 'Desvanecer (Fade In)', desc: 'Aparición progresiva por opacidad' },
+      { id: 'zoom', icon: '🔍', title: 'Zoom a Fondo (Ken Burns)', desc: 'Efecto documental cinemático sobre la imagen' },
+      { id: 'zoomText', icon: '🔎', title: 'Zoom In/Out General', desc: 'Escalado suave del texto al entrar' },
+      { id: 'sequential', icon: '📜', title: 'Aparición Escalonada', desc: 'Logo → Frase → Cita → Pie de imagen' },
+      { id: 'typewriter', icon: '⌨️', title: 'Máquina de Escribir', desc: 'Escribe la frase carácter por carácter' },
+      { id: 'bounce', icon: '⚽', title: 'Rebote Elástico (Bounce)', desc: 'Efecto de rebote vivaz y moderno' },
+      { id: 'rotate', icon: '🌀', title: 'Rotación Elegante', desc: 'Giro suave combinado con escalado' },
+      { id: 'blur', icon: '🌫️', title: 'Desenfoque a Claridad', desc: 'Pasa de desenfoque místico a nitidez total' },
+      { id: 'flipX', icon: '🔄', title: 'Giro 3D Flotante (Flip 3D)', desc: 'Rotación tridimensional sobre el eje' },
+      { id: 'curtain', icon: '🎭', title: 'Apertura de Cortina', desc: 'Separación y expansión desde el centro' },
+      { id: 'shimmer', icon: '⚡', title: 'Destello Luminoso (Shimmer)', desc: 'Brillo resplandeciente al materializarse' },
+      { id: 'wave', icon: '🌊', title: 'Ondulación Celestial', desc: 'Movimiento oscilatorio suave de las letras' },
+      { id: 'spiral', icon: '🌌', title: 'Espiral Mística', desc: 'Giro en espiral envolvente hacia el centro' },
+      { id: 'none', icon: '🛑', title: 'Sin Transición', desc: 'Efecto estático sin movimiento de entrada' }
+    ];
+
+    const EFFECTS_DATA = [
+      { id: 'sparkles', icon: '✨', title: 'Destellos y Estrellas', desc: 'Luces brillantes y destellos de 4 puntas' },
+      { id: 'bubbles', icon: '🫧', title: 'Burbujas Flotantes', desc: 'Esferas translúcidas ascendentes' },
+      { id: 'dust', icon: '🌌', title: 'Polvo Estelar / Luces Doradas', desc: 'Partículas doradas en suspensión' },
+      { id: 'snow', icon: '❄️', title: 'Copos de Luz / Nieve Suave', desc: 'Caída de luz suave y serena' },
+      { id: 'rays', icon: '☀️', title: 'Rayos de Luz Divina', desc: 'Resplandor radial de bendición' },
+      { id: 'rain', icon: '🌧️', title: 'Lluvia Suave de Esperanza', desc: 'Líneas finas de lluvia brillante' },
+      { id: 'petals', icon: '🌸', title: 'Pétalos de Rosa Flotantes', desc: 'Pétalos de amor y delicadeza' },
+      { id: 'hearts', icon: '❤️', title: 'Corazones de Amor Divino', desc: 'Corazones flotantes ascendentes' },
+      { id: 'fog', icon: '🌫️', title: 'Bruma Celestial', desc: 'Niebla suave y misterio pacífico' },
+      { id: 'fireflies', icon: '🐝', title: 'Luciérnagas de Noche', desc: 'Luces cálidas de movimiento orgánico' },
+      { id: 'lensflare', icon: '💡', title: 'Destellos de Lente', desc: 'Efecto óptico de destello de cámara' },
+      { id: 'bokeh', icon: '🔮', title: 'Esferas Bokeh Mágicas', desc: 'Círculos desenfocados de luz ambiental' },
+      { id: 'aurora', icon: '🌌', title: 'Aurora Boreal Espiritual', desc: 'Ondas luminosas de colores celestiales' },
+      { id: 'lightleaks', icon: '📽️', title: 'Fugas de Luz (Light Leaks)', desc: 'Reflejos cálidos de película fotográfica' },
+      { id: 'matrices', icon: '💫', title: 'Lluvia de Estrellas Caídas', desc: 'Líneas de estrellas fugaces descendentes' },
+      { id: 'vignette', icon: '🎬', title: 'Viñeta Respirante', desc: 'Sombra perimetral con pulsación serena' },
+      { id: 'cinematicbars', icon: '🎞️', title: 'Franjas Anamórficas', desc: 'Barras negras de formato cine en bordes' },
+      { id: 'glitch', icon: '⚡', title: 'Resplandor Místico Neón', desc: 'Halo resplandeciente en el contorno' },
+      { id: 'none', icon: '🛑', title: 'Sin Efectos', desc: 'Sin capa adicional de movimiento' }
+    ];
+
     /* CONFIGURACIÓN TIPOGRÁFICA Y ESCALADO DE FUENTES */
     const FONT_MAP = {
       'Montserrat': { family: '"Montserrat", sans-serif', weight: '700', scale: 1.0 },
@@ -977,10 +1085,8 @@
       'Quicksand': { family: '"Quicksand", sans-serif', weight: '700', scale: 1.0 }
     };
 
-    /* TAMAÑO DE FUENTE FIJO PARA LAS CITAS BÍBLICAS O REFERENCIAS */
     const FIXED_CITATION_FONT_SIZE = 28;
 
-    /* CÁLCULO DINÁMICO DEL TAMAÑO DE FUENTE SEGÚN LA LONGITUD DE LA FRASE */
     function calculatePhraseFontSize(textLength, fontName) {
       let baseSize = 48;
       if (textLength <= 25) {
@@ -997,8 +1103,6 @@
 
       const cfg = FONT_MAP[fontName] || { scale: 1.0 };
       const scaledSize = Math.round(baseSize * (cfg.scale || 1.0));
-      
-      /* GARANTIZA QUE LA FRASE SIEMPRE SEA MÁS GRANDE QUE LA CITA (MÍNIMO 36px VS 28px DE LA CITA) */
       return Math.max(36, scaledSize);
     }
 
@@ -1054,7 +1158,7 @@
 
     const QUOTES_BANK = [...RAW_BIBLIA, ...RAW_ESCRITOS, ...RAW_HIMNOS];
 
-    /* BANCO DE FOTOGRAFÍAS DE ALTA RESOLUCIÓN */
+    /* FOTOGRAFÍAS Y PATRONES */
     const ALL_STOCK_PHOTOS = [
       { url: 'https://images.unsplash.com/photo-1513002749550-c59d786b8e6c?auto=format&fit=crop&w=800&q=80', tags: 'cielo nubes azul sol luz sky' },
       { url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80', tags: 'mar playa sol agua orilla ocean' },
@@ -1083,7 +1187,6 @@
       { url: 'https://images.unsplash.com/photo-1508739773434-c26b3d09e071?auto=format&fit=crop&w=800&q=80', tags: 'cielo purpura noche estrellas paz' }
     ];
 
-    /* PATRONES Y TEXTURAS */
     const ALL_PATTERNS = [
       'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80',
@@ -1097,7 +1200,6 @@
       'https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&w=800&q=80'
     ];
 
-    /* DEGRADADOS ELEGANTES */
     const ALL_GRADIENTS = [
       ['#0f172a', '#1e3a8a'], ['#2d124d', '#1e1b4b'], ['#134e4a', '#064e3b'], ['#7c2d12', '#451a03'],
       ['#312e81', '#4c1d95'], ['#0f2027', '#203a43'], ['#1a2a6c', '#b21f1f'], ['#232526', '#414345'],
@@ -1340,6 +1442,152 @@
       }
     }
 
+    /* FUNCIONES DE MODALES Y VISTA PREVIA DE TRANSICIONES Y EFECTOS */
+    function stopTestModalAnim() {
+      if (testModalAnimId) {
+        cancelAnimationFrame(testModalAnimId);
+        testModalAnimId = null;
+      }
+    }
+
+    function openAnimModal() {
+      renderAnimModalList();
+      document.getElementById('animModal').classList.add('active');
+    }
+
+    function closeAnimModal() {
+      stopTestModalAnim();
+      document.getElementById('animModal').classList.remove('active');
+      updateCustomCanvas();
+    }
+
+    function renderAnimModalList() {
+      const container = document.getElementById('animListContainer');
+      const currentVal = document.getElementById('selectAnimation').value;
+      container.innerHTML = '';
+
+      ANIMATIONS_DATA.forEach(anim => {
+        const isSelected = anim.id === currentVal;
+        const itemEl = document.createElement('div');
+        itemEl.className = `music-track-item ${isSelected ? 'selected' : ''}`;
+
+        itemEl.innerHTML = `
+          <div style="display:flex; align-items:center; gap:12px; overflow:hidden;">
+            <div style="width:40px; height:40px; border-radius:10px; background:rgba(255,255,255,0.06); display:flex; align-items:center; justify-content:center; font-size:1.2rem; flex-shrink:0;">${anim.icon}</div>
+            <div style="overflow:hidden;">
+              <div style="font-weight:600; font-size:0.86rem; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${anim.title}</div>
+              <div style="font-size:0.75rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${anim.desc}</div>
+            </div>
+          </div>
+          <div style="display:flex; align-items:center; gap:6px;">
+            <button class="track-preview-btn" onclick="testAnimPreview(event, '${anim.id}')">▶ Probar</button>
+            <button class="btn btn-secondary" style="min-height:32px; padding:2px 10px; font-size:0.76rem;" onclick="applyAnimChoice('${anim.id}', '${anim.icon}', '${anim.title}')">Aplicar</button>
+          </div>
+        `;
+        container.appendChild(itemEl);
+      });
+    }
+
+    function testAnimPreview(e, animId) {
+      if (e) e.stopPropagation();
+      stopPreviewAnimation();
+      stopTestModalAnim();
+
+      let startTime = null;
+      const testDur = 4;
+      const currentEffect = document.getElementById('selectEffect').value;
+
+      function loop(ts) {
+        if (!startTime) startTime = ts;
+        let elapsed = (ts - startTime) / 1000;
+        if (elapsed > testDur) {
+          startTime = ts;
+          elapsed = 0;
+        }
+        drawCustomCanvasWithAnim(elapsed, testDur, animId, currentEffect);
+        testModalAnimId = requestAnimationFrame(loop);
+      }
+      testModalAnimId = requestAnimationFrame(loop);
+    }
+
+    function applyAnimChoice(animId, icon, title) {
+      stopTestModalAnim();
+      document.getElementById('selectAnimation').value = animId;
+      document.getElementById('animTriggerIcon').innerText = icon;
+      document.getElementById('animTriggerTitle').innerText = title;
+      closeAnimModal();
+      updateCustomCanvas();
+    }
+
+    function openEffectModal() {
+      renderEffectModalList();
+      document.getElementById('effectModal').classList.add('active');
+    }
+
+    function closeEffectModal() {
+      stopTestModalAnim();
+      document.getElementById('effectModal').classList.remove('active');
+      updateCustomCanvas();
+    }
+
+    function renderEffectModalList() {
+      const container = document.getElementById('effectListContainer');
+      const currentVal = document.getElementById('selectEffect').value;
+      container.innerHTML = '';
+
+      EFFECTS_DATA.forEach(eff => {
+        const isSelected = eff.id === currentVal;
+        const itemEl = document.createElement('div');
+        itemEl.className = `music-track-item ${isSelected ? 'selected' : ''}`;
+
+        itemEl.innerHTML = `
+          <div style="display:flex; align-items:center; gap:12px; overflow:hidden;">
+            <div style="width:40px; height:40px; border-radius:10px; background:rgba(255,255,255,0.06); display:flex; align-items:center; justify-content:center; font-size:1.2rem; flex-shrink:0;">${eff.icon}</div>
+            <div style="overflow:hidden;">
+              <div style="font-weight:600; font-size:0.86rem; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${eff.title}</div>
+              <div style="font-size:0.75rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${eff.desc}</div>
+            </div>
+          </div>
+          <div style="display:flex; align-items:center; gap:6px;">
+            <button class="track-preview-btn" onclick="testEffectPreview(event, '${eff.id}')">▶ Probar</button>
+            <button class="btn btn-secondary" style="min-height:32px; padding:2px 10px; font-size:0.76rem;" onclick="applyEffectChoice('${eff.id}', '${eff.icon}', '${eff.title}')">Aplicar</button>
+          </div>
+        `;
+        container.appendChild(itemEl);
+      });
+    }
+
+    function testEffectPreview(e, effectId) {
+      if (e) e.stopPropagation();
+      stopPreviewAnimation();
+      stopTestModalAnim();
+
+      let startTime = null;
+      const testDur = 4;
+      const currentAnim = document.getElementById('selectAnimation').value;
+
+      function loop(ts) {
+        if (!startTime) startTime = ts;
+        let elapsed = (ts - startTime) / 1000;
+        if (elapsed > testDur) {
+          startTime = ts;
+          elapsed = 0;
+        }
+        drawCustomCanvasWithAnim(elapsed, testDur, currentAnim, effectId);
+        testModalAnimId = requestAnimationFrame(loop);
+      }
+      testModalAnimId = requestAnimationFrame(loop);
+    }
+
+    function applyEffectChoice(effectId, icon, title) {
+      stopTestModalAnim();
+      document.getElementById('selectEffect').value = effectId;
+      document.getElementById('effectTriggerIcon').innerText = icon;
+      document.getElementById('effectTriggerTitle').innerText = title;
+      closeEffectModal();
+      updateCustomCanvas();
+    }
+
     /* BUSCADOR DE MÚSICA EN TIEMPO REAL CON API DE ITUNES */
     function openMusicModal() {
       stopModalPreview();
@@ -1439,10 +1687,10 @@
       document.querySelectorAll('.track-preview-btn').forEach(btn => {
         const id = btn.dataset.id;
         if (id === playingPreviewId) {
-          btn.innerText = '⏸';
+          btn.innerText = '⏸ Parar';
           btn.style.background = 'var(--accent)';
         } else {
-          btn.innerText = '▶';
+          btn.innerText = '▶ Escuchar';
           btn.style.background = 'rgba(255, 255, 255, 0.08)';
         }
       });
@@ -1534,7 +1782,7 @@
         itemEl.className = `music-track-item ${isSelected ? 'selected' : ''}`;
         itemEl.onclick = () => selectMusicTrack(track);
 
-        const playBtnIcon = isPlaying ? '⏸' : '▶';
+        const playBtnText = isPlaying ? '⏸ Parar' : '▶ Escuchar';
         const coverHTML = track.albumCover ? 
           `<img src="${track.albumCover}" style="width:40px; height:40px; border-radius:10px; object-fit:cover; flex-shrink:0;">` :
           `<div style="width:40px; height:40px; border-radius:10px; background:rgba(255,255,255,0.06); display:flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0;">${track.icon}</div>`;
@@ -1547,9 +1795,9 @@
               <div style="font-size:0.75rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${track.artist}</div>
             </div>
           </div>
-          <div style="display:flex; align-items:center; gap:8px;">
-            <button class="track-preview-btn" data-id="${track.id}" onclick="togglePreviewAudio(event, '${track.id}', '${track.url}')">${playBtnIcon}</button>
-            <button class="btn btn-secondary" style="min-height:30px; padding:2px 8px; font-size:0.74rem;">Agregar</button>
+          <div style="display:flex; align-items:center; gap:6px;">
+            <button class="track-preview-btn" data-id="${track.id}" onclick="togglePreviewAudio(event, '${track.id}', '${track.url}')">${playBtnText}</button>
+            <button class="btn btn-secondary" style="min-height:32px; padding:2px 10px; font-size:0.76rem;">Agregar</button>
           </div>
         `;
 
@@ -1607,6 +1855,7 @@
 
     function switchTab(tab, updateHistory = true) {
       stopPreviewAnimation();
+      stopTestModalAnim();
       const gSec = document.getElementById('gallerySection');
       const eSec = document.getElementById('editorSection');
       const btnG = document.getElementById('tabBtnGallery');
@@ -1743,6 +1992,7 @@
       }
     }
 
+    /* AMPLIA SELECCIÓN DE EFECTOS OVERLAY EN CANVAS */
     function drawOverlayEffects(ctx, width, height, effectType, time) {
       if (!effectType || effectType === 'none') return;
 
@@ -1955,15 +2205,104 @@
         ctx.beginPath();
         ctx.arc(flareX, flareY, 300, 0, Math.PI * 2);
         ctx.fill();
+      } else if (effectType === 'bokeh') {
+        const count = 28;
+        for (let i = 0; i < count; i++) {
+          const x = (i * 173 + Math.sin(time * 0.8 + i) * 60) % width;
+          const y = (i * 211 + Math.cos(time * 0.6 + i) * 60) % height;
+          const radius = 25 + (i % 6) * 18;
+          const alpha = 0.15 + 0.25 * Math.abs(Math.sin(time * 1.5 + i));
+
+          const grad = ctx.createRadialGradient(x, y, 0, x, y, radius);
+          grad.addColorStop(0, `rgba(255, 255, 255, ${alpha})`);
+          grad.addColorStop(0.7, `rgba(255, 240, 200, ${alpha * 0.5})`);
+          grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+
+          ctx.fillStyle = grad;
+          ctx.beginPath();
+          ctx.arc(x, y, radius, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      } else if (effectType === 'aurora') {
+        const numWaves = 3;
+        for (let i = 0; i < numWaves; i++) {
+          ctx.beginPath();
+          ctx.moveTo(0, height * 0.3);
+          for (let x = 0; x <= width; x += 30) {
+            const y = (height * 0.25) + Math.sin(x * 0.005 + time * 1.2 + i) * 80 + Math.cos(time * 0.8 + i) * 40;
+            ctx.lineTo(x, y);
+          }
+          ctx.lineTo(width, height);
+          ctx.lineTo(0, height);
+          ctx.closePath();
+
+          const grad = ctx.createLinearGradient(0, 0, width, height);
+          grad.addColorStop(0, `rgba(0, 200, 180, ${0.08 + Math.sin(time + i) * 0.04})`);
+          grad.addColorStop(0.5, `rgba(120, 80, 220, ${0.10 + Math.cos(time + i) * 0.04})`);
+          grad.addColorStop(1, 'rgba(0, 150, 255, 0)');
+
+          ctx.fillStyle = grad;
+          ctx.fill();
+        }
+      } else if (effectType === 'lightleaks') {
+        const posX = Math.sin(time * 0.7) * (width * 0.3) + (width * 0.1);
+        const grad = ctx.createRadialGradient(posX, 0, 10, posX, 0, width * 0.8);
+        const alpha = 0.25 + Math.sin(time * 1.4) * 0.12;
+
+        grad.addColorStop(0, `rgba(255, 180, 80, ${alpha * 1.2})`);
+        grad.addColorStop(0.4, `rgba(255, 100, 120, ${alpha * 0.6})`);
+        grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, width, height);
+      } else if (effectType === 'matrices') {
+        const count = 30;
+        ctx.fillStyle = 'rgba(255, 230, 180, 0.85)';
+        for (let i = 0; i < count; i++) {
+          const speed = 350 + (i % 4) * 150;
+          const x = (i * 140) % width;
+          const y = (time * speed + i * 200) % (height + 200) - 100;
+          const length = 40 + (i % 3) * 30;
+
+          const grad = ctx.createLinearGradient(x, y, x, y - length);
+          grad.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
+          grad.addColorStop(1, 'rgba(255, 215, 0, 0)');
+
+          ctx.strokeStyle = grad;
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.moveTo(x, y);
+          ctx.lineTo(x, y - length);
+          ctx.stroke();
+        }
+      } else if (effectType === 'vignette') {
+        const pulse = 0.55 + Math.sin(time * 1.5) * 0.12;
+        const grad = ctx.createRadialGradient(width / 2, height / 2, width * 0.3, width / 2, height / 2, width * 0.75);
+        grad.addColorStop(0, 'rgba(0,0,0,0)');
+        grad.addColorStop(1, `rgba(0,0,0,${pulse})`);
+
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, width, height);
+      } else if (effectType === 'cinematicbars') {
+        const barH = Math.round(height * 0.08);
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(0, 0, width, barH);
+        ctx.fillRect(0, height - barH, width, barH);
+      } else if (effectType === 'glitch') {
+        const pulse = 0.15 + Math.abs(Math.sin(time * 3)) * 0.20;
+        ctx.strokeStyle = `rgba(0, 230, 255, ${pulse})`;
+        ctx.lineWidth = 6;
+        ctx.strokeRect(10, 10, width - 20, height - 20);
       }
 
       ctx.restore();
     }
 
+    /* RENDERIZADO DE LA TARJETA EN CANVAS CON TRANSICIONES EXTENDIDAS */
     async function drawCanvasCard(
       canvas, phrase, citation, fontPhraseName, fontCitationName, 
       logoKey, bgType, handleText = '@adventistassv', ratioKey = '4:5',
-      animOptions = { type: 'none', effect: 'none', time: 0, duration: 10 }
+      animOptions = { type: 'none', effect: 'none', time: 0, duration: 15 }
     ) {
       const ctx = canvas.getContext('2d');
       
@@ -1986,7 +2325,7 @@
       const animType = animOptions.type || 'none';
       const effectType = animOptions.effect || 'none';
       const time = animOptions.time || 0;
-      const dur = animOptions.duration || 10;
+      const dur = animOptions.duration || 15;
       const progress = Math.min(Math.max(time / dur, 0), 1.0);
 
       const easeOutCubic = (t) => 1 - Math.pow(1 - Math.min(Math.max(t, 0), 1), 3);
@@ -2009,45 +2348,49 @@
       const formattedPhrase = formatPhraseText(phrase, fontPhraseName);
       let typewriterChars = formattedPhrase.length;
 
+      /* CÁLCULO DE TRANSICIONES DE TEXTO EXTENDIDAS */
       if (animType === 'fade') {
         const a = Math.min(progress / 0.25, 1.0);
         logoAlpha = phraseAlpha = citationAlpha = handleAlpha = a;
       } else if (animType === 'slide') {
         const p = Math.min(progress / 0.30, 1.0);
         const e = easeOutCubic(p);
-        const yOff = (1 - e) * 60;
-        logoYOffset = phraseYOffset = citationYOffset = handleYOffset = yOff;
+        logoYOffset = phraseYOffset = citationYOffset = handleYOffset = (1 - e) * 60;
         logoAlpha = phraseAlpha = citationAlpha = handleAlpha = e;
       } else if (animType === 'slideLeft') {
         const p = Math.min(progress / 0.30, 1.0);
         const e = easeOutCubic(p);
-        const xOff = (1 - e) * (-250);
-        logoXOffset = phraseXOffset = citationXOffset = handleXOffset = xOff;
+        logoXOffset = phraseXOffset = citationXOffset = handleXOffset = (1 - e) * (-250);
+        logoAlpha = phraseAlpha = citationAlpha = handleAlpha = e;
+      } else if (animType === 'slideRight') {
+        const p = Math.min(progress / 0.30, 1.0);
+        const e = easeOutCubic(p);
+        logoXOffset = phraseXOffset = citationXOffset = handleXOffset = (1 - e) * (250);
+        logoAlpha = phraseAlpha = citationAlpha = handleAlpha = e;
+      } else if (animType === 'slideDown') {
+        const p = Math.min(progress / 0.30, 1.0);
+        const e = easeOutCubic(p);
+        logoYOffset = phraseYOffset = citationYOffset = handleYOffset = (1 - e) * (-150);
         logoAlpha = phraseAlpha = citationAlpha = handleAlpha = e;
       } else if (animType === 'zoom') {
         bgScale = 1.0 + (progress * 0.12);
-        const a = Math.min(progress / 0.20, 1.0);
-        logoAlpha = phraseAlpha = citationAlpha = handleAlpha = a;
+        logoAlpha = phraseAlpha = citationAlpha = handleAlpha = Math.min(progress / 0.20, 1.0);
       } else if (animType === 'zoomText') {
         const p = Math.min(progress / 0.35, 1.0);
         const e = easeOutCubic(p);
         contentScale = 0.5 + (e * 0.5);
         logoAlpha = phraseAlpha = citationAlpha = handleAlpha = e;
       } else if (animType === 'sequential') {
-        const pLogo = Math.min(progress / 0.15, 1.0);
-        const eLogo = easeOutCubic(pLogo);
+        const eLogo = easeOutCubic(Math.min(progress / 0.15, 1.0));
         logoAlpha = eLogo; logoYOffset = (1 - eLogo) * 30;
 
-        const pPhrase = Math.max(0, Math.min((progress - 0.10) / 0.35, 1.0));
-        const ePhrase = easeOutCubic(pPhrase);
+        const ePhrase = easeOutCubic(Math.max(0, Math.min((progress - 0.10) / 0.35, 1.0)));
         phraseAlpha = ePhrase; phraseYOffset = (1 - ePhrase) * 40;
 
-        const pCit = Math.max(0, Math.min((progress - 0.35) / 0.30, 1.0));
-        const eCit = easeOutCubic(pCit);
+        const eCit = easeOutCubic(Math.max(0, Math.min((progress - 0.35) / 0.30, 1.0)));
         citationAlpha = eCit; citationYOffset = (1 - eCit) * 30;
 
-        const pHand = Math.max(0, Math.min((progress - 0.50) / 0.30, 1.0));
-        const eHand = easeOutCubic(pHand);
+        const eHand = easeOutCubic(Math.max(0, Math.min((progress - 0.50) / 0.30, 1.0)));
         handleAlpha = eHand; handleYOffset = (1 - eHand) * 20;
       } else if (animType === 'typewriter') {
         const pText = Math.min(progress / 0.55, 1.0);
@@ -2058,24 +2401,43 @@
         handleAlpha = Math.max(0, Math.min((progress - 0.65) / 0.25, 1.0));
       } else if (animType === 'bounce') {
         const p = Math.min(progress / 0.45, 1.0);
-        const e = easeOutElastic(p);
-        contentScale = Math.max(0.01, e);
-        const a = Math.min(p * 2, 1.0);
-        logoAlpha = phraseAlpha = citationAlpha = handleAlpha = a;
+        contentScale = Math.max(0.01, easeOutElastic(p));
+        logoAlpha = phraseAlpha = citationAlpha = handleAlpha = Math.min(p * 2, 1.0);
       } else if (animType === 'rotate') {
         const p = Math.min(progress / 0.35, 1.0);
         const e = easeOutCubic(p);
         contentRotate = (1 - e) * (-0.15);
         contentScale = 0.7 + (e * 0.3);
-        const a = e;
-        logoAlpha = phraseAlpha = citationAlpha = handleAlpha = a;
+        logoAlpha = phraseAlpha = citationAlpha = handleAlpha = e;
       } else if (animType === 'blur') {
         const a = Math.min(progress / 0.30, 1.0);
         contentScale = 0.95 + (a * 0.05);
         logoAlpha = phraseAlpha = citationAlpha = handleAlpha = a;
+      } else if (animType === 'flipX') {
+        const p = Math.min(progress / 0.40, 1.0);
+        contentScale = Math.abs(Math.cos((1 - p) * Math.PI * 0.5));
+        logoAlpha = phraseAlpha = citationAlpha = handleAlpha = Math.min(p * 1.5, 1.0);
+      } else if (animType === 'curtain') {
+        const p = Math.min(progress / 0.35, 1.0);
+        const e = easeOutCubic(p);
+        phraseXOffset = (1 - e) * 80;
+        logoAlpha = phraseAlpha = citationAlpha = handleAlpha = e;
+      } else if (animType === 'shimmer') {
+        const p = Math.min(progress / 0.35, 1.0);
+        logoAlpha = phraseAlpha = citationAlpha = handleAlpha = p;
+        contentScale = 1.0 + Math.sin(p * Math.PI) * 0.08;
+      } else if (animType === 'wave') {
+        phraseYOffset = Math.sin(time * 3) * 12;
+        logoAlpha = phraseAlpha = citationAlpha = handleAlpha = Math.min(progress / 0.25, 1.0);
+      } else if (animType === 'spiral') {
+        const p = Math.min(progress / 0.45, 1.0);
+        const e = easeOutCubic(p);
+        contentRotate = (1 - e) * Math.PI;
+        contentScale = e;
+        logoAlpha = phraseAlpha = citationAlpha = handleAlpha = e;
       }
 
-      /* FONDO */
+      /* RENDERIZADO DEL FONDO */
       if (bgType === 'user_custom' && userCustomImg) {
         drawCoverImage(ctx, userCustomImg, canvas.width, canvas.height, bgScale);
         ctx.fillStyle = 'rgba(0, 0, 0, 0.48)';
@@ -2162,7 +2524,7 @@
         ctx.restore();
       }
 
-      /* CALCULAR FUENTE Y TAMAÑO DE LA FRASE Y CITA DINÁMICAMENTE */
+      /* FUENTE Y TAMAÑO DINÁMICO */
       const phrCfg = FONT_MAP[fontPhraseName] || { family: '"Montserrat", sans-serif', weight: '700' };
       const citCfg = FONT_MAP[fontCitationName] || { family: '"Lora", serif', weight: '600' };
 
@@ -2217,7 +2579,7 @@
         ctx.restore();
       }
 
-      /* CITA BÍBLICA O REFERENCIA (SIEMPRE FIJA Y MENOR QUE LA FRASE) */
+      /* CITA BÍBLICA O REFERENCIA */
       let citationY = startY + (lines.length * phraseLineHeight) + 40 + citationYOffset;
       if (citationAlpha > 0.01) {
         ctx.save();
@@ -2435,7 +2797,7 @@
       stopAudioPlayback();
 
       const btnPlay = document.getElementById('btnPlayPreview');
-      if (btnPlay) btnPlay.innerText = '▶ Previsualizar Animación';
+      if (btnPlay) btnPlay.innerText = '▶ Previsualizar Animación Completa';
     }
 
     async function previewAnimation() {
@@ -2455,7 +2817,7 @@
         return;
       }
 
-      const durationSec = parseFloat(document.getElementById('selectDuration').value) || 10;
+      const durationSec = parseFloat(document.getElementById('selectDuration').value) || 15;
       const btnPlay = document.getElementById('btnPlayPreview');
       if (btnPlay) btnPlay.innerText = '⏹ Detener Previsualización';
 
@@ -2500,6 +2862,7 @@
       );
     }
 
+    /* GENERACIÓN DE VIDEO ANIMADO EXPORTADO EN MP4 NATIVO */
     async function generarVideoAnimado() {
       stopPreviewAnimation();
 
@@ -2513,10 +2876,10 @@
 
       const animType = document.getElementById('selectAnimation').value;
       const effectType = document.getElementById('selectEffect').value;
-      const durationSec = parseFloat(document.getElementById('selectDuration').value) || 10;
+      const durationSec = parseFloat(document.getElementById('selectDuration').value) || 15;
 
       const originalText = btn.innerText;
-      btn.innerText = "⏳ Grabando video (0%)...";
+      btn.innerText = "⏳ Grabando MP4 (0%)...";
       btn.disabled = true;
 
       const audioEl = await startAudioPlayback();
@@ -2548,14 +2911,16 @@
       }
 
       const recordedChunks = [];
-      let options = { mimeType: 'video/webm;codecs=vp9' };
-      if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-        options = { mimeType: 'video/webm' };
-      }
+
+      /* DETECCIÓN Y ELECCIÓN DE FORMATO MP4 NATIVO BROWSER */
+      let mimeType = 'video/mp4;codecs=avc1,mp4a.40.2';
+      if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'video/mp4';
+      if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'video/webm;codecs=vp9';
+      if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'video/webm';
 
       let mediaRecorder;
       try {
-        mediaRecorder = new MediaRecorder(finalStream, options);
+        mediaRecorder = new MediaRecorder(finalStream, { mimeType: mimeType });
       } catch (e) {
         mediaRecorder = new MediaRecorder(finalStream);
       }
@@ -2570,12 +2935,17 @@
         stopAudioPlayback();
         if (audioCtx) { audioCtx.close(); }
 
-        const blob = new Blob(recordedChunks, { type: mediaRecorder.mimeType || 'video/webm' });
+        const actualMime = mediaRecorder.mimeType || 'video/mp4';
+        const isWebm = actualMime.includes('webm');
+        const fileExt = isWebm ? 'webm' : 'mp4';
+        const blobType = isWebm ? 'video/webm' : 'video/mp4';
+
+        const blob = new Blob(recordedChunks, { type: blobType });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
         const selectedDate = document.getElementById('historyDate')?.value || 'frase';
-        a.download = `adventistassv-video-${selectedDate}.webm`;
+        a.download = `adventistassv-video-${selectedDate}.${fileExt}`;
         a.click();
         URL.revokeObjectURL(url);
 
@@ -2607,7 +2977,7 @@
     }
 
     function updateCustomCanvas() {
-      if (isPreviewPlaying) return;
+      if (isPreviewPlaying || testModalAnimId) return;
 
       const phrase = document.getElementById('inputPhrase').value || '';
       const citation = document.getElementById('inputCitation').value || '';
