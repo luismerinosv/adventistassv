@@ -29,7 +29,7 @@
   <!-- Tipografías Google Fonts Ampliadas -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Anton&family=Bebas+Neue&family=Caveat:wght@600;700&family=Cinzel:wght@700&family=Cormorant+Garamond:ital,wght@0,700;1,600&family=Dancing+Script:wght@700&family=Great+Vibes&family=Lora:ital,wght@0,600;1,500&family=Merriweather:ital,wght@0,700;1,400&family=Montserrat:ital,wght@0,700;1,500;1,600&family=Oswald:wght@600&family=Playfair+Display:ital,wght@0,700;1,600&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Alex+Brush&family=Anton&family=Bebas+Neue&family=Caveat:wght@600;700&family=Cinzel+Decorative:wght@700&family=Cinzel:wght@700&family=Cormorant+Garamond:ital,wght@0,700;1,600&family=Courgette&family=Dancing+Script:wght@700&family=Great+Vibes&family=Italianno&family=Lora:ital,wght@0,600;1,500&family=Merriweather:ital,wght@0,700;1,400&family=Montserrat:ital,wght@0,700;1,500;1,600&family=Oswald:wght@600&family=Outfit:wght@600;700&family=Pacifico&family=Playfair+Display:ital,wght@0,700;1,600&family=Poppins:wght@400;500;600;700&family=Quicksand:wght@600;700&family=Righteous&family=Sacramento&family=Satisfy&display=swap" rel="stylesheet">
 
   <style>
     :root {
@@ -518,12 +518,18 @@
           </div>
 
           <div class="form-group">
-            <label>Transición de Texto (Video):</label>
+            <label>Transición / Animación de Texto:</label>
             <select id="selectAnimation" class="form-control" onchange="previewAnimation()">
               <option value="slide" selected>⬆ Deslizar desde abajo (Slide Up)</option>
+              <option value="slideLeft">⬅ Deslizar desde la izquierda (Slide Left)</option>
               <option value="fade">✨ Desvanecer (Fade In)</option>
               <option value="zoom">🔍 Zoom Suave a Fondo (Ken Burns)</option>
+              <option value="zoomText">🔎 Zoom In/Out de Texto</option>
               <option value="sequential">📜 Aparición Escalonada (Frase → Cita)</option>
+              <option value="typewriter">⌨️ Máquina de Escribir (Letra por Letra)</option>
+              <option value="bounce">⚽ Rebote Elástico (Bounce In)</option>
+              <option value="rotate">🌀 Rotación Elegante (Rotate & Scale)</option>
+              <option value="blur">🌫️ Desenfoque a Claridad (Blur Fade)</option>
               <option value="none">🛑 Sin Transición (Estático)</option>
             </select>
           </div>
@@ -536,17 +542,29 @@
               <option value="dust">🌌 Polvo Estelar / Luces Doradas</option>
               <option value="snow">❄️ Copos de Luz / Nieve Suave</option>
               <option value="rays">☀️ Rayos de Luz Divina / Resplandor</option>
+              <option value="rain">🌧️ Lluvia Suave de Esperanza</option>
+              <option value="petals">🌸 Pétalos de Rosa Flotantes</option>
+              <option value="hearts">❤️ Corazones de Amor Divino</option>
+              <option value="fog">🌫️ Bruma Celestial / Humo Místico</option>
+              <option value="fireflies">🐝 Luciérnagas de Noche</option>
+              <option value="lensflare">💡 Destellos de Lente (Lens Flare)</option>
               <option value="none">🛑 Sin Efectos de Partículas</option>
             </select>
           </div>
 
           <div class="form-group">
-            <label>Música / Audio de Fondo:</label>
+            <label>Música / Audio Instrumental Libre:</label>
             <select id="selectAudio" class="form-control" onchange="handleAudioChange()">
               <option value="none">🔇 Sin Audio de Fondo</option>
               <option value="piano" selected>🎹 Piano Suave y Paz</option>
               <option value="inspirational">🎻 Orquestal Inspirador</option>
               <option value="ambient">🍃 Acústico Meditativo</option>
+              <option value="guitar">🎸 Guitarra Acústica Serena</option>
+              <option value="violin">🎻 Violín Profundo y Devocional</option>
+              <option value="celestial">🌌 Arpa y Melodía Celestial</option>
+              <option value="hymn">🕊️ Himno Instrumental de Esperanza</option>
+              <option value="cinematic">🎬 Cine Épico y Reflexivo</option>
+              <option value="nature">🌊 Brisa y Naturaleza Pacífica</option>
               <option value="custom">📁 Subir mi propio audio (MP3/WAV)</option>
             </select>
             <input type="file" id="inputCustomAudio" class="form-control hidden" accept="audio/*" style="margin-top: 6px;" onchange="handleUserAudioUpload(event)">
@@ -565,16 +583,22 @@
           <div class="form-group">
             <label>Fuente de la Frase (Texto Principal):</label>
             <select id="selectFontPhrase" class="form-control" onchange="updateCustomCanvas()">
-              <option value="Montserrat">Montserrat (Moderna, limpia y con fuerza)</option>
-              <option value="Bebas Neue">Bebas Neue (Titular alto y de máximo impacto)</option>
-              <option value="Playfair Display">Playfair Display (Elegante y clásica editorial)</option>
+              <option value="Montserrat">Montserrat (Moderna y con fuerza)</option>
+              <option value="Bebas Neue">Bebas Neue (Titular alto e impactante)</option>
+              <option value="Playfair Display">Playfair Display (Elegante editorial)</option>
+              <option value="Cinzel Decorative">Cinzel Decorative (Monumental y Solemne)</option>
+              <option value="Pacifico">Pacifico (Cursiva cálida y alegre)</option>
               <option value="Oswald">Oswald (Condensada y enfática)</option>
-              <option value="Cinzel">Cinzel (Clásica monumental y solemne)</option>
-              <option value="Abril Fatface">Abril Fatface (Serif gruesa y elegante)</option>
-              <option value="Anton">Anton (Sólida, audaz e impactante)</option>
-              <option value="Caveat">Caveat (Manuscrita y cálida)</option>
-              <option value="Cormorant Garamond">Cormorant Garamond (Serif refinada de lujo)</option>
-              <option value="Poppins">Poppins (Geométrica moderna)</option>
+              <option value="Cinzel">Cinzel (Clásica imperial)</option>
+              <option value="Satisfy">Satisfy (Caligrafía dinámica)</option>
+              <option value="Abril Fatface">Abril Fatface (Serif gruesa)</option>
+
+              <option value="Anton">Anton (Sólida y audaz)</option>
+              <option value="Caveat">Caveat (Manuscrita cercana)</option>
+              <option value="Outfit">Outfit (Geométrica pulida)</option>
+              <option value="Righteous">Righteous (Titular moderno y único)</option>
+              <option value="Cormorant Garamond">Cormorant Garamond (Serif de lujo)</option>
+              <option value="Poppins">Poppins (Minimalista limpia)</option>
             </select>
           </div>
 
@@ -582,11 +606,16 @@
             <label>Fuente de la Cita / Referencia:</label>
             <select id="selectFontCitation" class="form-control" onchange="updateCustomCanvas()">
               <option value="Lora">Lora (Serif suave e ideal para citas)</option>
-              <option value="Merriweather">Merriweather (Tradicional de alta legibilidad)</option>
-              <option value="Dancing Script">Dancing Script (Cursiva dinámica y expresiva)</option>
-              <option value="Great Vibes">Great Vibes (Caligrafía fina de alta elegancia)</option>
+              <option value="Merriweather">Merriweather (Alta legibilidad)</option>
+              <option value="Dancing Script">Dancing Script (Cursiva dinámica)</option>
+              <option value="Great Vibes">Great Vibes (Caligrafía fina de gala)</option>
+              <option value="Alex Brush">Alex Brush (Caligrafía fluida)</option>
+              <option value="Sacramento">Sacramento (Fina y sofisticada)</option>
+              <option value="Italianno">Italianno (Clásica antigua)</option>
+              <option value="Courgette">Courgette (Serif cursiva suave)</option>
+              <option value="Quicksand">Quicksand (Redondeada y moderna)</option>
               <option value="Playfair Display">Playfair Display (Serif elegante)</option>
-              <option value="Montserrat">Montserrat (Limpia y moderna)</option>
+              <option value="Montserrat">Montserrat (Limpia)</option>
               <option value="Poppins">Poppins (Minimalista)</option>
             </select>
           </div>
@@ -670,7 +699,13 @@
       none: null,
       piano: 'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3',
       inspirational: 'https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c8a81773.mp3',
-      ambient: 'https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3'
+      ambient: 'https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3',
+      guitar: 'https://cdn.pixabay.com/download/audio/2022/10/14/audio_9939f375f0.mp3',
+      violin: 'https://cdn.pixabay.com/download/audio/2022/11/06/audio_c9ef6a0845.mp3',
+      celestial: 'https://cdn.pixabay.com/download/audio/2022/08/02/audio_884fe92db1.mp3',
+      hymn: 'https://cdn.pixabay.com/download/audio/2023/04/09/audio_27732d847d.mp3',
+      cinematic: 'https://cdn.pixabay.com/download/audio/2022/05/16/audio_db6591201e.mp3',
+      nature: 'https://cdn.pixabay.com/download/audio/2021/09/06/audio_83a1523f46.mp3'
     };
 
     let userCustomAudio = null;
@@ -680,17 +715,27 @@
       'Montserrat': { main: '700 48px "Montserrat", sans-serif', cita: 'italic 34px "Montserrat", sans-serif', lineH: 66 },
       'Bebas Neue': { main: '700 68px "Bebas Neue", sans-serif', cita: '400 36px "Bebas Neue", sans-serif', lineH: 72 },
       'Playfair Display': { main: '700 52px "Playfair Display", serif', cita: 'italic 34px "Playfair Display", serif', lineH: 70 },
+      'Cinzel Decorative': { main: '700 48px "Cinzel Decorative", serif', cita: 'italic 32px "Cinzel Decorative", serif', lineH: 68 },
+      'Pacifico': { main: '400 52px "Pacifico", cursive', cita: '400 34px "Pacifico", cursive', lineH: 72 },
       'Oswald': { main: '600 54px "Oswald", sans-serif', cita: 'italic 32px "Oswald", sans-serif', lineH: 70 },
       'Cinzel': { main: '700 46px "Cinzel", serif', cita: 'italic 34px "Cinzel", serif', lineH: 64 },
+      'Satisfy': { main: '400 56px "Satisfy", cursive', cita: '400 36px "Satisfy", cursive', lineH: 70 },
       'Abril Fatface': { main: '400 56px "Abril Fatface", serif', cita: 'italic 32px "Abril Fatface", serif', lineH: 72 },
       'Anton': { main: '400 58px "Anton", sans-serif', cita: '400 34px "Anton", sans-serif', lineH: 72 },
       'Caveat': { main: '700 68px "Caveat", cursive', cita: 'italic 36px "Caveat", cursive', lineH: 74 },
+      'Outfit': { main: '700 48px "Outfit", sans-serif', cita: 'italic 34px "Outfit", sans-serif', lineH: 66 },
+      'Righteous': { main: '400 52px "Righteous", cursive', cita: '400 32px "Righteous", cursive', lineH: 68 },
       'Cormorant Garamond': { main: '700 54px "Cormorant Garamond", serif', cita: 'italic 36px "Cormorant Garamond", serif', lineH: 68 },
       'Poppins': { main: '700 48px "Poppins", sans-serif', cita: 'italic 34px "Poppins", sans-serif', lineH: 66 },
       'Lora': { main: '600 50px "Lora", serif', cita: 'italic 34px "Lora", serif', lineH: 68 },
       'Merriweather': { main: '700 46px "Merriweather", serif', cita: 'italic 32px "Merriweather", serif', lineH: 68 },
       'Dancing Script': { main: '700 60px "Dancing Script", cursive', cita: 'italic 38px "Dancing Script", cursive', lineH: 72 },
-      'Great Vibes': { main: '400 64px "Great Vibes", cursive', cita: '400 40px "Great Vibes", cursive', lineH: 76 }
+      'Great Vibes': { main: '400 64px "Great Vibes", cursive', cita: '400 40px "Great Vibes", cursive', lineH: 76 },
+      'Alex Brush': { main: '400 62px "Alex Brush", cursive', cita: '400 38px "Alex Brush", cursive', lineH: 72 },
+      'Sacramento': { main: '400 64px "Sacramento", cursive', cita: '400 38px "Sacramento", cursive', lineH: 72 },
+      'Italianno': { main: '400 68px "Italianno", cursive', cita: '400 42px "Italianno", cursive', lineH: 74 },
+      'Courgette': { main: '400 50px "Courgette", cursive', cita: '400 34px "Courgette", cursive', lineH: 68 },
+      'Quicksand': { main: '700 48px "Quicksand", sans-serif', cita: 'italic 34px "Quicksand", sans-serif', lineH: 66 }
     };
 
     /* BANCO MASIVO DE FRASES */
@@ -1131,7 +1176,7 @@
       }
     }
 
-    /* EFECTOS VISUALES EN MOVIMIENTO / PARTÍCULAS OVERLAY */
+    /* EFECTOS VISUALES EN MOVIMIENTO / PARTÍCULAS OVERLAY COMPLETO */
     function drawOverlayEffects(ctx, width, height, effectType, time) {
       if (!effectType || effectType === 'none') return;
 
@@ -1244,6 +1289,106 @@
           ctx.fill();
         }
         ctx.restore();
+      } else if (effectType === 'rain') {
+        const count = 90;
+        ctx.strokeStyle = 'rgba(200, 225, 255, 0.45)';
+        ctx.lineWidth = 1.8;
+        for (let i = 0; i < count; i++) {
+          const speed = 600 + (i % 5) * 200;
+          const len = 25 + (i % 4) * 15;
+          const x = (i * 97 + time * 120) % (width + 100) - 50;
+          const y = (time * speed + i * 150) % (height + 100) - 50;
+
+          ctx.beginPath();
+          ctx.moveTo(x, y);
+          ctx.lineTo(x - 8, y + len);
+          ctx.stroke();
+        }
+      } else if (effectType === 'petals') {
+        const count = 30;
+        for (let i = 0; i < count; i++) {
+          const speedY = 60 + (i % 5) * 30;
+          const x = ((i * 140 + Math.sin(time * 1.5 + i) * 55) % width);
+          const y = (time * speedY + i * 120) % (height + 60) - 30;
+          const rot = time * 2 + i;
+
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.rotate(rot);
+          ctx.fillStyle = 'rgba(255, 180, 200, 0.65)';
+          ctx.beginPath();
+          ctx.ellipse(0, 0, 12, 6, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+      } else if (effectType === 'hearts') {
+        const count = 25;
+        for (let i = 0; i < count; i++) {
+          const speedY = 50 + (i % 4) * 25;
+          const size = 14 + (i % 5) * 6;
+          const x = ((i * 165 + Math.sin(time * 1.8 + i) * 40) % width);
+          const y = height - ((time * speedY + i * 130) % (height + 80));
+          const alpha = 0.3 + 0.5 * Math.abs(Math.sin(time * 2 + i));
+
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.fillStyle = `rgba(255, 120, 150, ${alpha})`;
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.bezierCurveTo(-size / 2, -size / 2, -size, size / 3, 0, size);
+          ctx.bezierCurveTo(size, size / 3, size / 2, -size / 2, 0, 0);
+          ctx.fill();
+          ctx.restore();
+        }
+      } else if (effectType === 'fog') {
+        const count = 4;
+        for (let i = 0; i < count; i++) {
+          const x = (width / 2) + Math.sin(time * 0.4 + i) * 200;
+          const y = (height / 2) + Math.cos(time * 0.3 + i) * 150;
+          const radius = 350 + i * 80;
+
+          const grad = ctx.createRadialGradient(x, y, 0, x, y, radius);
+          grad.addColorStop(0, 'rgba(255, 255, 255, 0.12)');
+          grad.addColorStop(0.6, 'rgba(255, 255, 255, 0.04)');
+          grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+
+          ctx.fillStyle = grad;
+          ctx.beginPath();
+          ctx.arc(x, y, radius, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      } else if (effectType === 'fireflies') {
+        const count = 40;
+        for (let i = 0; i < count; i++) {
+          const x = ((i * 190) + Math.sin(time * 1.2 + i) * 60) % width;
+          const y = ((i * 130) + Math.cos(time * 1.5 + i * 2) * 60) % height;
+          const pulse = Math.abs(Math.sin(time * 2.5 + i));
+          const size = 6 + pulse * 8;
+
+          const grad = ctx.createRadialGradient(x, y, 0, x, y, size * 2);
+          grad.addColorStop(0, `rgba(180, 255, 100, ${0.6 + pulse * 0.4})`);
+          grad.addColorStop(0.5, `rgba(180, 255, 100, ${pulse * 0.3})`);
+          grad.addColorStop(1, 'rgba(180, 255, 100, 0)');
+
+          ctx.fillStyle = grad;
+          ctx.beginPath();
+          ctx.arc(x, y, size * 2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      } else if (effectType === 'lensflare') {
+        const flareX = (width * 0.2) + Math.sin(time * 0.5) * 80;
+        const flareY = (height * 0.25) + Math.cos(time * 0.5) * 40;
+
+        const mainGrad = ctx.createRadialGradient(flareX, flareY, 0, flareX, flareY, 300);
+        mainGrad.addColorStop(0, 'rgba(255, 255, 240, 0.85)');
+        mainGrad.addColorStop(0.2, 'rgba(255, 220, 150, 0.45)');
+        mainGrad.addColorStop(0.6, 'rgba(255, 180, 100, 0.12)');
+        mainGrad.addColorStop(1, 'rgba(255, 180, 100, 0)');
+
+        ctx.fillStyle = mainGrad;
+        ctx.beginPath();
+        ctx.arc(flareX, flareY, 300, 0, Math.PI * 2);
+        ctx.fill();
       }
 
       ctx.restore();
@@ -1282,12 +1427,17 @@
       const progress = Math.min(Math.max(time / dur, 0), 1.0);
 
       const easeOutCubic = (t) => 1 - Math.pow(1 - Math.min(Math.max(t, 0), 1), 3);
+      const easeOutElastic = (x) => {
+        const c4 = (2 * Math.PI) / 3;
+        return x === 0 ? 0 : x === 1 ? 1 : Math.pow(2, -10 * x) * Math.sin((x * 10 - 0.75) * c4) + 1;
+      };
 
       let bgScale = 1.0;
       let logoAlpha = 1.0, logoYOffset = 0;
-      let phraseAlpha = 1.0, phraseYOffset = 0;
+      let phraseAlpha = 1.0, phraseYOffset = 0, phraseXOffset = 0, phraseScale = 1.0, phraseRotate = 0;
       let citationAlpha = 1.0, citationYOffset = 0;
       let handleAlpha = 1.0, handleYOffset = 0;
+      let typewriterChars = phrase.length;
 
       if (animType === 'fade') {
         const a = Math.min(progress / 0.25, 1.0);
@@ -1299,10 +1449,20 @@
         phraseAlpha = e; phraseYOffset = (1 - e) * 50;
         citationAlpha = e; citationYOffset = (1 - e) * 50;
         handleAlpha = e; handleYOffset = (1 - e) * 30;
+      } else if (animType === 'slideLeft') {
+        const p = Math.min(progress / 0.30, 1.0);
+        const e = easeOutCubic(p);
+        logoAlpha = e; phraseAlpha = e; citationAlpha = e; handleAlpha = e;
+        phraseXOffset = (1 - e) * (-250);
       } else if (animType === 'zoom') {
         bgScale = 1.0 + (progress * 0.12);
         const a = Math.min(progress / 0.20, 1.0);
         logoAlpha = a; phraseAlpha = a; citationAlpha = a; handleAlpha = a;
+      } else if (animType === 'zoomText') {
+        const p = Math.min(progress / 0.35, 1.0);
+        const e = easeOutCubic(p);
+        phraseScale = 0.5 + (e * 0.5);
+        phraseAlpha = e; logoAlpha = e; citationAlpha = e; handleAlpha = e;
       } else if (animType === 'sequential') {
         const pLogo = Math.min(progress / 0.15, 1.0);
         const eLogo = easeOutCubic(pLogo);
@@ -1319,6 +1479,24 @@
         const pHand = Math.max(0, Math.min((progress - 0.50) / 0.30, 1.0));
         const eHand = easeOutCubic(pHand);
         handleAlpha = eHand; handleYOffset = (1 - eHand) * 20;
+      } else if (animType === 'typewriter') {
+        const pText = Math.min(progress / 0.55, 1.0);
+        typewriterChars = Math.floor(pText * phrase.length);
+        logoAlpha = Math.min(progress / 0.15, 1.0);
+        citationAlpha = Math.max(0, Math.min((progress - 0.50) / 0.25, 1.0));
+        handleAlpha = Math.max(0, Math.min((progress - 0.65) / 0.25, 1.0));
+      } else if (animType === 'bounce') {
+        const p = Math.min(progress / 0.45, 1.0);
+        const e = easeOutElastic(p);
+        phraseScale = Math.max(0.01, e);
+        phraseAlpha = Math.min(p * 2, 1.0);
+        logoAlpha = phraseAlpha; citationAlpha = phraseAlpha; handleAlpha = phraseAlpha;
+      } else if (animType === 'rotate') {
+        const p = Math.min(progress / 0.35, 1.0);
+        const e = easeOutCubic(p);
+        phraseRotate = (1 - e) * (-0.15);
+        phraseScale = 0.7 + (e * 0.3);
+        phraseAlpha = e; logoAlpha = e; citationAlpha = e; handleAlpha = e;
       }
 
       /* FONDO */
@@ -1396,7 +1574,8 @@
       }
 
       /* TEXTO DE LA FRASE */
-      const words = phrase.toUpperCase().split(' ');
+      const displayPhrase = (animType === 'typewriter') ? phrase.substring(0, typewriterChars) : phrase;
+      const words = displayPhrase.toUpperCase().split(' ');
       let lines = [];
       let currentLine = '';
 
@@ -1431,9 +1610,16 @@
         ctx.shadowOffsetX = 0;
         ctx.shadowOffsetY = 3;
 
+        if (phraseScale !== 1.0 || phraseRotate !== 0) {
+          ctx.translate(canvas.width / 2, canvas.height / 2);
+          ctx.scale(phraseScale, phraseScale);
+          ctx.rotate(phraseRotate);
+          ctx.translate(-canvas.width / 2, -canvas.height / 2);
+        }
+
         let y = startY + phraseYOffset;
         for (let i = 0; i < lines.length; i++) {
-          ctx.fillText(lines[i], canvas.width / 2, y);
+          ctx.fillText(lines[i], (canvas.width / 2) + phraseXOffset, y);
           y += phraseFontCfg.lineH;
         }
         ctx.restore();
