@@ -484,7 +484,7 @@
     }
 
     .bg-grid-container {
-      max-height: 320px;
+      max-height: 360px;
       overflow-y: auto;
       padding: 10px;
       background: var(--bg-dark);
@@ -492,7 +492,7 @@
       border-radius: 8px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 14px;
       -webkit-overflow-scrolling: touch;
     }
 
@@ -502,12 +502,12 @@
       color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      margin-bottom: 4px;
+      margin-bottom: 6px;
     }
 
     .bg-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(58px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(62px, 1fr));
       gap: 8px;
     }
 
@@ -889,25 +889,15 @@
           </div>
 
           <div class="form-group">
-            <label>Subir mi propia Imagen o Video de Fondo:</label>
-            <div style="display: flex; gap: 8px;">
-              <input type="file" id="inputCustomBg" class="form-control" accept="image/*" onchange="handleUserBgUpload(event)">
-              <button class="btn btn-secondary" style="min-height: 40px; padding: 4px 12px; white-space: nowrap; flex-shrink: 0;" onclick="document.getElementById('inputCustomVideoBg').click()">Subir Video (MP4)</button>
-            </div>
-            <input type="file" id="inputCustomVideoBg" class="hidden" accept="video/*" onchange="handleUserVideoUpload(event)">
+            <label>Subir mi propia Imagen de Fondo:</label>
+            <input type="file" id="inputCustomBg" class="form-control" accept="image/*" onchange="handleUserBgUpload(event)">
           </div>
 
           <div class="form-group">
             <div class="bg-grid-header">
-              <label>Selecciona o Busca un Fondo:</label>
-              <button class="btn btn-secondary" style="padding: 2px 8px; font-size: 0.75rem; min-height: 26px;" onclick="refreshAllBackgrounds()">Nuevas Imágenes y Videos</button>
+              <label>Selecciona un Fondo (20 Animados por Código, 15 Fotos, 10 Texturas, 15 Degradados):</label>
             </div>
             
-            <div style="display: flex; gap: 6px; margin-top: 4px; margin-bottom: 8px;">
-              <input type="text" id="inputBgSearch" class="form-control" placeholder="Buscar en la web (ej: cielo, montaña, mar, cruz, luz)..." onkeyup="if(event.key==='Enter') searchBackgrounds()">
-              <button class="btn" style="min-height: 38px; padding: 4px 12px; flex-shrink: 0;" onclick="searchBackgrounds()">Buscar</button>
-            </div>
-
             <div id="bgThumbnailGridContainer" class="bg-grid-container"></div>
           </div>
 
@@ -917,11 +907,11 @@
     </div>
   </div>
 
-  <!-- MODAL BUSCADOR Y PROBADOR DE VIDEOS DE FONDO -->
+  <!-- MODAL BUSCADOR Y PROBADOR DE FONDOS ANIMADOS POR CÓDIGO -->
   <div id="videoModal" class="modal" onclick="closeVideoModal()">
     <div class="music-modal-card" onclick="event.stopPropagation()">
       <div class="music-modal-header">
-        <span>Selector y Probador de Videos de Fondo</span>
+        <span>Selector y Probador de Fondos Animados</span>
         <button class="modal-close" style="position:static;" onclick="closeVideoModal()">✕</button>
       </div>
 
@@ -1143,28 +1133,29 @@
     let testModalAnimId = null;
     let manualGenOffset = 0;
 
-    let videoBgElement = null;
-    let currentVideoPosterImg = null;
-    let videoRenderLoopId = null;
-    let currentVideoBlobUrl = null;
-
-    // CATÁLOGO DE 10 VIDEOS DE FONDO ANIMADOS POR CÓDIGO (PROCEDURALES) Y STOCK MP4
-    const ALL_STOCK_VIDEOS = [
-      { id: 'proc_aurora', title: '1. Aurora Celestial (Código Canvas)', isProcedural: true, poster: 'https://images.unsplash.com/photo-1518640467707-6811f4a6ab73?auto=format&fit=crop&w=300&q=80' },
-      { id: 'proc_clouds', title: '2. Nubes Místicas y Sol (Código Canvas)', isProcedural: true, poster: 'https://images.unsplash.com/photo-1513002749550-c59d786b8e6c?auto=format&fit=crop&w=300&q=80' },
-      { id: 'proc_stars', title: '3. Lluvia de Luz y Estrellas (Código Canvas)', isProcedural: true, poster: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=300&q=80' },
-      { id: 'proc_fireflies', title: '4. Luciérnagas de Esperanza (Código Canvas)', isProcedural: true, poster: 'https://images.unsplash.com/photo-1508615039623-a25605d2b022?auto=format&fit=crop&w=300&q=80' },
-      { id: 'proc_cross_glow', title: '5. Resplandor Divino / Luz (Código Canvas)', isProcedural: true, poster: 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&w=300&q=80' },
-      { id: 'proc_waves', title: '6. Océano de Paz (Código Canvas)', isProcedural: true, poster: 'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&w=300&q=80' },
-      { id: 'proc_nebula', title: '7. Nebulosa Espiritual (Código Canvas)', isProcedural: true, poster: 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=300&q=80' },
-      { id: 'proc_sunbeams', title: '8. Rayos del Amanecer (Código Canvas)', isProcedural: true, poster: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=300&q=80' },
-      { id: 'proc_bokeh', title: '9. Esferas Bokeh Celestiales (Código Canvas)', isProcedural: true, poster: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&w=300&q=80' },
-      { id: 'proc_golden_dust', title: '10. Polvo de Oro Celestial (Código Canvas)', isProcedural: true, poster: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=300&q=80' },
-      { id: 'v_flower', title: 'Flor en la Naturaleza MP4', poster: 'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&w=300&q=80', url: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4' },
-      { id: 'v_friday', title: 'Cielo y Horizonte MP4', poster: 'https://images.unsplash.com/photo-1513002749550-c59d786b8e6c?auto=format&fit=crop&w=300&q=80', url: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/friday.mp4' }
+    // CATÁLOGO DE 20 FONDOS ANIMADOS EXCLUSIVAMENTE POR CÓDIGO CANVAS (PROCEDURALES)
+    const ALL_PROCEDURAL_VIDEOS = [
+      { id: 'proc_aurora', title: '1. Aurora Celestial', poster: 'https://images.unsplash.com/photo-1518640467707-6811f4a6ab73?auto=format&fit=crop&w=300&q=80' },
+      { id: 'proc_clouds', title: '2. Nubes Místicas y Sol', poster: 'https://images.unsplash.com/photo-1513002749550-c59d786b8e6c?auto=format&fit=crop&w=300&q=80' },
+      { id: 'proc_stars', title: '3. Lluvia de Luz y Estrellas', poster: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=300&q=80' },
+      { id: 'proc_fireflies', title: '4. Luciérnagas de Esperanza', poster: 'https://images.unsplash.com/photo-1508615039623-a25605d2b022?auto=format&fit=crop&w=300&q=80' },
+      { id: 'proc_cross_glow', title: '5. Resplandor Divino / Luz', poster: 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&w=300&q=80' },
+      { id: 'proc_waves', title: '6. Océano de Paz', poster: 'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&w=300&q=80' },
+      { id: 'proc_nebula', title: '7. Nebulosa Espiritual', poster: 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=300&q=80' },
+      { id: 'proc_sunbeams', title: '8. Rayos del Amanecer', poster: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=300&q=80' },
+      { id: 'proc_bokeh', title: '9. Esferas Bokeh Celestiales', poster: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&w=300&q=80' },
+      { id: 'proc_golden_dust', title: '10. Polvo de Oro Celestial', poster: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=300&q=80' },
+      { id: 'proc_geometric', title: '11. Malla Geométrica Sagrada', poster: 'https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?auto=format&fit=crop&w=300&q=80' },
+      { id: 'proc_supernova', title: '12. Estrella Resplandeciente', poster: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=300&q=80' },
+      { id: 'proc_tunnel', title: '13. Anillos de Luz Infinitos', poster: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=300&q=80' },
+      { id: 'proc_petals_flow', title: '14. Torbellino de Pétalos', poster: 'https://images.unsplash.com/photo-1604076913837-52ab5629fba9?auto=format&fit=crop&w=300&q=80' },
+      { id: 'proc_halo', title: '15. Halo de Gloria', poster: 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&w=300&q=80' },
+      { id: 'proc_water_ripples', title: '16. Ondas de Agua Cristalina', poster: 'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&w=300&q=80' },
+      { id: 'proc_prism', title: '17. Refracción Prisma Celestial', poster: 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=300&q=80' },
+      { id: 'proc_constellations', title: '18. Constelaciones de la Fe', poster: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=300&q=80' },
+      { id: 'proc_ember_rise', title: '19. Chispas de Fuego Santo', poster: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=300&q=80' },
+      { id: 'proc_soft_smoke', title: '20. Incienso Místico', poster: 'https://images.unsplash.com/photo-1518640467707-6811f4a6ab73?auto=format&fit=crop&w=300&q=80' }
     ];
-
-    let activeVideos = [];
 
     const ANIMATIONS_DATA = [
       { id: 'slide', title: 'Deslizar desde abajo (Slide Up)', desc: 'Entrada y salida con desplazamiento vertical' },
@@ -1239,21 +1230,14 @@
 
     function calculatePhraseFontSize(textLength, fontName) {
       let baseSize = 48;
-      if (textLength <= 25) {
-        baseSize = 68;
-      } else if (textLength <= 55) {
-        baseSize = 56;
-      } else if (textLength <= 90) {
-        baseSize = 46;
-      } else if (textLength <= 140) {
-        baseSize = 40;
-      } else {
-        baseSize = 35;
-      }
+      if (textLength <= 25) baseSize = 68;
+      else if (textLength <= 55) baseSize = 56;
+      else if (textLength <= 90) baseSize = 46;
+      else if (textLength <= 140) baseSize = 40;
+      else baseSize = 35;
 
       const cfg = FONT_MAP[fontName] || { scale: 1.0 };
-      const scaledSize = Math.round(baseSize * (cfg.scale || 1.0));
-      return Math.max(36, scaledSize);
+      return Math.max(36, Math.round(baseSize * (cfg.scale || 1.0)));
     }
 
     const RAW_BIBLIA = [
@@ -1307,6 +1291,26 @@
 
     const QUOTES_BANK = [...RAW_BIBLIA, ...RAW_ESCRITOS, ...RAW_HIMNOS];
 
+    // EXACTAMENTE 15 FOTOGRAFÍAS DE FONDO
+    const ALL_PHOTOS = [
+      'https://images.unsplash.com/photo-1518640467707-6811f4a6ab73?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1604076913837-52ab5629fba9?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1508615039623-a25605d2b022?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1513002749550-c59d786b8e6c?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80'
+    ];
+
+    // EXACTAMENTE 10 PATRONES Y TEXTURAS
     const ALL_PATTERNS = [
       'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80',
@@ -1320,17 +1324,20 @@
       'https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&w=800&q=80'
     ];
 
+    // EXACTAMENTE 15 DEGRADADOS ELEGANTES
     const ALL_GRADIENTS = [
       ['#0f172a', '#1e3a8a'], ['#2d124d', '#1e1b4b'], ['#134e4a', '#064e3b'], ['#7c2d12', '#451a03'],
       ['#312e81', '#4c1d95'], ['#0f2027', '#203a43'], ['#1a2a6c', '#b21f1f'], ['#232526', '#414345'],
-      ['#1e130c', '#9a8478'], ['#000428', '#004e92'], ['#2c3e50', '#000000'], ['#3a1c71', '#d76d77']
+      ['#1e130c', '#9a8478'], ['#000428', '#004e92'], ['#2c3e50', '#000000'], ['#3a1c71', '#d76d77'],
+      ['#000000', '#434343'], ['#141e30', '#243b55'], ['#020024', '#090979']
     ];
 
-    let activePhotos = [];
-    let activePatterns = [];
-    let activeGradients = [];
+    let activePhotos = [...ALL_PHOTOS];
+    let activePatterns = [...ALL_PATTERNS];
+    let activeGradients = [...ALL_GRADIENTS];
+    let activeVideos = [...ALL_PROCEDURAL_VIDEOS];
 
-    let selectedBg = 'photo_0';
+    let selectedBg = 'video_proc_aurora';
     let userCustomImg = null;
     let currentShareText = '';
     let currentShareCanvas = null;
@@ -1338,18 +1345,6 @@
 
     let previewAnimId = null;
     let isPreviewPlaying = false;
-
-    // DESBLOQUEO AUTOMÁTICO DE REPRODUCCIÓN EN DISPOSITIVOS MÓVILES
-    let isMediaUnlocked = false;
-    function unlockMedia() {
-      if (isMediaUnlocked) return;
-      isMediaUnlocked = true;
-      if (videoBgElement) {
-        videoBgElement.play().catch(() => {});
-      }
-    }
-    document.addEventListener('touchstart', unlockMedia, { once: true });
-    document.addEventListener('click', unlockMedia, { once: true });
 
     function getCleanBaseUrl() {
       return window.location.origin + window.location.pathname;
@@ -1428,102 +1423,21 @@
 
       const dayEpoch = getDaysEpoch(dateStr) + manualGenOffset;
       const shiftOffset = (dayEpoch * 7) % totalAvailable;
-
       const rotatedPool = [...pool.slice(shiftOffset), ...pool.slice(0, shiftOffset)];
 
       const rng = createPRNG(getDateSeed(dateStr) + 777 + manualGenOffset);
-      const shuffled = seededShuffle(rotatedPool, rng);
-
-      return shuffled.slice(0, 10);
-    }
-
-    async function fetchImagesFromWeb(searchTerm) {
-      const foundUrls = [];
-
-      try {
-        const quoteFriendlyFilter = 'minimalist subtle peaceful atmospheric background nature aesthetic -text -words -people';
-        const bgQuery = searchTerm ? `${searchTerm} ${quoteFriendlyFilter}` : `landscape nature cloud sky sunset ${quoteFriendlyFilter}`;
-        const page = Math.floor(Math.random() * 10) + 1;
-        const res = await fetch(`https://unsplash.com/napi/search/photos?query=${encodeURIComponent(bgQuery)}&per_page=20&page=${page}&orientation=portrait`);
-        if (res.ok) {
-          const data = await res.json();
-          if (data.results && data.results.length > 0) {
-            data.results.forEach(item => {
-              if (item.urls && item.urls.raw) {
-                foundUrls.push(`${item.urls.raw}&auto=format&fit=crop&w=1080&h=1350&q=80`);
-              }
-            });
-          }
-        }
-      } catch (e) {
-        console.warn("Error buscando imágenes:", e);
-      }
-
-      if (foundUrls.length === 0) {
-        for (let i = 0; i < 15; i++) {
-          const seed = Math.floor(Math.random() * 1000);
-          foundUrls.push(`https://picsum.photos/seed/${seed}/800/1000`);
-        }
-      }
-
-      return foundUrls;
+      return seededShuffle(rotatedPool, rng).slice(0, 10);
     }
 
     async function refreshAllBackgrounds() {
-      const searchInput = document.getElementById('inputBgSearch');
-      if (searchInput) searchInput.value = '';
-
       manualGenOffset += 1;
-      const topics = ['cielo estrellas', 'montaña atardecer', 'mar calma', 'bosque sol', 'cruz fe', 'paisaje pacifico', 'nubes luz'];
-      const currentTopic = topics[manualGenOffset % topics.length];
+      activePhotos = ALL_PHOTOS;
+      activePatterns = ALL_PATTERNS;
+      activeGradients = ALL_GRADIENTS;
+      activeVideos = ALL_PROCEDURAL_VIDEOS;
 
-      const webImages = await fetchImagesFromWeb(currentTopic);
-
-      if (webImages && webImages.length > 0) {
-        const rng = createPRNG(Date.now() + manualGenOffset);
-        activePhotos = seededShuffle(webImages, rng);
-      } else {
-        activePhotos = [
-          'https://picsum.photos/id/1015/800/1000',
-          'https://picsum.photos/id/1018/800/1000',
-          'https://picsum.photos/id/1028/800/1000',
-          'https://picsum.photos/id/1036/800/1000',
-          'https://picsum.photos/id/1050/800/1000'
-        ];
-      }
-
-      const rng = createPRNG(Date.now() + manualGenOffset);
-      activePatterns = seededShuffle(ALL_PATTERNS, rng);
-      activeGradients = seededShuffle(ALL_GRADIENTS, rng);
-      
-      activeVideos = ALL_STOCK_VIDEOS;
-
-      selectedBg = 'photo_0';
       renderBgThumbnails(true);
       updateCustomCanvas();
-    }
-
-    async function searchBackgrounds() {
-      const term = document.getElementById('inputBgSearch').value.trim();
-      if (!term) {
-        await refreshAllBackgrounds();
-        return;
-      }
-
-      const container = document.getElementById('bgThumbnailGridContainer');
-      container.innerHTML = `<div style="text-align:center; padding:30px 20px; color:var(--text-muted); font-size:0.86rem;">Buscando fondos de "${term}" en la web...</div>`;
-
-      const results = await fetchImagesFromWeb(term);
-
-      if (results && results.length > 0) {
-        activePhotos = results;
-        selectedBg = 'photo_0';
-        renderBgThumbnails(true);
-        updateCustomCanvas();
-      } else {
-        container.innerHTML = `<div style="text-align:center; padding:30px 20px; color:#f87171; font-size:0.86rem;">No se encontraron fondos para "${term}". Mostrando imágenes destacadas.</div>`;
-        setTimeout(() => refreshAllBackgrounds(), 1500);
-      }
     }
 
     async function generateNewQuotesSet() {
@@ -1551,14 +1465,7 @@
       selectedBg = bg;
 
       switchTab('editor');
-      
-      if (bg.startsWith('video_')) {
-        const vidObj = ALL_STOCK_VIDEOS.find(v => ('video_' + v.id) === bg);
-        if (vidObj) setupVideoBg(vidObj.url, vidObj.poster);
-      }
-
       updateCustomCanvas();
-
       document.getElementById('editorSection').scrollIntoView({ behavior: 'smooth' });
     }
 
@@ -1566,11 +1473,8 @@
       const chk = document.getElementById('chkShowStamp');
       const container = document.getElementById('stampInputsContainer');
       if (chk && container) {
-        if (chk.checked) {
-          container.classList.remove('hidden');
-        } else {
-          container.classList.add('hidden');
-        }
+        if (chk.checked) container.classList.remove('hidden');
+        else container.classList.add('hidden');
       }
     }
 
@@ -1642,18 +1546,11 @@
     }
 
     function loadImage(src) {
-      if (imageCache[src]) {
-        return Promise.resolve(imageCache[src]);
-      }
+      if (imageCache[src]) return Promise.resolve(imageCache[src]);
       return new Promise((resolve, reject) => {
         const img = new Image();
-        if (src.startsWith('http://') || src.startsWith('https://')) {
-          img.crossOrigin = 'Anonymous';
-        }
-        img.onload = () => {
-          imageCache[src] = img;
-          resolve(img);
-        };
+        if (src.startsWith('http://') || src.startsWith('https://')) img.crossOrigin = 'Anonymous';
+        img.onload = () => { imageCache[src] = img; resolve(img); };
         img.onerror = (e) => reject(e);
         img.src = src;
       });
@@ -1665,28 +1562,21 @@
       const bstr = atob(arr[1]);
       let n = bstr.length;
       const u8arr = new Uint8Array(n);
-      while (n--) {
-        u8arr[n] = bstr.charCodeAt(n);
-      }
+      while (n--) u8arr[n] = bstr.charCodeAt(n);
       return File([u8arr], filename, { type: mime });
     }
 
     async function preloadLogos() {
       for (const key in LOGOS) {
-        try {
-          loadedLogos[key] = await loadImage(LOGOS[key]);
-        } catch (e) {}
+        try { loadedLogos[key] = await loadImage(LOGOS[key]); } catch (e) {}
       }
     }
 
     function handleLogoChange() {
       const val = document.getElementById('selectLogo').value;
       const customInput = document.getElementById('inputCustomLogo');
-      if (val === 'custom') {
-        customInput.classList.remove('hidden');
-      } else {
-        customInput.classList.add('hidden');
-      }
+      if (val === 'custom') customInput.classList.remove('hidden');
+      else customInput.classList.add('hidden');
       updateCustomCanvas();
     }
 
@@ -1696,10 +1586,7 @@
         const reader = new FileReader();
         reader.onload = function(e) {
           const img = new Image();
-          img.onload = function() {
-            userCustomLogoImg = img;
-            updateCustomCanvas();
-          };
+          img.onload = function() { userCustomLogoImg = img; updateCustomCanvas(); };
           img.src = e.target.result;
         };
         reader.readAsDataURL(file);
@@ -1718,15 +1605,8 @@
       stopTestModalAnim();
       selectedBg = 'video_' + vid.id;
       
-      if (!vid.isProcedural && vid.url) {
-        setupVideoBg(vid.url, vid.poster);
-      } else {
-        stopVideoBg();
-      }
-
       renderVideoModalList();
       document.getElementById('videoModal').classList.add('active');
-
       testVideoPreview(null, vid);
     }
 
@@ -1736,8 +1616,8 @@
       renderVideoModalList();
       document.getElementById('videoModal').classList.add('active');
 
-      if (ALL_STOCK_VIDEOS.length > 0) {
-        testVideoPreview(null, ALL_STOCK_VIDEOS[0]);
+      if (ALL_PROCEDURAL_VIDEOS.length > 0) {
+        testVideoPreview(null, ALL_PROCEDURAL_VIDEOS[0]);
       }
     }
 
@@ -1751,25 +1631,23 @@
       const container = document.getElementById('videoListContainer');
       container.innerHTML = '';
 
-      ALL_STOCK_VIDEOS.forEach(vid => {
+      ALL_PROCEDURAL_VIDEOS.forEach(vid => {
         const vidKey = 'video_' + vid.id;
         const isSelected = (selectedBg === vidKey);
         const itemEl = document.createElement('div');
         itemEl.className = `music-track-item ${isSelected ? 'selected' : ''}`;
-
-        const badgeText = vid.isProcedural ? 'CÓDIGO CANVAS' : 'BLOB MP4';
 
         itemEl.innerHTML = `
           <div style="display:flex; align-items:center; gap:12px; overflow:hidden;">
             <div style="width:40px; height:48px; border-radius:6px; background-image:url('${vid.poster}'); background-size:cover; background-position:center; flex-shrink:0;"></div>
             <div style="overflow:hidden;">
               <div style="font-weight:600; font-size:0.86rem; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${vid.title}</div>
-              <div style="font-size:0.75rem; color:#38bdf8; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${badgeText}</div>
+              <div style="font-size:0.75rem; color:#38bdf8; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">CÓDIGO CANVAS</div>
             </div>
           </div>
           <div style="display:flex; align-items:center; gap:6px;">
-            <button class="track-preview-btn" onclick="testVideoPreview(event, ALL_STOCK_VIDEOS.find(v => v.id === '${vid.id}'))">Probar</button>
-            <button class="btn btn-secondary" style="min-height:32px; padding:2px 10px; font-size:0.76rem;" onclick="applyVideoChoice(ALL_STOCK_VIDEOS.find(v => v.id === '${vid.id}'))">Aplicar</button>
+            <button class="track-preview-btn" onclick="testVideoPreview(event, ALL_PROCEDURAL_VIDEOS.find(v => v.id === '${vid.id}'))">Probar</button>
+            <button class="btn btn-secondary" style="min-height:32px; padding:2px 10px; font-size:0.76rem;" onclick="applyVideoChoice(ALL_PROCEDURAL_VIDEOS.find(v => v.id === '${vid.id}'))">Aplicar</button>
           </div>
         `;
         container.appendChild(itemEl);
@@ -1781,11 +1659,6 @@
       stopTestModalAnim();
 
       selectedBg = 'video_' + vidObj.id;
-      if (!vidObj.isProcedural && vidObj.url) {
-        setupVideoBg(vidObj.url, vidObj.poster);
-      } else {
-        stopVideoBg();
-      }
 
       let startTime = null;
       const testDur = 6;
@@ -1799,7 +1672,6 @@
         if (elapsed > testDur) {
           startTime = ts;
           elapsed = 0;
-          if (videoBgElement) videoBgElement.currentTime = 0;
         }
 
         drawCustomCanvasOnTarget(modalCanvas, elapsed, testDur, currentAnim, currentEffect);
@@ -1811,11 +1683,6 @@
     function applyVideoChoice(vidObj) {
       stopTestModalAnim();
       selectedBg = 'video_' + vidObj.id;
-      if (!vidObj.isProcedural && vidObj.url) {
-        setupVideoBg(vidObj.url, vidObj.poster);
-      } else {
-        stopVideoBg();
-      }
       closeVideoModal();
     }
 
@@ -2109,9 +1976,7 @@
         triggerSub.innerText = track.artist;
       }
 
-      if (isPreviewPlaying) {
-        previewAnimation();
-      }
+      if (isPreviewPlaying) previewAnimation();
     }
 
     function handleUserAudioUploadModal(event) {
@@ -2126,34 +1991,6 @@
 
         closeMusicModal();
         if (isPreviewPlaying) previewAnimation();
-      }
-    }
-
-    function handleUserVideoUpload(event) {
-      const file = event.target.files[0];
-      if (file) {
-        stopVideoBg();
-        const blobUrl = URL.createObjectURL(file);
-        
-        videoBgElement = document.createElement('video');
-        videoBgElement.crossOrigin = 'anonymous';
-        videoBgElement.loop = true;
-        videoBgElement.muted = true;
-        videoBgElement.defaultMuted = true;
-        videoBgElement.playsInline = true;
-        videoBgElement.autoplay = true;
-        videoBgElement.setAttribute('playsinline', '');
-        videoBgElement.setAttribute('webkit-playsinline', '');
-        videoBgElement.src = blobUrl;
-
-        selectedBg = 'video_custom_user';
-
-        videoBgElement.oncanplay = () => {
-          videoBgElement.play().catch(() => {});
-          updateCustomCanvas();
-        };
-
-        updateCustomCanvas();
       }
     }
 
@@ -2195,7 +2032,6 @@
     function handleUserBgUpload(event) {
       const file = event.target.files[0];
       if (file) {
-        stopVideoBg();
         const reader = new FileReader();
         reader.onload = function(e) {
           const img = new Image();
@@ -2224,15 +2060,13 @@
         eSec.classList.remove('hidden');
         if (btnG) btnG.classList.remove('active');
         if (btnE) btnE.classList.add('active');
-        if (activePhotos.length === 0) refreshAllBackgrounds();
-        else renderBgThumbnails();
+        renderBgThumbnails();
         updateCustomCanvas();
         if (updateHistory) {
           localStorage.setItem('activeTab', 'editor');
           history.replaceState(null, null, '#editor');
         }
       } else {
-        stopVideoBg();
         gSec.classList.remove('hidden');
         eSec.classList.add('hidden');
         if (btnG) btnG.classList.add('active');
@@ -2249,9 +2083,9 @@
       if (container.children.length > 0 && !force) return;
       container.innerHTML = '';
 
-      // VIDEOS DE STOCK Y PROCEDURALES
+      // 1. 20 FONDOS ANIMADOS POR CÓDIGO
       const secVideos = document.createElement('div');
-      secVideos.innerHTML = `<div class="bg-section-title">Videos Animados de Fondo (${activeVideos.length})</div>`;
+      secVideos.innerHTML = `<div class="bg-section-title">20 Fondos Animados por Código Canvas</div>`;
       const gridVideos = document.createElement('div');
       gridVideos.className = 'bg-grid';
 
@@ -2265,7 +2099,7 @@
 
         const tag = document.createElement('span');
         tag.className = 'bg-thumb-video-tag';
-        tag.innerText = vid.isProcedural ? 'CÓDIGO' : 'VIDEO';
+        tag.innerText = 'CÓDIGO';
         div.appendChild(tag);
 
         div.onclick = () => {
@@ -2278,9 +2112,9 @@
       secVideos.appendChild(gridVideos);
       container.appendChild(secVideos);
 
-      // FOTOGRAFÍAS
+      // 2. 15 FOTOGRAFÍAS
       const secPhotos = document.createElement('div');
-      secPhotos.innerHTML = `<div class="bg-section-title">Fotografías Especiales para Frases (${activePhotos.length})</div>`;
+      secPhotos.innerHTML = `<div class="bg-section-title">15 Fotografías Seleccionadas</div>`;
       const gridPhotos = document.createElement('div');
       gridPhotos.className = 'bg-grid';
 
@@ -2295,7 +2129,6 @@
         };
 
         img.onclick = () => {
-          stopVideoBg();
           document.querySelectorAll('.bg-thumb').forEach(t => t.classList.remove('active'));
           img.classList.add('active');
           selectedBg = 'photo_' + i;
@@ -2306,9 +2139,9 @@
       secPhotos.appendChild(gridPhotos);
       container.appendChild(secPhotos);
 
-      // PATRONES Y TEXTURAS
+      // 3. 10 PATRONES Y TEXTURAS
       const secPatterns = document.createElement('div');
-      secPatterns.innerHTML = `<div class="bg-section-title">Patrones y Texturas (${activePatterns.length})</div>`;
+      secPatterns.innerHTML = `<div class="bg-section-title">10 Patrones y Texturas</div>`;
       const gridPatterns = document.createElement('div');
       gridPatterns.className = 'bg-grid';
 
@@ -2321,7 +2154,6 @@
           this.src = ALL_PATTERNS[0];
         };
         img.onclick = () => {
-          stopVideoBg();
           document.querySelectorAll('.bg-thumb').forEach(t => t.classList.remove('active'));
           img.classList.add('active');
           selectedBg = 'pattern_' + i;
@@ -2332,9 +2164,9 @@
       secPatterns.appendChild(gridPatterns);
       container.appendChild(secPatterns);
 
-      // DEGRADADOS
+      // 4. 15 DEGRADADOS
       const secGrads = document.createElement('div');
-      secGrads.innerHTML = `<div class="bg-section-title">Degradados Elegantes (${activeGradients.length})</div>`;
+      secGrads.innerHTML = `<div class="bg-section-title">15 Degradados Elegantes</div>`;
       const gridGrads = document.createElement('div');
       gridGrads.className = 'bg-grid';
 
@@ -2343,7 +2175,6 @@
         div.className = `bg-thumb ${selectedBg === 'grad_' + i ? 'active' : ''}`;
         div.style.background = `linear-gradient(135deg, ${grad[0]}, ${grad[1]})`;
         div.onclick = () => {
-          stopVideoBg();
           document.querySelectorAll('.bg-thumb').forEach(t => t.classList.remove('active'));
           div.classList.add('active');
           selectedBg = 'grad_' + i;
@@ -2355,103 +2186,14 @@
       container.appendChild(secGrads);
     }
 
-    function syncVideoDurationAndSpeed() {
-      if (!videoBgElement) return;
-      const selectedDur = parseFloat(document.getElementById('selectDuration')?.value) || 15;
-      if (videoBgElement.duration && videoBgElement.duration > 0) {
-        if (videoBgElement.duration < selectedDur) {
-          videoBgElement.playbackRate = videoBgElement.duration / selectedDur;
-        } else {
-          videoBgElement.playbackRate = 1.0;
-        }
-      }
-    }
-
     function onDurationChange() {
-      syncVideoDurationAndSpeed();
-      if (isPreviewPlaying) {
-        previewAnimation();
-      } else {
-        updateCustomCanvas();
-      }
-    }
-
-    /* CARGADOR Y CONVERTIDOR DE VIDEO EN BLOB (CORRIGE ERRORES CORS EN CANVAS) */
-    async function setupVideoBg(videoUrl, posterUrl) {
-      stopVideoBg();
-
-      if (posterUrl) {
-        loadImage(posterUrl).then(img => {
-          currentVideoPosterImg = img;
-          updateCustomCanvas();
-        }).catch(() => { currentVideoPosterImg = null; });
-      }
-
-      videoBgElement = document.createElement('video');
-      videoBgElement.crossOrigin = 'anonymous';
-      videoBgElement.loop = true;
-      videoBgElement.muted = true;
-      videoBgElement.defaultMuted = true;
-      videoBgElement.playsInline = true;
-      videoBgElement.autoplay = true;
-      videoBgElement.setAttribute('playsinline', '');
-      videoBgElement.setAttribute('webkit-playsinline', '');
-
-      try {
-        const resp = await fetch(videoUrl);
-        const videoBlob = await resp.blob();
-        currentVideoBlobUrl = URL.createObjectURL(videoBlob);
-        videoBgElement.src = currentVideoBlobUrl;
-      } catch (e) {
-        videoBgElement.src = videoUrl;
-      }
-
-      videoBgElement.oncanplay = () => {
-        videoBgElement.play().catch(err => console.warn("Autoplay diferido:", err));
-        startVideoRenderLoop();
-      };
-
-      videoBgElement.load();
-      videoBgElement.play().catch(e => console.warn("Play diferido:", e));
-
-      startVideoRenderLoop();
-    }
-
-    function stopVideoBg() {
-      if (videoRenderLoopId) {
-        cancelAnimationFrame(videoRenderLoopId);
-        videoRenderLoopId = null;
-      }
-      if (videoBgElement) {
-        videoBgElement.pause();
-        videoBgElement.currentTime = 0;
-        if (videoBgElement.parentNode) {
-          videoBgElement.parentNode.removeChild(videoBgElement);
-        }
-        videoBgElement = null;
-      }
-      if (currentVideoBlobUrl) {
-        URL.revokeObjectURL(currentVideoBlobUrl);
-        currentVideoBlobUrl = null;
-      }
-      currentVideoPosterImg = null;
-    }
-
-    function startVideoRenderLoop() {
-      if (videoRenderLoopId) cancelAnimationFrame(videoRenderLoopId);
-
-      function loop() {
-        if (selectedBg.startsWith('video_') && !isPreviewPlaying) {
-          updateCustomCanvas();
-          videoRenderLoopId = requestAnimationFrame(loop);
-        }
-      }
-      videoRenderLoopId = requestAnimationFrame(loop);
+      if (isPreviewPlaying) previewAnimation();
+      else updateCustomCanvas();
     }
 
     function drawCoverImage(ctx, img, targetW, targetH, scale = 1.0) {
-      const w = img.naturalWidth || img.videoWidth || img.width;
-      const h = img.naturalHeight || img.videoHeight || img.height;
+      const w = img.naturalWidth || img.width;
+      const h = img.naturalHeight || img.height;
       if (!w || !h) return;
 
       const imgRatio = w / h;
@@ -2482,7 +2224,7 @@
       }
     }
 
-    /* RENDERIZADOR COMPLETO DE 10 FONDOS PROCEDURALES ANIMADOS POR CÓDIGO CANVAS */
+    /* RENDERIZADOR COMPLETO DE 20 FONDOS PROCEDURALES ANIMADOS POR CÓDIGO CANVAS */
     function drawProceduralVideoBg(ctx, width, height, type, time) {
       ctx.save();
 
@@ -2764,6 +2506,209 @@
           ctx.fill();
         }
       }
+      // 11. Malla Geométrica Sagrada
+      else if (type === 'video_proc_geometric') {
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(0, 0, width, height);
+
+        const points = [];
+        const numPoints = 18;
+        for (let i = 0; i < numPoints; i++) {
+          const px = (i * 140 + Math.sin(time * 0.8 + i) * 60) % width;
+          const py = (i * 110 + Math.cos(time * 0.6 + i) * 60) % height;
+          points.push({ x: px, y: py });
+        }
+
+        ctx.strokeStyle = 'rgba(56, 189, 248, 0.15)';
+        ctx.lineWidth = 1;
+        for (let i = 0; i < points.length; i++) {
+          for (let j = i + 1; j < points.length; j++) {
+            const dist = Math.hypot(points[i].x - points[j].x, points[i].y - points[j].y);
+            if (dist < 280) {
+              ctx.beginPath();
+              ctx.moveTo(points[i].x, points[i].y);
+              ctx.lineTo(points[j].x, points[j].y);
+              ctx.stroke();
+            }
+          }
+        }
+      }
+      // 12. Estrella Resplandeciente / Supernova
+      else if (type === 'video_proc_supernova') {
+        const grad = ctx.createLinearGradient(0, 0, 0, height);
+        grad.addColorStop(0, '#111827');
+        grad.addColorStop(1, '#030712');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, width, height);
+
+        const cx = width / 2;
+        const cy = height * 0.45;
+        const pulse = 1 + Math.sin(time * 2.0) * 0.2;
+
+        const starGrad = ctx.createRadialGradient(cx, cy, 5, cx, cy, 220 * pulse);
+        starGrad.addColorStop(0, 'rgba(254, 240, 138, 0.9)');
+        starGrad.addColorStop(0.3, 'rgba(245, 158, 11, 0.4)');
+        starGrad.addColorStop(1, 'rgba(0,0,0,0)');
+
+        ctx.fillStyle = starGrad;
+        ctx.beginPath();
+        ctx.arc(cx, cy, 220 * pulse, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      // 13. Anillos de Luz Infinitos
+      else if (type === 'video_proc_tunnel') {
+        ctx.fillStyle = '#050510';
+        ctx.fillRect(0, 0, width, height);
+
+        const cx = width / 2;
+        const cy = height / 2;
+        for (let i = 0; i < 8; i++) {
+          const r = ((time * 60 + i * 80) % 500);
+          const opacity = Math.max(0, 1 - (r / 500));
+          ctx.strokeStyle = `rgba(147, 197, 253, ${opacity * 0.4})`;
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.arc(cx, cy, r, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+      }
+      // 14. Torbellino de Pétalos
+      else if (type === 'video_proc_petals_flow') {
+        const grad = ctx.createLinearGradient(0, 0, 0, height);
+        grad.addColorStop(0, '#1e1b4b');
+        grad.addColorStop(1, '#311b92');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, width, height);
+
+        for (let i = 0; i < 30; i++) {
+          const x = (i * 120 + Math.sin(time * 1.2 + i) * 50) % width;
+          const y = (time * 40 + i * 90) % (height + 50) - 20;
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.rotate(time * 0.8 + i);
+          ctx.fillStyle = `rgba(244, 114, 182, 0.35)`;
+          ctx.beginPath();
+          ctx.ellipse(0, 0, 12, 6, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+      }
+      // 15. Halo de Gloria
+      else if (type === 'video_proc_halo') {
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(0, 0, width, height);
+
+        const cx = width / 2;
+        const cy = height * 0.38;
+        const pulse = Math.sin(time * 1.5) * 15;
+
+        for (let r = 80; r <= 220; r += 35) {
+          ctx.strokeStyle = `rgba(253, 224, 71, ${0.15 + Math.sin(r + time) * 0.1})`;
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(cx, cy, r + pulse, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+      }
+      // 16. Ondas de Agua Cristalina
+      else if (type === 'video_proc_water_ripples') {
+        const grad = ctx.createLinearGradient(0, 0, 0, height);
+        grad.addColorStop(0, '#0284c7');
+        grad.addColorStop(1, '#0f172a');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, width, height);
+
+        for (let i = 0; i < 6; i++) {
+          const cx = (width * 0.2 + i * 150) % width;
+          const cy = (height * 0.3 + i * 180) % height;
+          const r = ((time * 45 + i * 60) % 250);
+          const opacity = Math.max(0, 1 - (r / 250));
+
+          ctx.strokeStyle = `rgba(224, 242, 254, ${opacity * 0.35})`;
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(cx, cy, r, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+      }
+      // 17. Refracción Prisma Celestial
+      else if (type === 'video_proc_prism') {
+        const hue = (time * 25) % 360;
+        const grad = ctx.createLinearGradient(0, 0, width, height);
+        grad.addColorStop(0, `hsla(${hue}, 60%, 15%, 1)`);
+        grad.addColorStop(0.5, `hsla(${(hue + 60) % 360}, 70%, 20%, 1)`);
+        grad.addColorStop(1, `hsla(${(hue + 120) % 360}, 60%, 10%, 1)`);
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, width, height);
+      }
+      // 18. Constelaciones de la Fe
+      else if (type === 'video_proc_constellations') {
+        ctx.fillStyle = '#050814';
+        ctx.fillRect(0, 0, width, height);
+
+        const stars = [];
+        for (let i = 0; i < 22; i++) {
+          const x = (i * 170 + Math.sin(time * 0.3 + i) * 30) % width;
+          const y = (i * 130 + Math.cos(time * 0.4 + i) * 30) % height;
+          stars.push({ x, y });
+
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+          ctx.beginPath();
+          ctx.arc(x, y, 2.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        ctx.strokeStyle = 'rgba(147, 197, 253, 0.2)';
+        ctx.lineWidth = 1;
+        for (let i = 0; i < stars.length - 1; i++) {
+          ctx.beginPath();
+          ctx.moveTo(stars[i].x, stars[i].y);
+          ctx.lineTo(stars[i + 1].x, stars[i + 1].y);
+          ctx.stroke();
+        }
+      }
+      // 19. Chispas de Fuego Santo
+      else if (type === 'video_proc_ember_rise') {
+        const grad = ctx.createLinearGradient(0, 0, 0, height);
+        grad.addColorStop(0, '#1c1917');
+        grad.addColorStop(1, '#451a03');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, width, height);
+
+        for (let i = 0; i < 40; i++) {
+          const x = (i * 110 + Math.sin(time * 1.5 + i) * 35) % width;
+          const y = height - ((time * 60 + i * 85) % (height + 40));
+          const opacity = 0.3 + Math.sin(time * 3.0 + i) * 0.5;
+
+          ctx.fillStyle = `rgba(249, 115, 22, ${Math.max(0.1, opacity)})`;
+          ctx.beginPath();
+          ctx.arc(x, y, 3 + (i % 3), 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+      // 20. Incienso Místico
+      else if (type === 'video_proc_soft_smoke') {
+        const grad = ctx.createLinearGradient(0, 0, 0, height);
+        grad.addColorStop(0, '#0f172a');
+        grad.addColorStop(1, '#1e293b');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, width, height);
+
+        for (let i = 0; i < 4; i++) {
+          const cx = width / 2 + Math.sin(time * 0.6 + i) * 120;
+          const cy = height - ((time * 40 + i * 180) % (height + 300));
+          const r = 140 + i * 40;
+
+          const sGrad = ctx.createRadialGradient(cx, cy, 10, cx, cy, r);
+          sGrad.addColorStop(0, 'rgba(241, 245, 249, 0.12)');
+          sGrad.addColorStop(1, 'rgba(0,0,0,0)');
+
+          ctx.fillStyle = sGrad;
+          ctx.beginPath();
+          ctx.arc(cx, cy, r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
 
       ctx.restore();
     }
@@ -2990,34 +2935,9 @@
         logoXOffset = handleXOffset = phraseXOffset = citationXOffset = 0;
       }
 
-      // DIBUJO DE FONDO DE VIDEO (MP4 O CÓDIGO PROCEDURAL)
+      // DIBUJO DE FONDO PROCEDURAL ANIMADO POR CÓDIGO CANVAS
       if (bgType.startsWith('video_proc_')) {
         drawProceduralVideoBg(ctx, canvas.width, canvas.height, bgType, time);
-      } else if (bgType.startsWith('video_') && videoBgElement) {
-        if (videoBgElement.paused && videoBgElement.readyState >= 2) {
-          videoBgElement.play().catch(() => {});
-        }
-
-        let drewVideo = false;
-        if (videoBgElement.readyState >= 2) {
-          try {
-            drawCoverImage(ctx, videoBgElement, canvas.width, canvas.height, bgScale);
-            drewVideo = true;
-          } catch(e) {
-            console.warn("Error dibujando video en Canvas:", e);
-          }
-        }
-        
-        if (!drewVideo) {
-          if (currentVideoPosterImg) {
-            drawCoverImage(ctx, currentVideoPosterImg, canvas.width, canvas.height, bgScale);
-          } else {
-            drawGrad(ctx, canvas, 0, bgScale);
-          }
-        }
-        
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
       } else if (bgType === 'user_custom' && userCustomImg) {
         drawCoverImage(ctx, userCustomImg, canvas.width, canvas.height, bgScale);
         ctx.fillStyle = 'rgba(0, 0, 0, 0.48)';
@@ -3025,7 +2945,7 @@
       } else if (bgType.startsWith('photo_')) {
         const pIndex = parseInt(bgType.split('_')[1]);
         try {
-          const bgImg = await loadImage(activePhotos[pIndex % activePhotos.length] || 'https://picsum.photos/800/1000');
+          const bgImg = await loadImage(activePhotos[pIndex % activePhotos.length] || ALL_PHOTOS[0]);
           drawCoverImage(ctx, bgImg, canvas.width, canvas.height, bgScale);
           ctx.fillStyle = 'rgba(0, 0, 0, 0.52)';
           ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -3249,9 +3169,7 @@
       grad.addColorStop(1, colors[1]);
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      if (scale !== 1.0) {
-        ctx.restore();
-      }
+      if (scale !== 1.0) ctx.restore();
     }
 
     function openCanvasModal(canvas) {
@@ -3396,7 +3314,6 @@
 
     async function startAudioPlayback() {
       stopAudioPlayback();
-
       if (!userCustomAudio) return null;
 
       const audio = new Audio();
@@ -3407,9 +3324,7 @@
       try {
         await audio.play();
         activeAudioEl = audio;
-      } catch(e) {
-        console.log("Play diferido audio:", e);
-      }
+      } catch(e) {}
 
       return audio;
     }
@@ -3434,14 +3349,7 @@
       }
 
       stopPreviewAnimation();
-
       const durationSec = parseFloat(document.getElementById('selectDuration').value) || 15;
-
-      if (selectedBg.startsWith('video_') && videoBgElement) {
-        videoBgElement.currentTime = 0;
-        syncVideoDurationAndSpeed();
-        videoBgElement.play().catch(e => console.log("Video play error:", e));
-      }
 
       const animType = document.getElementById('selectAnimation').value;
       const effectType = document.getElementById('selectEffect').value;
@@ -3462,7 +3370,6 @@
         if (elapsed > durationSec) {
           startTime = timestamp;
           elapsed = 0;
-          if (videoBgElement) videoBgElement.currentTime = 0;
         }
 
         await drawCustomCanvasWithAnim(Math.min(elapsed, durationSec), durationSec, animType, effectType);
@@ -3521,12 +3428,6 @@
 
       const durationSec = parseFloat(document.getElementById('selectDuration').value) || 15;
       const durationMs = durationSec * 1000;
-
-      if (selectedBg.startsWith('video_') && videoBgElement) {
-        videoBgElement.currentTime = 0;
-        syncVideoDurationAndSpeed();
-        videoBgElement.play().catch(e => console.log("Video play error:", e));
-      }
 
       const animType = document.getElementById('selectAnimation').value;
       const effectType = document.getElementById('selectEffect').value;
