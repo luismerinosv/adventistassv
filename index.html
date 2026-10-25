@@ -211,7 +211,6 @@
       display: block;
     }
 
-    /* ACCIONES DE TARJETA CON ICONOS */
     .card-actions {
       padding: 8px;
       display: flex;
@@ -324,7 +323,6 @@
       min-height: 75px;
     }
 
-    /* TARJETA ACTIVADORA DE SELECTORES INTERACTIVOS */
     .ig-music-trigger-card {
       display: flex;
       align-items: center;
@@ -360,7 +358,6 @@
       object-fit: cover;
     }
 
-    /* MODAL DE SELECTORES */
     .music-modal-card {
       background: #1e293b;
       width: 100%;
@@ -536,7 +533,6 @@
       box-shadow: 0 0 6px var(--accent);
     }
 
-    /* Modales Minimalistas */
     .modal {
       display: none;
       position: fixed;
@@ -636,14 +632,13 @@
     <p>Frases e inspiración diaria • @adventistassv</p>
   </header>
 
-  <!-- NAVEGACIÓN FIJA AL SCROLL CON BOTONES SOCIALES CORREGIDOS -->
+  <!-- NAVEGACIÓN FIJA AL SCROLL -->
   <nav class="sticky-nav-wrapper">
     <div class="nav-tabs">
       <button id="tabBtnGallery" class="tab-btn active" onclick="switchTab('gallery')">Frases del Día</button>
       <button id="tabBtnEditor" class="tab-btn" onclick="switchTab('editor')">Creador</button>
       <button class="tab-btn tab-btn-share" onclick="shareWebsite()">Compartir</button>
       
-      <!-- BOTÓN INSTAGRAM DE @ADVENTISTASSV -->
       <a href="https://instagram.com/adventistassv" target="_blank" rel="noopener" class="tab-btn tab-btn-social" title="Síguenos en Instagram (@adventistassv)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
@@ -652,7 +647,6 @@
         </svg>
       </a>
 
-      <!-- BOTÓN FACEBOOK DE @ADVENTISTASSV -->
       <a href="https://facebook.com/adventistassv" target="_blank" rel="noopener" class="tab-btn tab-btn-social" title="Síguenos en Facebook (@adventistassv)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
@@ -692,7 +686,6 @@
       
       <div class="editor-layout">
         
-        <!-- PREVISUALIZACIÓN Y ACCIONES -->
         <div class="editor-preview">
           <div id="previewBox" class="canvas-container" style="max-width: 420px; border-radius: 10px; overflow: hidden;" onclick="openCanvasModal(document.getElementById('customCanvas'))">
             <canvas id="customCanvas"></canvas>
@@ -711,7 +704,6 @@
           </div>
         </div>
 
-        <!-- CONTROLES DEL EDITOR -->
         <div class="editor-controls">
           <div class="form-group">
             <label>Texto de la Frase:</label>
@@ -755,7 +747,6 @@
             <input type="file" id="inputCustomLogo" class="form-control hidden" accept="image/*" style="margin-top: 6px;" onchange="handleUserLogoUpload(event)">
           </div>
 
-          <!-- SELECTOR INTERACTIVO DE TRANSICIONES DE TEXTO -->
           <div class="form-group">
             <label>Transición / Animación de Texto:</label>
             <div class="ig-music-trigger-card" onclick="openAnimModal()">
@@ -790,7 +781,6 @@
             </select>
           </div>
 
-          <!-- SELECTOR INTERACTIVO DE EFECTOS / OVERLAY -->
           <div class="form-group">
             <label>Efectos de Movimiento / Partículas Overlay:</label>
             <div class="ig-music-trigger-card" onclick="openEffectModal()">
@@ -826,7 +816,6 @@
             </select>
           </div>
 
-          <!-- SELECTOR DE MÚSICA EN TIEMPO REAL -->
           <div class="form-group">
             <label>Música / Audio Instrumental de Fondo:</label>
             <div class="ig-music-trigger-card" onclick="openMusicModal()">
@@ -841,7 +830,6 @@
             </div>
           </div>
 
-          <!-- DURACIÓN PREDETERMINADA 15 SEGUNDOS -->
           <div class="form-group">
             <label>Duración del Video (Predeterminado 15 Segundos):</label>
             <select id="selectDuration" class="form-control" onchange="previewAnimation()">
@@ -890,7 +878,6 @@
             <input type="file" id="inputCustomBg" class="form-control" accept="image/*" onchange="handleUserBgUpload(event)">
           </div>
 
-          <!-- BUSCADOR Y SELECCIÓN DE FONDOS -->
           <div class="form-group">
             <div class="bg-grid-header">
               <label>Selecciona o Busca un Fondo:</label>
@@ -911,7 +898,7 @@
     </div>
   </div>
 
-  <!-- MODAL BUSCADOR Y PROBADOR DE TRANSICIONES DE TEXTO (IMAGEN ARRIBA) -->
+  <!-- MODAL BUSCADOR Y PROBADOR DE TRANSICIONES DE TEXTO -->
   <div id="animModal" class="modal" onclick="closeAnimModal()">
     <div class="music-modal-card" onclick="event.stopPropagation()">
       <div class="music-modal-header">
@@ -919,7 +906,6 @@
         <button class="modal-close" style="position:static;" onclick="closeAnimModal()">✕</button>
       </div>
       
-      <!-- CANVA DE VISTA PREVIA EN TIEMPO REAL ARRIBA -->
       <div class="modal-preview-top-container">
         <div class="modal-preview-canvas-wrapper">
           <canvas id="animModalCanvas"></canvas>
@@ -930,7 +916,7 @@
     </div>
   </div>
 
-  <!-- MODAL BUSCADOR Y PROBADOR DE EFECTOS / OVERLAY (IMAGEN ARRIBA) -->
+  <!-- MODAL BUSCADOR Y PROBADOR DE EFECTOS / OVERLAY -->
   <div id="effectModal" class="modal" onclick="closeEffectModal()">
     <div class="music-modal-card" onclick="event.stopPropagation()">
       <div class="music-modal-header">
@@ -938,7 +924,6 @@
         <button class="modal-close" style="position:static;" onclick="closeEffectModal()">✕</button>
       </div>
 
-      <!-- CANVA DE VISTA PREVIA EN TIEMPO REAL ARRIBA -->
       <div class="modal-preview-top-container">
         <div class="modal-preview-canvas-wrapper">
           <canvas id="effectModalCanvas"></canvas>
@@ -949,7 +934,7 @@
     </div>
   </div>
 
-  <!-- MODAL BUSCADOR DE MÚSICA EN TIEMPO REAL -->
+  <!-- MODAL BUSCADOR DE MÚSICA -->
   <div id="musicModal" class="modal" onclick="closeMusicModal()">
     <div class="music-modal-card" onclick="event.stopPropagation()">
       <div class="music-modal-header">
@@ -975,7 +960,7 @@
     </div>
   </div>
 
-  <!-- OTROS MODALES -->
+  <!-- MODALES DE NAVEGACIÓN Y ACCIONES -->
   <div id="imageModal" class="modal" onclick="closeModal()">
     <button class="modal-close" onclick="closeModal()">✕</button>
     <img id="modalImg" class="modal-content" src="" alt="Vista Previa" onclick="event.stopPropagation()">
@@ -1087,7 +1072,6 @@
 
     let testModalAnimId = null;
 
-    /* DATOS DE TRANSICIONES Y EFECTOS PARA MODALES DE VISTA PREVIA */
     const ANIMATIONS_DATA = [
       { id: 'slide', icon: '⬆️', title: 'Deslizar desde abajo (Slide Up)', desc: 'Desplazamiento vertical suave ascendente' },
       { id: 'slideLeft', icon: '⬅️', title: 'Deslizar desde la izquierda', desc: 'Entrada lateral desde el borde izquierdo' },
@@ -1131,7 +1115,6 @@
       { id: 'none', icon: '🛑', title: 'Sin Efectos', desc: 'Sin capa adicional de movimiento' }
     ];
 
-    /* CONFIGURACIÓN TIPOGRÁFICA Y ESCALADO DE FUENTES */
     const FONT_MAP = {
       'Montserrat': { family: '"Montserrat", sans-serif', weight: '700', scale: 1.0 },
       'Bebas Neue': { family: '"Bebas Neue", sans-serif', weight: '700', scale: 1.25 },
@@ -1180,7 +1163,6 @@
       return Math.max(36, scaledSize);
     }
 
-    /* BANCO CLASIFICADO DE FRASES */
     const RAW_BIBLIA = [
       { frase: "JEHOVÁ ES MI PASTOR; NADA ME FALTARÁ.", cita: "Salmos 23:1" },
       { frase: "EN LUGARES DE DELICADOS PASTOS ME HARÁ DESCANSAR; JUNTO A AGUAS DE REPOSO ME PASTOREARÁ.", cita: "Salmos 23:2" },
@@ -1232,7 +1214,6 @@
 
     const QUOTES_BANK = [...RAW_BIBLIA, ...RAW_ESCRITOS, ...RAW_HIMNOS];
 
-    /* FOTOGRAFÍAS Y PATRONES */
     const ALL_STOCK_PHOTOS = [
       { url: 'https://images.unsplash.com/photo-1513002749550-c59d786b8e6c?auto=format&fit=crop&w=800&q=80', tags: 'cielo nubes azul sol luz sky' },
       { url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80', tags: 'mar playa sol agua orilla ocean' },
@@ -1516,7 +1497,6 @@
       }
     }
 
-    /* FUNCIONES DE MODALES CON CANVAS DE VISTA PREVIA INTEGRADO ARRIBA */
     function stopTestModalAnim() {
       if (testModalAnimId) {
         cancelAnimationFrame(testModalAnimId);
@@ -1672,7 +1652,6 @@
       closeEffectModal();
     }
 
-    /* BUSCADOR DE MÚSICA EN TIEMPO REAL CON API DE ITUNES */
     function openMusicModal() {
       stopModalPreview();
       document.getElementById('musicSearchInput').value = '';
@@ -2076,7 +2055,6 @@
       }
     }
 
-    /* AMPLIA SELECCIÓN DE EFECTOS OVERLAY EN CANVAS */
     function drawOverlayEffects(ctx, width, height, effectType, time) {
       if (!effectType || effectType === 'none') return;
 
@@ -2382,7 +2360,6 @@
       ctx.restore();
     }
 
-    /* RENDERIZADO DE LA TARJETA EN CANVAS CON TRANSICIONES EXTENDIDAS */
     async function drawCanvasCard(
       canvas, phrase, citation, fontPhraseName, fontCitationName, 
       logoKey, bgType, handleText = '@adventistassv', ratioKey = '4:5',
@@ -2432,7 +2409,6 @@
       const formattedPhrase = formatPhraseText(phrase, fontPhraseName);
       let typewriterChars = formattedPhrase.length;
 
-      /* CÁLCULO DE TRANSICIONES DE TEXTO EXTENDIDAS */
       if (animType === 'fade') {
         const a = Math.min(progress / 0.25, 1.0);
         logoAlpha = phraseAlpha = citationAlpha = handleAlpha = a;
@@ -2521,7 +2497,6 @@
         logoAlpha = phraseAlpha = citationAlpha = handleAlpha = e;
       }
 
-      /* RENDERIZADO DEL FONDO */
       if (bgType === 'user_custom' && userCustomImg) {
         drawCoverImage(ctx, userCustomImg, canvas.width, canvas.height, bgScale);
         ctx.fillStyle = 'rgba(0, 0, 0, 0.48)';
@@ -2575,7 +2550,6 @@
         ctx.translate(-canvas.width / 2, -canvas.height / 2);
       }
 
-      /* LOGO SUPERIOR */
       let logoImg = null;
       if (showLogo) {
         if (logoKey === 'custom' && userCustomLogoImg) {
@@ -2608,7 +2582,6 @@
         ctx.restore();
       }
 
-      /* FUENTE Y TAMAÑO DINÁMICO */
       const phrCfg = FONT_MAP[fontPhraseName] || { family: '"Montserrat", sans-serif', weight: '700' };
       const citCfg = FONT_MAP[fontCitationName] || { family: '"Lora", serif', weight: '600' };
 
@@ -2618,7 +2591,6 @@
 
       const citationFontString = `italic 500 ${FIXED_CITATION_FONT_SIZE}px ${citCfg.family}`;
 
-      /* FRASE PRINCIPAL */
       const displayPhrase = (animType === 'typewriter') ? formattedPhrase.substring(0, typewriterChars) : formattedPhrase;
       const words = displayPhrase.split(' ');
       let lines = [];
@@ -2663,7 +2635,6 @@
         ctx.restore();
       }
 
-      /* CITA BÍBLICA O REFERENCIA */
       let citationY = startY + (lines.length * phraseLineHeight) + 40 + citationYOffset;
       if (citationAlpha > 0.01) {
         ctx.save();
@@ -2680,7 +2651,6 @@
         ctx.restore();
       }
 
-      /* PIE DE IMAGEN */
       let footerY = canvas.height - 90;
       if (ratioKey === '9:16') footerY = canvas.height - 140;
       if (ratioKey === '1:1') footerY = canvas.height - 90;
@@ -2951,7 +2921,61 @@
       await drawCustomCanvasOnTarget(canvas, time, duration, animType, effectType);
     }
 
-    /* GENERACIÓN DE VIDEO ANIMADO EXPORTADO EN MP4 NATIVO */
+    /* REPARADOR DE METADATOS DE DURACIÓN EN CABECERA DE VIDEO (WEBM / MP4) */
+    function fixWebmDuration(blob, durationMs) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = function() {
+          const buffer = reader.result;
+          const view = new DataView(buffer);
+
+          let infoPos = -1;
+          for (let i = 0; i < view.byteLength - 4; i++) {
+            if (view.getUint32(i) === 0x1549A966) {
+              infoPos = i;
+              break;
+            }
+          }
+
+          if (infoPos !== -1) {
+            let durationPos = -1;
+            for (let i = infoPos; i < Math.min(infoPos + 150, view.byteLength - 8); i++) {
+              if (view.getUint16(i) === 0x4489) {
+                durationPos = i;
+                break;
+              }
+            }
+
+            if (durationPos !== -1) {
+              const len = view.getUint8(durationPos + 2);
+              if (len === 0x84) {
+                view.setFloat32(durationPos + 3, durationMs, false);
+              } else if (len === 0x88) {
+                view.setFloat64(durationPos + 3, durationMs, false);
+              }
+              return resolve(new Blob([buffer], { type: blob.type }));
+            } else {
+              const durTag = new Uint8Array(11);
+              durTag[0] = 0x44; durTag[1] = 0x89; durTag[2] = 0x88;
+              const dv = new DataView(durTag.buffer);
+              dv.setFloat64(3, durationMs, false);
+
+              const insertPos = infoPos + 8;
+              const newBuffer = new Uint8Array(buffer.byteLength + 11);
+              newBuffer.set(new Uint8Array(buffer, 0, insertPos), 0);
+              newBuffer.set(durTag, insertPos);
+              newBuffer.set(new Uint8Array(buffer, insertPos), insertPos + 11);
+
+              return resolve(new Blob([newBuffer.buffer], { type: blob.type }));
+            }
+          }
+          resolve(blob);
+        };
+        reader.readAsArrayBuffer(blob);
+      });
+    }
+
+    /* GENERACIÓN DE VIDEO ANIMADO CON MARCAS DE TIEMPO Y DURACIÓN REPARADAS */
     async function generarVideoAnimado() {
       stopPreviewAnimation();
 
@@ -2966,9 +2990,10 @@
       const animType = document.getElementById('selectAnimation').value;
       const effectType = document.getElementById('selectEffect').value;
       const durationSec = parseFloat(document.getElementById('selectDuration').value) || 15;
+      const durationMs = durationSec * 1000;
 
       const originalText = btn.innerText;
-      btn.innerText = "⏳ Grabando MP4 (0%)...";
+      btn.innerText = "⏳ Grabando Video (0%)...";
       btn.disabled = true;
 
       const audioEl = await startAudioPlayback();
@@ -3001,7 +3026,6 @@
 
       const recordedChunks = [];
 
-      /* DETECCIÓN Y ELECCIÓN DE FORMATO MP4 NATIVO BROWSER */
       let mimeType = 'video/mp4;codecs=avc1,mp4a.40.2';
       if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'video/mp4';
       if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'video/webm;codecs=vp9';
@@ -3020,7 +3044,7 @@
         }
       };
 
-      mediaRecorder.onstop = () => {
+      mediaRecorder.onstop = async () => {
         stopAudioPlayback();
         if (audioCtx) { audioCtx.close(); }
 
@@ -3029,8 +3053,12 @@
         const fileExt = isWebm ? 'webm' : 'mp4';
         const blobType = isWebm ? 'video/webm' : 'video/mp4';
 
-        const blob = new Blob(recordedChunks, { type: blobType });
-        const url = URL.createObjectURL(blob);
+        const rawBlob = new Blob(recordedChunks, { type: blobType });
+
+        /* Inyectar metadatos de duración para evitar recorte en redes sociales */
+        const finalBlob = await fixWebmDuration(rawBlob, durationMs);
+
+        const url = URL.createObjectURL(finalBlob);
         const a = document.createElement('a');
         a.href = url;
         const selectedDate = document.getElementById('historyDate')?.value || 'frase';
@@ -3043,26 +3071,29 @@
         updateCustomCanvas();
       };
 
-      mediaRecorder.start();
+      /* Graba en fragmentos de 100ms para mantener timestamps estables */
+      mediaRecorder.start(100);
 
-      let startTime = null;
+      const totalFrames = Math.round(durationSec * fps);
+      let currentFrame = 0;
 
-      async function step(timestamp) {
-        if (!startTime) startTime = timestamp;
-        const elapsed = (timestamp - startTime) / 1000;
-        const pct = Math.min(Math.round((elapsed / durationSec) * 100), 100);
-        btn.innerText = `⏳ Grabando video (${pct}%)...`;
+      async function renderFrameStep() {
+        if (currentFrame > totalFrames) {
+          mediaRecorder.stop();
+          return;
+        }
+
+        const elapsed = (currentFrame / fps);
+        const pct = Math.min(Math.round((currentFrame / totalFrames) * 100), 100);
+        btn.innerText = `⏳ Procesando Video (${pct}%)...`;
 
         await drawCustomCanvasWithAnim(elapsed, durationSec, animType, effectType);
+        currentFrame++;
 
-        if (elapsed < durationSec) {
-          requestAnimationFrame(step);
-        } else {
-          mediaRecorder.stop();
-        }
+        setTimeout(renderFrameStep, 1000 / fps);
       }
 
-      requestAnimationFrame(step);
+      renderFrameStep();
     }
 
     function updateCustomCanvas() {
