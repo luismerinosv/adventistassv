@@ -3134,7 +3134,7 @@
       await drawCustomCanvasOnTarget(canvas, time, duration, animType, effectType);
     }
 
-    /* GRABADO DE VIDEO EN TIEMPO REAL COMPATIBLE CON REDES SOCIALES (INSTAGRAM/FACEBOOK/WHATSAPP) */
+    /* PROCESAMIENTO OFFLINE PASO A PASO Y DESCARGA FINAL ENSAMBLADA */
     async function generarVideoAnimado() {
       stopPreviewAnimation();
 
@@ -3152,20 +3152,22 @@
       const durationMs = durationSec * 1000;
 
       const originalText = btn.innerText;
-      btn.innerText = "⏳ Preparando grabado...";
       btn.disabled = true;
 
-      // Pre-carga del primer fotograma
-      await drawCustomCanvasWithAnim(0, durationSec, animType, effectType);
-
-      // Iniciar audio instrumental
+      // 1. Iniciar pista de audio instrumental
       const audioEl = await startAudioPlayback();
 
       const fps = 30;
-      const canvasStream = canvas.captureStream(fps);
-      let finalStream = canvasStream;
+      let canvasStream;
+      try {
+        canvasStream = canvas.captureStream(fps);
+      } catch(e) {
+        canvasStream = canvas.captureStream();
+      }
 
+      let finalStream = canvasStream;
       let audioCtx = null;
+
       if (audioEl) {
         try {
           const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -3206,75 +3208,72 @@
         }
       };
 
-      let startTime = null;
-
-      mediaRecorder.onstop = async () => {
-        stopAudioPlayback();
-        if (audioCtx) { try { audioCtx.close(); } catch(e){} }
-
-        const rawBlob = new Blob(recordedChunks, { type: mediaRecorder.mimeType || 'video/webm' });
-        const actualDurationMs = startTime ? (performance.now() - startTime) : durationMs;
-
-        // Inyección de la cabecera de duración EBML para detección automática en galerías móviles
-        const applyDurationFix = (blob, duration) => {
-          return new Promise((resolve) => {
-            const fixFunc = window.ysFixWebmDuration || window.fixWebmDuration;
-            if (typeof fixFunc === 'function') {
-              try {
-                fixFunc(blob, duration, (fixedBlob) => {
-                  resolve(fixedBlob);
-                });
-              } catch(err) {
-                console.warn("Error aplicando duración a WebM:", err);
-                resolve(blob);
-              }
-            } else {
-              resolve(blob);
-            }
-          });
-        };
-
-        const finalBlob = await applyDurationFix(rawBlob, actualDurationMs);
-
-        const url = URL.createObjectURL(finalBlob);
-        const a = document.createElement('a');
-        a.href = url;
-        const selectedDate = document.getElementById('historyDate')?.value || 'frase';
-        a.download = `adventistassv-video-${selectedDate}.webm`;
-        a.click();
-        URL.revokeObjectURL(url);
-
-        btn.innerText = originalText;
-        btn.disabled = false;
-        updateCustomCanvas();
-      };
+      const recordingStoppedPromise = new Promise((resolve) => {
+        mediaRecorder.onstop = resolve;
+      });
 
       mediaRecorder.start(100);
 
-      // Grabación fluida sincronizada con el reloj en tiempo real
-      let isRecording = true;
+      // 2. Renderizar fotograma por fotograma determinísticamente
+      const totalFrames = Math.round(durationSec * fps);
+      const track = canvasStream.getVideoTracks()[0];
 
-      function renderRecordLoop(now) {
-        if (!isRecording) return;
-        if (!startTime) startTime = now;
+      for (let frame = 0; frame <= totalFrames; frame++) {
+        const time = (frame / totalFrames) * durationSec;
+        const progressPct = Math.min(Math.round((frame / totalFrames) * 100), 100);
+        
+        btn.innerText = `⏳ Procesando video (${progressPct}%)...`;
 
-        const elapsed = (now - startTime) / 1000;
-        const pct = Math.min(Math.round((elapsed / durationSec) * 100), 100);
-        btn.innerText = `🎬 Grabando Video (${pct}%)...`;
+        await drawCustomCanvasWithAnim(time, durationSec, animType, effectType);
 
-        drawCustomCanvasWithAnim(Math.min(elapsed, durationSec), durationSec, animType, effectType);
-
-        if (elapsed >= durationSec) {
-          isRecording = false;
-          if (mediaRecorder.state !== 'inactive') {
-            mediaRecorder.stop();
-          }
-        } else {
-          requestAnimationFrame(renderRecordLoop);
+        if (track && typeof track.requestFrame === 'function') {
+          track.requestFrame();
         }
+
+        await new Promise(r => setTimeout(r, 1000 / fps));
       }
 
-      requestAnimationFrame(renderRecordLoop);
+      btn.innerText = "⚡ Ensamblando metadatos y duraciones...";
+
+      if (mediaRecorder.state !== 'inactive') {
+        mediaRecorder.stop();
+      }
+
+      await recordingStoppedPromise;
+
+      stopAudioPlayback();
+      if (audioCtx) { try { audioCtx.close(); } catch(e){} }
+
+      // 3. Crear Blob e inyectar encabezado EBML con la duración exacta
+      const rawBlob = new Blob(recordedChunks, { type: mediaRecorder.mimeType || 'video/webm' });
+
+      const fixedBlob = await new Promise((resolve) => {
+        const fixFunc = window.ysFixWebmDuration || window.fixWebmDuration;
+        if (typeof fixFunc === 'function') {
+          try {
+            fixFunc(rawBlob, durationMs, (result) => resolve(result));
+          } catch(err) {
+            console.warn("Error parcheando duración WebM:", err);
+            resolve(rawBlob);
+          }
+        } else {
+          resolve(rawBlob);
+        }
+      });
+
+      // 4. DESCARGAR ÚNICAMENTE AL CONCLUIR EL PROCESAMIENTO
+      const url = URL.createObjectURL(fixedBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      const selectedDate = document.getElementById('historyDate')?.value || 'frase';
+      a.download = `adventistassv-video-${selectedDate}.webm`;
+      a.click();
+      
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+
+      btn.innerText = originalText;
+      btn.disabled = false;
+      updateCustomCanvas();
     }
 
     function updateCustomCanvas() {
