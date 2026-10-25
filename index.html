@@ -695,7 +695,7 @@
               Previsualizar Animación Completa
             </button>
             <button id="btnDescargarVideo" class="btn" style="width: 100%; background: #00838f; font-weight: 600;" onclick="generarVideoAnimado()">
-              Descargar Video MP4 / WebM (Reel/Story/WhatsApp)
+              Descargar Video (Reel/Story/WhatsApp)
             </button>
           </div>
         </div>
@@ -3050,7 +3050,7 @@
       await drawCustomCanvasOnTarget(canvas, time, duration, animType, effectType);
     }
 
-    /* SISTEMA DE GENERACIÓN Y EXPORTACIÓN COMPATIBLE CON GALERÍA E INSTAGRAM */
+    /* SISTEMA DE GENERACIÓN DE VIDEO SINCRO REAL-TIME (SOLUCIÓN VISTA PREVIA INSTAGRAM / GALERÍA) */
     async function generarVideoAnimado() {
       stopPreviewAnimation();
 
@@ -3065,18 +3065,15 @@
       const animType = document.getElementById('selectAnimation').value;
       const effectType = document.getElementById('selectEffect').value;
       const durationSec = parseFloat(document.getElementById('selectDuration').value) || 15;
-      const fps = 30;
-      const totalFrames = Math.round(durationSec * fps);
-      const frameIntervalMs = 1000 / fps;
+      const durationMs = durationSec * 1000;
 
       const originalText = btn.innerText;
       btn.disabled = true;
 
       const audioEl = await startAudioPlayback();
 
-      // Captura manual de cuadro por cuadro
-      const canvasStream = canvas.captureStream(0);
-      const videoTrack = canvasStream.getVideoTracks()[0];
+      // Captura en tiempo real a 30 FPS para sincronización perfecta con el reloj del sistema
+      const canvasStream = canvas.captureStream(30);
       let finalStream = canvasStream;
       let audioCtx = null;
 
@@ -3091,40 +3088,22 @@
 
           const audioTrack = dest.stream.getAudioTracks()[0];
           if (audioTrack) {
-            finalStream = new MediaStream([
-              videoTrack,
-              audioTrack
-            ]);
+            const videoTrack = canvasStream.getVideoTracks()[0];
+            finalStream = new MediaStream([videoTrack, audioTrack]);
           }
         } catch(e) {
           console.warn("Audio Context error:", e);
         }
       }
 
-      // Lista de formatos priorizando MP4 para compatibilidad total con la galería de Instagram
-      const supportedMimeTypes = [
-        'video/mp4;codecs=avc1.42E01E,mp4a.40.2',
-        'video/mp4;codecs=avc1',
-        'video/mp4',
-        'video/webm;codecs=vp9,opus',
-        'video/webm;codecs=vp8,opus',
-        'video/webm'
-      ];
-
-      let selectedMimeType = '';
-      for (const type of supportedMimeTypes) {
-        if (MediaRecorder.isTypeSupported(type)) {
-          selectedMimeType = type;
-          break;
-        }
-      }
+      let mimeType = 'video/webm;codecs=vp9,opus';
+      if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'video/webm;codecs=vp8,opus';
+      if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'video/webm';
 
       const recordedChunks = [];
       let mediaRecorder;
-
       try {
-        const options = selectedMimeType ? { mimeType: selectedMimeType, videoBitsPerSecond: 5000000 } : {};
-        mediaRecorder = new MediaRecorder(finalStream, options);
+        mediaRecorder = new MediaRecorder(finalStream, { mimeType: mimeType });
       } catch (e) {
         mediaRecorder = new MediaRecorder(finalStream);
       }
@@ -3138,36 +3117,30 @@
         if (audioCtx) { try { audioCtx.close(); } catch(e){} }
 
         btn.innerText = "Empaquetando metadatos para Instagram...";
-        const durationMs = durationSec * 1000;
-        const isMp4 = mediaRecorder.mimeType ? mediaRecorder.mimeType.includes('mp4') : false;
-        const rawBlob = new Blob(recordedChunks, { type: mediaRecorder.mimeType || (isMp4 ? 'video/mp4' : 'video/webm') });
+        const rawBlob = new Blob(recordedChunks, { type: mediaRecorder.mimeType || 'video/webm' });
 
-        let finalBlob = rawBlob;
-
-        // Si es WebM, corregimos la duración en los encabezados EBML
-        if (!isMp4) {
-          finalBlob = await new Promise((resolve) => {
-            const fixFunc = window.ysFixWebmDuration || window.fixWebmDuration;
-            if (typeof fixFunc === 'function') {
-              try {
-                fixFunc(rawBlob, durationMs, (result) => resolve(result));
-              } catch(err) {
-                resolve(rawBlob);
-              }
-            } else {
+        // Corregimos los encabezados EBML con fixWebmDuration en un único bloque WebM
+        const fixedBlob = await new Promise((resolve) => {
+          const fixFunc = window.ysFixWebmDuration || window.fixWebmDuration;
+          if (typeof fixFunc === 'function') {
+            try {
+              fixFunc(rawBlob, durationMs, (result) => resolve(result));
+            } catch(err) {
+              console.warn("Error fixWebmDuration:", err);
               resolve(rawBlob);
             }
-          });
-        }
+          } else {
+            resolve(rawBlob);
+          }
+        });
 
-        const fileExt = isMp4 ? 'mp4' : 'webm';
-        const url = URL.createObjectURL(finalBlob);
+        const url = URL.createObjectURL(fixedBlob);
         const a = document.createElement('a');
         a.href = url;
         const selectedDate = document.getElementById('historyDate')?.value || 'frase';
-        a.download = `adventistassv-video-${selectedDate}.${fileExt}`;
+        a.download = `adventistassv-video-${selectedDate}.webm`;
         a.click();
-        
+
         setTimeout(() => URL.revokeObjectURL(url), 5000);
 
         btn.innerText = originalText;
@@ -3175,27 +3148,32 @@
         updateCustomCanvas();
       };
 
-      mediaRecorder.start(100);
+      // Se inicia SIN timeslice para asegurar un único contenedor EBML continuo
+      mediaRecorder.start();
 
-      // Renderizado fotograma a fotograma
-      for (let frame = 0; frame <= totalFrames; frame++) {
-        const frameTime = frame / fps;
-        const pct = Math.min(Math.round((frame / totalFrames) * 100), 100);
+      let startTime = null;
+      let animFrameId = null;
 
-        btn.innerText = `Generando video para Instagram ${frame}/${totalFrames} (${pct}%)...`;
+      async function renderFrame(timestamp) {
+        if (!startTime) startTime = timestamp;
+        const elapsedSec = (timestamp - startTime) / 1000;
+        const pct = Math.min(Math.round((elapsedSec / durationSec) * 100), 100);
 
-        await drawCustomCanvasWithAnim(frameTime, durationSec, animType, effectType);
+        btn.innerText = `Generando video para Instagram (${pct}%)...`;
 
-        if (videoTrack && typeof videoTrack.requestFrame === 'function') {
-          videoTrack.requestFrame();
+        await drawCustomCanvasWithAnim(Math.min(elapsedSec, durationSec), durationSec, animType, effectType);
+
+        if (elapsedSec < durationSec) {
+          animFrameId = requestAnimationFrame(renderFrame);
+        } else {
+          if (animFrameId) cancelAnimationFrame(animFrameId);
+          if (mediaRecorder.state !== 'inactive') {
+            mediaRecorder.stop();
+          }
         }
-
-        await new Promise(resolve => setTimeout(resolve, frameIntervalMs));
       }
 
-      if (mediaRecorder.state !== 'inactive') {
-        mediaRecorder.stop();
-      }
+      animFrameId = requestAnimationFrame(renderFrame);
     }
 
     function updateCustomCanvas() {
