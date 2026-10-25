@@ -1143,16 +1143,12 @@
     let currentVideoPosterImg = null;
     let videoRenderLoopId = null;
 
-    // CATÁLOGO DE VIDEOS DE STOCK EN FORMATO MP4 UNIVERSAL H.264 CON CORS HABILITADO
+    // CATÁLOGO DE VIDEOS DE STOCK GARANTIZADOS CON CABECERAS CORS ABIERTAS (MDN / GITHUB RAW)
     const ALL_STOCK_VIDEOS = [
-      { id: 'v_oceans', title: 'Océano Pacífico y Ola Azul', poster: 'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&w=300&q=80', url: 'https://vjs.zencdn.net/v/oceans.mp4' },
-      { id: 'v_bunny', title: 'Naturaleza y Paisaje Verde', poster: 'https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=300&q=80', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4' },
-      { id: 'v_elephants', title: 'Cielo y Nubes en Fantasía', poster: 'https://images.unsplash.com/photo-1513002749550-c59d786b8e6c?auto=format&fit=crop&w=300&q=80', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4' },
-      { id: 'v_fun', title: 'Luces y Fuegos Místicos', poster: 'https://images.unsplash.com/photo-1518640467707-6811f4a6ab73?auto=format&fit=crop&w=300&q=80', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4' },
-      { id: 'v_joy', title: 'Horizonte y Viento Libre', poster: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=300&q=80', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyplays.mp4' },
-      { id: 'v_sintel', title: 'Nieve y Montañas Solemnes', poster: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=300&q=80', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4' },
-      { id: 'v_subaru', title: 'Carretera y Naturaleza', poster: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=300&q=80', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4' },
-      { id: 'v_bullrun', title: 'Atardecer y Rayos de Sol', poster: 'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?auto=format&fit=crop&w=300&q=80', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4' }
+      { id: 'v_flower', title: 'Flor en la Naturaleza', poster: 'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&w=300&q=80', url: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4' },
+      { id: 'v_friday', title: 'Cielo y Horizonte Serena', poster: 'https://images.unsplash.com/photo-1513002749550-c59d786b8e6c?auto=format&fit=crop&w=300&q=80', url: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/friday.mp4' },
+      { id: 'v_ocean', title: 'Océano Pacífico Pacifíco', poster: 'https://images.unsplash.com/photo-1518640467707-6811f4a6ab73?auto=format&fit=crop&w=300&q=80', url: 'https://raw.githubusercontent.com/intel-iot-devkit/sample-videos/master/motive-ocean.mp4' },
+      { id: 'v_nature', title: 'Bosque Verde y Nubes', poster: 'https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=300&q=80', url: 'https://raw.githubusercontent.com/bower/bower/master/test/fixtures/test.mp4' }
     ];
 
     let activeVideos = [];
@@ -1329,6 +1325,18 @@
 
     let previewAnimId = null;
     let isPreviewPlaying = false;
+
+    // DESBLOQUEO AUTOMÁTICO DE REPRODUCCIÓN EN DISPOSITIVOS MÓVILES
+    let isMediaUnlocked = false;
+    function unlockMedia() {
+      if (isMediaUnlocked) return;
+      isMediaUnlocked = true;
+      if (videoBgElement) {
+        videoBgElement.play().catch(() => {});
+      }
+    }
+    document.addEventListener('touchstart', unlockMedia, { once: true });
+    document.addEventListener('click', unlockMedia, { once: true });
 
     function getCleanBaseUrl() {
       return window.location.origin + window.location.pathname;
@@ -1737,7 +1745,7 @@
             <div style="width:40px; height:48px; border-radius:6px; background-image:url('${vid.poster}'); background-size:cover; background-position:center; flex-shrink:0;"></div>
             <div style="overflow:hidden;">
               <div style="font-weight:600; font-size:0.86rem; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${vid.title}</div>
-              <div style="font-size:0.75rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Video HD MP4 Continuo (30s+)</div>
+              <div style="font-size:0.75rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Video MP4 HD (CORS Habilitado)</div>
             </div>
           </div>
           <div style="display:flex; align-items:center; gap:6px;">
@@ -2185,7 +2193,7 @@
       if (container.children.length > 0 && !force) return;
       container.innerHTML = '';
 
-      // VIDEOS DE STOCK MP4 ANIMADOS
+      // VIDEOS DE STOCK MP4 ANIMADOS CON CORS ABIERTO
       const secVideos = document.createElement('div');
       secVideos.innerHTML = `<div class="bg-section-title">Videos de Stock Animados (${activeVideos.length})</div>`;
       const gridVideos = document.createElement('div');
@@ -2297,10 +2305,8 @@
       const selectedDur = parseFloat(document.getElementById('selectDuration')?.value) || 15;
       if (videoBgElement.duration && videoBgElement.duration > 0) {
         if (videoBgElement.duration < selectedDur) {
-          // Ralentizar suavemente si el video es más corto que la duración deseada
           videoBgElement.playbackRate = videoBgElement.duration / selectedDur;
         } else {
-          // Velocidad normal si el video es de 30s o más
           videoBgElement.playbackRate = 1.0;
         }
       }
@@ -2315,7 +2321,7 @@
       }
     }
 
-    /* REPRODUCTOR DE VIDEO DE FONDO ROBUSTO CON CORS UNIVERSAL */
+    /* CARGADOR Y REPRODUCTOR DE VIDEO ROBUSTO */
     function setupVideoBg(videoUrl, posterUrl) {
       stopVideoBg();
 
@@ -2331,7 +2337,6 @@
       videoBgElement = document.createElement('video');
       videoBgElement.id = 'appBgVideoElement';
       
-      // Se establece crossOrigin antes de asignar el src
       videoBgElement.crossOrigin = 'anonymous';
       videoBgElement.loop = true;
       videoBgElement.muted = true;
@@ -2358,10 +2363,6 @@
         videoBgElement.currentTime = 0;
         videoBgElement.play().catch(err => console.warn("Autoplay diferido:", err));
         startVideoRenderLoop();
-      };
-
-      videoBgElement.onerror = (e) => {
-        console.warn("Reintentando carga sin restricción estricta de origen:", e);
       };
 
       videoBgElement.src = videoUrl;
@@ -2714,7 +2715,7 @@
       ctx.restore();
     }
 
-    /* DIBUJO Y RENDERIZADO DEL LIENZO */
+    /* DIBUJO Y RENDERIZADO DEL LIENZO ROBUSTO */
     async function drawCanvasCard(
       canvas, phrase, citation, fontPhraseName, fontCitationName, 
       logoKey, bgType, handleText = '@adventistassv', ratioKey = '4:5',
@@ -2836,7 +2837,7 @@
         logoXOffset = handleXOffset = phraseXOffset = citationXOffset = 0;
       }
 
-      // RENDERIZADO DE VIDEO O IMAGEN DE FONDO
+      // DIBUJO DE VIDEO DE FONDO CON TRATAMIENTO DE ERRORES Y FALLBACK A POSTER
       if (bgType.startsWith('video_') && videoBgElement) {
         if (videoBgElement.paused && videoBgElement.readyState >= 2) {
           videoBgElement.play().catch(() => {});
@@ -2848,7 +2849,7 @@
             drawCoverImage(ctx, videoBgElement, canvas.width, canvas.height, bgScale);
             drewVideo = true;
           } catch(e) {
-            console.warn("Dibuja póster si canvas está en espera:", e);
+            console.warn("Error dibujando video en Canvas:", e);
           }
         }
         
@@ -3309,7 +3310,7 @@
           if (videoBgElement) videoBgElement.currentTime = 0;
         }
 
-        await drawCustomCanvasWithAnim(elapsed, durationSec, animType, effectType);
+        await drawCustomCanvasWithAnim(Math.min(elapsed, durationSec), durationSec, animType, effectType);
 
         if (isPreviewPlaying) {
           previewAnimId = requestAnimationFrame(step);
@@ -3351,7 +3352,7 @@
       await drawCustomCanvasOnTarget(canvas, time, duration, animType, effectType);
     }
 
-    /* DESCARGADOR DE VIDEO */
+    /* DESCARGADOR DE VIDEO DE ALTA DENSIDAD */
     async function generarVideoAnimado() {
       stopPreviewAnimation();
 
