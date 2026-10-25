@@ -153,7 +153,7 @@
     .date-selector-group {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       flex-wrap: wrap;
     }
 
@@ -612,7 +612,9 @@
           <label for="historyDate" style="font-size: 0.82rem; color: var(--text-muted);">Fecha:</label>
           <input type="date" id="historyDate" class="form-control" style="width: auto; min-height: 36px; padding: 4px 8px;" onchange="loadQuotesForSelectedDate(this.value)">
           <button class="btn btn-secondary" style="min-height: 36px; padding: 4px 10px;" onclick="resetToTodayDate()">Hoy</button>
-          <button class="btn btn-secondary" style="min-height: 36px; padding: 4px 10px;" onclick="generateNewQuotesSet()">🔄 Generar Nuevas</button>
+          
+          <!-- BOTÓN ABREVIADO EN UNA SOLA LÍNEA PARA MÓVIL -->
+          <button class="btn btn-secondary" style="min-height: 36px; padding: 4px 8px; white-space: nowrap;" onclick="generateNewQuotesSet()">🔄 Generar</button>
         </div>
       </div>
       <div id="dailyGrid" class="grid-daily"></div>
@@ -722,7 +724,7 @@
             </select>
           </div>
 
-          <!-- NUEVO SELECTOR DE MÚSICA ESTILO INSTAGRAM -->
+          <!-- SELECTOR DE MÚSICA ESTILO INSTAGRAM -->
           <div class="form-group">
             <label>Música / Audio Instrumental de Fondo:</label>
             <div class="ig-music-trigger-card" onclick="openMusicModal()">
@@ -769,20 +771,14 @@
           </div>
 
           <div class="form-group">
-            <label>Fuente de la Cita / Referencia:</label>
+            <label>Fuente de la Cita / Referencia (Limpias y Legibles):</label>
             <select id="selectFontCitation" class="form-control" onchange="updateCustomCanvas()">
-              <option value="Lora">Lora (Serif suave e ideal para citas)</option>
+              <option value="Lora" selected>Lora (Serif suave e ideal para citas)</option>
               <option value="Merriweather">Merriweather (Alta legibilidad)</option>
-              <option value="Dancing Script">Dancing Script (Cursiva dinámica)</option>
-              <option value="Great Vibes">Great Vibes (Caligrafía fina de gala)</option>
-              <option value="Alex Brush">Alex Brush (Caligrafía fluida)</option>
-              <option value="Sacramento">Sacramento (Fina y sofisticada)</option>
-              <option value="Italianno">Italianno (Clásica antigua)</option>
-              <option value="Courgette">Courgette (Serif cursiva suave)</option>
               <option value="Quicksand">Quicksand (Redondeada y moderna)</option>
-              <option value="Playfair Display">Playfair Display (Serif elegante)</option>
-              <option value="Montserrat">Montserrat (Limpia)</option>
-              <option value="Poppins">Poppins (Minimalista)</option>
+              <option value="Montserrat">Montserrat (Limpia y delgada)</option>
+              <option value="Poppins">Poppins (Minimalista y clara)</option>
+              <option value="Outfit">Outfit (Geométrica elegante)</option>
             </select>
           </div>
 
@@ -891,6 +887,11 @@
       'Alex Brush', 'Sacramento', 'Italianno', 'Courgette', 'Abril Fatface'
     ];
 
+    /* FUENTES EXCLUSIVAMENTE LEGIBLES Y DELGADAS PARA LAS CITAS */
+    const LEGIBLE_CITATION_FONTS = [
+      'Lora', 'Merriweather', 'Quicksand', 'Montserrat', 'Poppins', 'Outfit'
+    ];
+
     /* BIBLIOTECA EXTENSA DE PISTAS DE MÚSICA */
     const AUDIO_LIBRARY = [
       { id: 'piano', title: 'Piano Suave y Paz', artist: 'Instrumental • Devocional', cat: 'piano', url: 'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3', icon: '🎹' },
@@ -992,7 +993,7 @@
 
     const QUOTES_BANK = [...RAW_BIBLIA, ...RAW_ESCRITOS, ...RAW_HIMNOS];
 
-    /* BANCO DE 50 FOTOGRAFÍAS DE ALTA RESOLUCIÓN */
+    /* BANCO DE FOTOGRAFÍAS DE ALTA RESOLUCIÓN */
     const ALL_STOCK_PHOTOS = [
       { url: 'https://images.unsplash.com/photo-1513002749550-c59d786b8e6c?auto=format&fit=crop&w=800&q=80', tags: 'cielo nubes azul sol luz sky' },
       { url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80', tags: 'mar playa sol agua orilla ocean' },
@@ -2083,7 +2084,7 @@
         ctx.restore();
       }
 
-      /* CITA BÍBLICA */
+      /* CITA BÍBLICA O REFERENCIA */
       let citationY = startY + (lines.length * phraseFontCfg.lineH) + 45 + citationYOffset;
       if (citationAlpha > 0.01) {
         ctx.save();
@@ -2525,7 +2526,10 @@
       for (let i = 0; i < quotesList.length; i++) {
         const item = quotesList[i];
         const fontPhraseName = fontKeys[Math.floor(Math.random() * fontKeys.length)];
-        const fontCitationName = fontKeys[Math.floor(Math.random() * fontKeys.length)];
+        
+        /* FUENTE LEGIBLE Y DELGADA PARA LA CITA / REFERENCIA */
+        const fontCitationName = LEGIBLE_CITATION_FONTS[Math.floor(Math.random() * LEGIBLE_CITATION_FONTS.length)];
+        
         const logoKey = logoRotation[i % logoRotation.length];
         
         const bgChoice = Math.floor(Math.random() * 3);
