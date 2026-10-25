@@ -528,7 +528,7 @@
       position: absolute;
       bottom: 2px;
       right: 2px;
-      background: rgba(0,0,0,0.75);
+      background: rgba(0,0,0,0.8);
       color: #38bdf8;
       font-size: 0.58rem;
       padding: 1px 3px;
@@ -1143,18 +1143,16 @@
     let currentVideoPosterImg = null;
     let videoRenderLoopId = null;
 
-    // REPERTORIO DE VIDEOS DE STOCK CON CORS ABIERTO GARANTIZADO EN CANVAS
+    // REPERTORIO DE VIDEOS DE STOCK (TODOS DE 30s+ Y CON CORS HABILITADO)
     const ALL_STOCK_VIDEOS = [
-      { id: 'v_clouds', title: 'Cielo y Nubes Celestiales', poster: 'https://images.unsplash.com/photo-1513002749550-c59d786b8e6c?auto=format&fit=crop&w=300&q=80', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4' },
-      { id: 'v_sunset', title: 'Atardecer Pacífico y Mar', poster: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=300&q=80', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4' },
-      { id: 'v_stars', title: 'Noche Estrellada y Firmamento', poster: 'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?auto=format&fit=crop&w=300&q=80', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4' },
-      { id: 'v_forest', title: 'Bosque y Rayos de Sol', poster: 'https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=300&q=80', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyplays.mp4' },
-      { id: 'v_bokeh', title: 'Luces Bokeh y Destellos', poster: 'https://images.unsplash.com/photo-1518640467707-6811f4a6ab73?auto=format&fit=crop&w=300&q=80', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4' },
+      { id: 'v_clouds', title: 'Cielo y Nubes Celestiales', poster: 'https://images.unsplash.com/photo-1513002749550-c59d786b8e6c?auto=format&fit=crop&w=300&q=80', url: 'https://upload.wikimedia.org/wikipedia/commons/transcoded/b/b3/Clouds_over_sea.webm/Clouds_over_sea.webm.720p.vp9.webm' },
+      { id: 'v_sunset', title: 'Atardecer Pacífico y Mar', poster: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=300&q=80', url: 'https://upload.wikimedia.org/wikipedia/commons/transcoded/f/f3/Sunset_over_the_sea_time_lapse.ogv/Sunset_over_the_sea_time_lapse.ogv.720p.vp9.webm' },
+      { id: 'v_stars', title: 'Noche Estrellada y Firmamento', poster: 'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?auto=format&fit=crop&w=300&q=80', url: 'https://upload.wikimedia.org/wikipedia/commons/transcoded/e/e4/Starry_Night_Time_Lapse.ogv/Starry_Night_Time_Lapse.ogv.720p.vp9.webm' },
+      { id: 'v_forest', title: 'Bosque y Rayos de Sol', poster: 'https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=300&q=80', url: 'https://upload.wikimedia.org/wikipedia/commons/transcoded/d/d0/Sunbeams_through_trees.ogv/Sunbeams_through_trees.ogv.720p.vp9.webm' },
+      { id: 'v_bokeh', title: 'Luces Bokeh y Destellos', poster: 'https://images.unsplash.com/photo-1518640467707-6811f4a6ab73?auto=format&fit=crop&w=300&q=80', url: 'https://upload.wikimedia.org/wikipedia/commons/transcoded/8/87/Gold_particles_floating_abstract.webm/Gold_particles_floating_abstract.webm.720p.vp9.webm' },
       { id: 'v_ocean', title: 'Océano y Horizonte Azul', poster: 'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&w=300&q=80', url: 'https://vjs.zencdn.net/v/oceans.mp4' },
-      { id: 'v_mountain', title: 'Montañas y Niebla Solemne', poster: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=300&q=80', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4' },
-      { id: 'v_flower', title: 'Naturaleza y Flores Calmas', poster: 'https://images.unsplash.com/photo-1470240731273-7821a6eeb6bd?auto=format&fit=crop&w=300&q=80', url: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4' },
-      { id: 'v_river', title: 'Agua Cristalina y Paisaje', poster: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=300&q=80', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnTheLosingEnd.mp4' },
-      { id: 'v_aurora', title: 'Luces Celestiales Espirituales', poster: 'https://images.unsplash.com/photo-1531366936337-7c912a4589a7?auto=format&fit=crop&w=300&q=80', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4' }
+      { id: 'v_river', title: 'Río Cristalino y Naturaleza', poster: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=300&q=80', url: 'https://upload.wikimedia.org/wikipedia/commons/transcoded/a/a2/River_flowing_in_a_forest.ogv/River_flowing_in_a_forest.ogv.720p.vp9.webm' },
+      { id: 'v_mountain', title: 'Montañas y Niebla Solemne', poster: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=300&q=80', url: 'https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c4/Pexels_Videos_1851190.webm/Pexels_Videos_1851190.webm.720p.vp9.webm' }
     ];
 
     let activeVideos = [];
@@ -1719,19 +1717,17 @@
       }
     }
 
-    /* AL SELECCIONAR CUALQUIER VIDEO EN LA CUADRÍCULA INFERIOR: SALTA DIRECTO EL MENÚ PROBADOR */
+    /* AL SELECCIONAR CUALQUIER VIDEO EN LA CUADRÍCULA INFERIOR */
     function openVideoModalWithSelection(vid) {
       stopPreviewAnimation();
       stopTestModalAnim();
       selectedBg = 'video_' + vid.id;
       
-      // Inicia el video de inmediato dentro del callback del clic directo del usuario
       setupVideoBg(vid.url, vid.poster);
 
       renderVideoModalList();
       document.getElementById('videoModal').classList.add('active');
 
-      // Activa la prueba en tiempo real en el lienzo del modal
       testVideoPreview(null, vid);
     }
 
@@ -2214,7 +2210,7 @@
       if (container.children.length > 0 && !force) return;
       container.innerHTML = '';
 
-      // VÍDEOS DE STOCK ANIMADOS ABAJO EN LA CUADRÍCULA
+      // VIDEOS DE STOCK ANIMADOS ABAJO EN LA CUADRÍCULA
       const secVideos = document.createElement('div');
       secVideos.innerHTML = `<div class="bg-section-title">Videos de Stock Animados (${activeVideos.length})</div>`;
       const gridVideos = document.createElement('div');
@@ -2233,7 +2229,6 @@
         tag.innerText = 'VIDEO';
         div.appendChild(tag);
 
-        // Al tocar cualquier video en la cuadrícula inferior, abre directo el menú probador
         div.onclick = () => {
           document.querySelectorAll('.bg-thumb').forEach(t => t.classList.remove('active'));
           div.classList.add('active');
@@ -2321,7 +2316,7 @@
       container.appendChild(secGrads);
     }
 
-    /* CARGADOR DE VIDEO ROBUSTO CON CORS DESBLOQUEADO Y REPRODUCCIÓN GARANTIZADA */
+    /* CARGADOR DE VIDEO CON SYNC Y VELOCIDAD SEGÚN DURACIÓN ELEGIDA */
     function setupVideoBg(videoUrl, posterUrl) {
       stopVideoBg();
 
@@ -2334,9 +2329,11 @@
         currentVideoPosterImg = null;
       }
 
+      const selectedDuration = parseFloat(document.getElementById('selectDuration')?.value) || 15;
+
       videoBgElement = document.createElement('video');
       videoBgElement.id = 'appBgVideoElement';
-      videoBgElement.crossOrigin = 'anonymous'; // Requiere servidor con cabecera CORS abierta (GCS/MDN)
+      videoBgElement.crossOrigin = 'anonymous'; // Requerido para dibujado en Canvas
       videoBgElement.loop = true;
       videoBgElement.muted = true;
       videoBgElement.defaultMuted = true;
@@ -2345,7 +2342,6 @@
       videoBgElement.setAttribute('playsinline', '');
       videoBgElement.setAttribute('webkit-playsinline', '');
 
-      // Inserción en DOM secundario para que los navegadores móviles lo procesen correctamente
       videoBgElement.style.position = 'fixed';
       videoBgElement.style.top = '-9999px';
       videoBgElement.style.left = '-9999px';
@@ -2355,24 +2351,30 @@
       videoBgElement.style.pointerEvents = 'none';
       document.body.appendChild(videoBgElement);
 
-      const playPromise = videoBgElement.play();
-      if (playPromise !== undefined) {
-        playPromise.catch(err => {
-          console.warn("Autoplay diferido:", err);
-        });
-      }
+      videoBgElement.onloadedmetadata = () => {
+        if (videoBgElement.duration && videoBgElement.duration > 0) {
+          if (videoBgElement.duration < selectedDuration) {
+            videoBgElement.playbackRate = Math.max(0.3, videoBgElement.duration / selectedDuration);
+          } else {
+            videoBgElement.playbackRate = 1.0;
+          }
+        }
+      };
 
       videoBgElement.oncanplay = () => {
-        videoBgElement.play().catch(() => {});
+        videoBgElement.currentTime = 0;
+        videoBgElement.play().catch(err => console.warn("Autoplay:", err));
         startVideoRenderLoop();
       };
 
       videoBgElement.onerror = (e) => {
-        console.warn("Error cargando video de fondo:", e);
+        console.warn("Error cargando video con CORS:", e);
       };
 
       videoBgElement.src = videoUrl;
       videoBgElement.load();
+      videoBgElement.play().catch(e => console.warn("Play diferido:", e));
+
       startVideoRenderLoop();
     }
 
@@ -2719,7 +2721,7 @@
       ctx.restore();
     }
 
-    /* DIBUJO Y RENDERIZADO DEL LIENZO PRINCIPAL Y DE PREVISUALIZACIÓN */
+    /* DIBUJO Y RENDERIZADO DEL LIENZO */
     async function drawCanvasCard(
       canvas, phrase, citation, fontPhraseName, fontCitationName, 
       logoKey, bgType, handleText = '@adventistassv', ratioKey = '4:5',
@@ -2841,7 +2843,7 @@
         logoXOffset = handleXOffset = phraseXOffset = citationXOffset = 0;
       }
 
-      // RENDERIZADO DE VIDEO DE FONDO CON MANEJO SEGURO DE ERRORES DE DIBUJO
+      // DIBUJADO SEGURO DE VIDEO DE FONDO EN CANVAS
       if (bgType.startsWith('video_') && videoBgElement) {
         if (videoBgElement.paused && videoBgElement.readyState >= 2) {
           videoBgElement.play().catch(() => {});
@@ -2853,7 +2855,7 @@
             drawCoverImage(ctx, videoBgElement, canvas.width, canvas.height, bgScale);
             drewVideo = true;
           } catch(e) {
-            console.warn("Canvas video render:", e);
+            console.warn("Canvas video draw fallback:", e);
           }
         }
         
@@ -3284,19 +3286,21 @@
 
       stopPreviewAnimation();
 
+      const durationSec = parseFloat(document.getElementById('selectDuration').value) || 15;
+
       if (selectedBg.startsWith('video_') && videoBgElement) {
+        videoBgElement.currentTime = 0;
+        if (videoBgElement.duration && videoBgElement.duration < durationSec) {
+          videoBgElement.playbackRate = Math.max(0.3, videoBgElement.duration / durationSec);
+        } else {
+          videoBgElement.playbackRate = 1.0;
+        }
         videoBgElement.play().catch(e => console.log("Video play error:", e));
       }
 
       const animType = document.getElementById('selectAnimation').value;
       const effectType = document.getElementById('selectEffect').value;
-      
-      if (animType === 'none' && effectType === 'none' && !selectedBg.startsWith('video_')) {
-        updateCustomCanvas();
-        return;
-      }
 
-      const durationSec = parseFloat(document.getElementById('selectDuration').value) || 15;
       const btnPlay = document.getElementById('btnPlayPreview');
       if (btnPlay) btnPlay.innerText = 'Detener Previsualización';
 
@@ -3313,6 +3317,7 @@
         if (elapsed > durationSec) {
           startTime = timestamp;
           elapsed = 0;
+          if (videoBgElement) videoBgElement.currentTime = 0;
         }
 
         await drawCustomCanvasWithAnim(elapsed, durationSec, animType, effectType);
@@ -3357,7 +3362,7 @@
       await drawCustomCanvasOnTarget(canvas, time, duration, animType, effectType);
     }
 
-    /* GENERADOR Y DESCARGADOR DE VIDEO CON ENCABEZADOS WEBM CORREGIDOS */
+    /* DESCARGADOR DE VIDEO */
     async function generarVideoAnimado() {
       stopPreviewAnimation();
 
@@ -3369,14 +3374,21 @@
         return;
       }
 
+      const durationSec = parseFloat(document.getElementById('selectDuration').value) || 15;
+      const durationMs = durationSec * 1000;
+
       if (selectedBg.startsWith('video_') && videoBgElement) {
+        videoBgElement.currentTime = 0;
+        if (videoBgElement.duration && videoBgElement.duration < durationSec) {
+          videoBgElement.playbackRate = Math.max(0.3, videoBgElement.duration / durationSec);
+        } else {
+          videoBgElement.playbackRate = 1.0;
+        }
         videoBgElement.play().catch(e => console.log("Video play error:", e));
       }
 
       const animType = document.getElementById('selectAnimation').value;
       const effectType = document.getElementById('selectEffect').value;
-      const durationSec = parseFloat(document.getElementById('selectDuration').value) || 15;
-      const durationMs = durationSec * 1000;
 
       const originalText = btn.innerText;
       btn.disabled = true;
