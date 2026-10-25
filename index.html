@@ -937,19 +937,25 @@
     let previewAnimId = null;
     let isPreviewPlaying = false;
 
+    /* OBTENER URL LIMPIA SIN PARÁMETROS DE RASTREO (?fbclid=..., etc.) */
+    function getCleanBaseUrl() {
+      return window.location.origin + window.location.pathname;
+    }
+
     /* GENERADOR DE ENLACES CORTOS */
     async function getShortUrl(longUrl) {
+      const targetUrl = longUrl || getCleanBaseUrl();
       try {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 3000);
-        const response = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(longUrl)}`, { signal: controller.signal });
+        const response = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(targetUrl)}`, { signal: controller.signal });
         clearTimeout(timeoutId);
         if (response.ok) {
           const shortUrl = await response.text();
           if (shortUrl && shortUrl.startsWith('http')) return shortUrl.trim();
         }
       } catch (e) {}
-      return longUrl;
+      return getCleanBaseUrl();
     }
 
     /* FORMATO INTELIGENTE DE TEXTO SEGÚN TIPOGRAFÍA */
@@ -1015,8 +1021,8 @@
     }
 
     async function shareWebsite() {
-      const rawUrl = window.location.href;
-      const shortUrl = await getShortUrl(rawUrl);
+      const cleanUrl = getCleanBaseUrl();
+      const shortUrl = await getShortUrl(cleanUrl);
 
       const shareData = {
         title: 'Adventistas SV - Frases e Imágenes',
@@ -1852,8 +1858,8 @@
     }
 
     async function shareCanvasCard(canvas, phrase, citation, handle = '@adventistassv') {
-      const siteUrl = window.location.href;
-      const shortUrl = await getShortUrl(siteUrl);
+      const cleanUrl = getCleanBaseUrl();
+      const shortUrl = await getShortUrl(cleanUrl);
       const shareText = `"${phrase}" - ${citation}\n\nVía ${handle}\n${shortUrl}`;
       const file = dataURLtoFile(canvas.toDataURL('image/png'), 'adventistassv-frase.png');
 
@@ -1881,7 +1887,7 @@
       if (platform === 'whatsapp') {
         window.open(`https://api.whatsapp.com/send?text=${encodedText}`, '_blank');
       } else if (platform === 'facebook') {
-        const url = encodeURIComponent(window.location.href);
+        const url = encodeURIComponent(getCleanBaseUrl());
         window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${encodedText}`, '_blank');
       }
       closeShareModal();
