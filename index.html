@@ -949,32 +949,58 @@
     let userCustomLogoImg = null;
     let activeAudioEl = null;
 
+    /* CONFIGURACIÓN TIPOGRÁFICA Y ESCALADO DE FUENTES */
     const FONT_MAP = {
-      'Montserrat': { main: '700 48px "Montserrat", sans-serif', cita: 'italic 34px "Montserrat", sans-serif', lineH: 66 },
-      'Bebas Neue': { main: '700 68px "Bebas Neue", sans-serif', cita: '400 36px "Bebas Neue", sans-serif', lineH: 72 },
-      'Playfair Display': { main: '700 52px "Playfair Display", serif', cita: 'italic 34px "Playfair Display", serif', lineH: 70 },
-      'Cinzel Decorative': { main: '700 48px "Cinzel Decorative", serif', cita: 'italic 32px "Cinzel Decorative", serif', lineH: 68 },
-      'Pacifico': { main: '400 52px "Pacifico", cursive', cita: '400 34px "Pacifico", cursive', lineH: 72 },
-      'Oswald': { main: '600 54px "Oswald", sans-serif', cita: 'italic 32px "Oswald", sans-serif', lineH: 70 },
-      'Cinzel': { main: '700 46px "Cinzel", serif', cita: 'italic 34px "Cinzel", serif', lineH: 64 },
-      'Satisfy': { main: '400 56px "Satisfy", cursive', cita: '400 36px "Satisfy", cursive', lineH: 70 },
-      'Abril Fatface': { main: '400 56px "Abril Fatface", serif', cita: 'italic 32px "Abril Fatface", serif', lineH: 72 },
-      'Anton': { main: '400 58px "Anton", sans-serif', cita: '400 34px "Anton", sans-serif', lineH: 72 },
-      'Caveat': { main: '700 68px "Caveat", cursive', cita: 'italic 36px "Caveat", cursive', lineH: 74 },
-      'Outfit': { main: '700 48px "Outfit", sans-serif', cita: 'italic 34px "Outfit", sans-serif', lineH: 66 },
-      'Righteous': { main: '400 52px "Righteous", cursive', cita: '400 32px "Righteous", cursive', lineH: 68 },
-      'Cormorant Garamond': { main: '700 54px "Cormorant Garamond", serif', cita: 'italic 36px "Cormorant Garamond", serif', lineH: 68 },
-      'Poppins': { main: '700 48px "Poppins", sans-serif', cita: 'italic 34px "Poppins", sans-serif', lineH: 66 },
-      'Lora': { main: '600 50px "Lora", serif', cita: 'italic 34px "Lora", serif', lineH: 68 },
-      'Merriweather': { main: '700 46px "Merriweather", serif', cita: 'italic 32px "Merriweather", serif', lineH: 68 },
-      'Dancing Script': { main: '700 60px "Dancing Script", cursive', cita: 'italic 38px "Dancing Script", cursive', lineH: 72 },
-      'Great Vibes': { main: '400 64px "Great Vibes", cursive', cita: '400 40px "Great Vibes", cursive', lineH: 76 },
-      'Alex Brush': { main: '400 62px "Alex Brush", cursive', cita: '400 38px "Alex Brush", cursive', lineH: 72 },
-      'Sacramento': { main: '400 64px "Sacramento", cursive', cita: '400 38px "Sacramento", cursive', lineH: 72 },
-      'Italianno': { main: '400 68px "Italianno", cursive', cita: '400 42px "Italianno", cursive', lineH: 74 },
-      'Courgette': { main: '400 50px "Courgette", cursive', cita: '400 34px "Courgette", cursive', lineH: 68 },
-      'Quicksand': { main: '700 48px "Quicksand", sans-serif', cita: 'italic 34px "Quicksand", sans-serif', lineH: 66 }
+      'Montserrat': { family: '"Montserrat", sans-serif', weight: '700', scale: 1.0 },
+      'Bebas Neue': { family: '"Bebas Neue", sans-serif', weight: '700', scale: 1.25 },
+      'Playfair Display': { family: '"Playfair Display", serif', weight: '700', scale: 1.05 },
+      'Cinzel Decorative': { family: '"Cinzel Decorative", serif', weight: '700', scale: 0.95 },
+      'Pacifico': { family: '"Pacifico", cursive', weight: '400', scale: 1.0 },
+      'Oswald': { family: '"Oswald", sans-serif', weight: '600', scale: 1.1 },
+      'Cinzel': { family: '"Cinzel", serif', weight: '700', scale: 0.95 },
+      'Satisfy': { family: '"Satisfy", cursive', weight: '400', scale: 1.05 },
+      'Abril Fatface': { family: '"Abril Fatface", serif', weight: '400', scale: 1.05 },
+      'Anton': { family: '"Anton", sans-serif', weight: '400', scale: 1.15 },
+      'Caveat': { family: '"Caveat", cursive', weight: '700', scale: 1.25 },
+      'Outfit': { family: '"Outfit", sans-serif', weight: '700', scale: 1.0 },
+      'Righteous': { family: '"Righteous", cursive', weight: '400', scale: 1.0 },
+      'Cormorant Garamond': { family: '"Cormorant Garamond", serif', weight: '700', scale: 1.05 },
+      'Poppins': { family: '"Poppins", sans-serif', weight: '700', scale: 1.0 },
+      'Lora': { family: '"Lora", serif', weight: '600', scale: 1.0 },
+      'Merriweather': { family: '"Merriweather", serif', weight: '700', scale: 0.95 },
+      'Dancing Script': { family: '"Dancing Script", cursive', weight: '700', scale: 1.15 },
+      'Great Vibes': { family: '"Great Vibes", cursive', weight: '400', scale: 1.2 },
+      'Alex Brush': { family: '"Alex Brush", cursive', weight: '400', scale: 1.2 },
+      'Sacramento': { family: '"Sacramento", cursive', weight: '400', scale: 1.2 },
+      'Italianno': { family: '"Italianno", cursive', weight: '400', scale: 1.25 },
+      'Courgette': { family: '"Courgette", cursive', weight: '400', scale: 1.0 },
+      'Quicksand': { family: '"Quicksand", sans-serif', weight: '700', scale: 1.0 }
     };
+
+    /* TAMAÑO DE FUENTE FIJO PARA LAS CITAS BÍBLICAS O REFERENCIAS */
+    const FIXED_CITATION_FONT_SIZE = 28;
+
+    /* CÁLCULO DINÁMICO DEL TAMAÑO DE FUENTE SEGÚN LA LONGITUD DE LA FRASE */
+    function calculatePhraseFontSize(textLength, fontName) {
+      let baseSize = 48;
+      if (textLength <= 25) {
+        baseSize = 68;
+      } else if (textLength <= 55) {
+        baseSize = 56;
+      } else if (textLength <= 90) {
+        baseSize = 46;
+      } else if (textLength <= 140) {
+        baseSize = 40;
+      } else {
+        baseSize = 35;
+      }
+
+      const cfg = FONT_MAP[fontName] || { scale: 1.0 };
+      const scaledSize = Math.round(baseSize * (cfg.scale || 1.0));
+      
+      /* GARANTIZA QUE LA FRASE SIEMPRE SEA MÁS GRANDE QUE LA CITA (MÍNIMO 36px VS 28px DE LA CITA) */
+      return Math.max(36, scaledSize);
+    }
 
     /* BANCO CLASIFICADO DE FRASES */
     const RAW_BIBLIA = [
@@ -1436,7 +1462,6 @@
 
       try {
         if (track.url) {
-          /* INTENTAR DESCARGAR BLOB Y GUARDAR LOCALMENTE EN INDEXEDDB */
           let blobData = null;
           const cached = await getTrackFromDB(track.id);
           
@@ -1462,7 +1487,6 @@
           triggerSub.innerText = `${track.artist} (Guardado en navegador)`;
         }
       } catch (e) {
-        /* FALLBACK EN CASO DE ERROR DE RED AL DESCARGAR EL BLOB */
         userCustomAudio = track.url;
         selectedAudioKey = 'custom';
         selectedTrackMeta = track;
@@ -1956,9 +1980,6 @@
         else previewBox.style.aspectRatio = '4 / 5';
       }
 
-      const phraseFontCfg = FONT_MAP[fontPhraseName] || FONT_MAP['Montserrat'];
-      const citationFontCfg = FONT_MAP[fontCitationName] || FONT_MAP['Lora'];
-
       const marginX = 100;
       const maxWidth = canvas.width - (marginX * 2);
 
@@ -2141,13 +2162,23 @@
         ctx.restore();
       }
 
-      /* FRASE */
+      /* CALCULAR FUENTE Y TAMAÑO DE LA FRASE Y CITA DINÁMICAMENTE */
+      const phrCfg = FONT_MAP[fontPhraseName] || { family: '"Montserrat", sans-serif', weight: '700' };
+      const citCfg = FONT_MAP[fontCitationName] || { family: '"Lora", serif', weight: '600' };
+
+      const phraseFontSize = calculatePhraseFontSize(formattedPhrase.length, fontPhraseName);
+      const phraseLineHeight = Math.round(phraseFontSize * 1.28);
+      const phraseFontString = `${phrCfg.weight} ${phraseFontSize}px ${phrCfg.family}`;
+
+      const citationFontString = `italic 500 ${FIXED_CITATION_FONT_SIZE}px ${citCfg.family}`;
+
+      /* FRASE PRINCIPAL */
       const displayPhrase = (animType === 'typewriter') ? formattedPhrase.substring(0, typewriterChars) : formattedPhrase;
       const words = displayPhrase.split(' ');
       let lines = [];
       let currentLine = '';
 
-      ctx.font = phraseFontCfg.main;
+      ctx.font = phraseFontString;
       for (let n = 0; n < words.length; n++) {
         let testLine = currentLine + words[n] + ' ';
         let metrics = ctx.measureText(testLine);
@@ -2160,7 +2191,7 @@
       }
       lines.push(currentLine.trim());
 
-      const totalTextHeight = (lines.length * phraseFontCfg.lineH) + 90;
+      const totalTextHeight = (lines.length * phraseLineHeight) + 80;
       let startY = (canvas.height / 2) - (totalTextHeight / 2) + 20;
 
       const minStartY = (showLogo && logoHeight > 0) ? (logoY + logoHeight + 50) : 160;
@@ -2172,7 +2203,7 @@
         ctx.textAlign = 'center';
         ctx.textBaseline = 'alphabetic';
         ctx.fillStyle = '#ffffff';
-        ctx.font = phraseFontCfg.main;
+        ctx.font = phraseFontString;
         ctx.shadowColor = 'rgba(0, 0, 0, 0.95)';
         ctx.shadowBlur = 14;
         ctx.shadowOffsetX = 0;
@@ -2181,20 +2212,20 @@
         let y = startY + phraseYOffset;
         for (let i = 0; i < lines.length; i++) {
           ctx.fillText(lines[i], (canvas.width / 2) + phraseXOffset, y);
-          y += phraseFontCfg.lineH;
+          y += phraseLineHeight;
         }
         ctx.restore();
       }
 
-      /* CITA BÍBLICA O REFERENCIA */
-      let citationY = startY + (lines.length * phraseFontCfg.lineH) + 45 + citationYOffset;
+      /* CITA BÍBLICA O REFERENCIA (SIEMPRE FIJA Y MENOR QUE LA FRASE) */
+      let citationY = startY + (lines.length * phraseLineHeight) + 40 + citationYOffset;
       if (citationAlpha > 0.01) {
         ctx.save();
         ctx.globalAlpha = citationAlpha;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'alphabetic';
         ctx.fillStyle = '#f1f5f9';
-        ctx.font = citationFontCfg.cita;
+        ctx.font = citationFontString;
         ctx.shadowColor = 'rgba(0, 0, 0, 0.95)';
         ctx.shadowBlur = 10;
         ctx.shadowOffsetX = 0;
