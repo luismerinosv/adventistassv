@@ -226,28 +226,16 @@
       flex-shrink: 0;
     }
 
+    /* VISTA DE EDICIÓN: PREVISUALIZACIÓN ARRIBA Y CONTROLES ABAJO */
     .editor-layout {
       display: flex;
-      flex-direction: row;
-      gap: 24px;
-      align-items: start;
-      width: 100%;
-    }
-
-    .editor-controls {
-      flex: 1;
-      width: 100%;
-      background: var(--card-bg);
-      padding: 20px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 24px;
+      align-items: center;
+      width: 100%;
     }
 
     .editor-preview {
-      flex: 1;
       width: 100%;
       background: var(--card-bg);
       padding: 20px;
@@ -257,6 +245,17 @@
       flex-direction: column;
       align-items: center;
       gap: 15px;
+    }
+
+    .editor-controls {
+      width: 100%;
+      background: var(--card-bg);
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
     }
 
     .form-group {
@@ -423,9 +422,6 @@
     .hidden { display: none !important; }
 
     @media (max-width: 768px) {
-      .editor-layout {
-        flex-direction: column-reverse;
-      }
       .editor-preview, .editor-controls {
         width: 100%;
         padding: 16px;
@@ -471,17 +467,19 @@
 
     <!-- CREADOR PERSONALIZADO -->
     <div id="editorSection" class="hidden">
-      <h2 class="section-title">Diseña tu propia imagen o video</h2>
+      <h2 class="section-title" style="margin-bottom: 16px;">Diseña tu propia imagen o video</h2>
+      
       <div class="editor-layout">
         
+        <!-- 1. PREVISUALIZACIÓN Y ACCIONES (ARRIBA) -->
         <div class="editor-preview">
-          <div id="previewBox" class="canvas-container" style="max-width: 380px; border-radius: 10px; overflow: hidden;" onclick="openCanvasModal(document.getElementById('customCanvas'))">
+          <div id="previewBox" class="canvas-container" style="max-width: 420px; border-radius: 10px; overflow: hidden;" onclick="openCanvasModal(document.getElementById('customCanvas'))">
             <canvas id="customCanvas"></canvas>
           </div>
-          <div style="display: flex; flex-wrap: wrap; gap: 8px; width: 100%; max-width: 380px;">
+          <div style="display: flex; flex-wrap: wrap; gap: 8px; width: 100%; max-width: 420px;">
             <button class="btn btn-secondary" style="flex: 1;" onclick="openCanvasModal(document.getElementById('customCanvas'))">Ver</button>
             <button class="btn btn-secondary" style="flex: 1;" onclick="shareCanvasCard(document.getElementById('customCanvas'), document.getElementById('inputPhrase').value, document.getElementById('inputCitation').value, document.getElementById('inputHandle').value)">Compartir</button>
-            <button class="btn" style="flex: 1;" onclick="downloadCustomImage()">Descargar PNG</button>
+            <button class="btn" style="flex: 1;" onclick="downloadCustomImage()">Descargar PNG / JPG</button>
             
             <button id="btnPlayPreview" class="btn btn-secondary" style="width: 100%; margin-top: 4px;" onclick="previewAnimation()">
               ▶ Previsualizar Animación
@@ -492,6 +490,7 @@
           </div>
         </div>
 
+        <!-- 2. PANEL DE PARÁMETROS Y CONTROLES (ABAJO) -->
         <div class="editor-controls">
           <div class="form-group">
             <label>Texto de la Frase:</label>
@@ -517,14 +516,22 @@
             </select>
           </div>
 
+          <!-- CASILLA DE VERIFICACIÓN PARA ACTIVAR / DESACTIVAR LOGO -->
+          <div class="form-group" style="margin-top: 4px;">
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 600; color: #fff;">
+              <input type="checkbox" id="chkShowLogo" checked onchange="updateCustomCanvas()" style="width: 18px; height: 18px; accent-color: var(--accent);">
+              Mostrar Logo en la imagen / video
+            </label>
+          </div>
+
+          <!-- SELECTOR PARA PERSONALIZAR EL LOGO -->
           <div class="form-group">
-            <label>Logo Superior:</label>
+            <label>Personalizar el Logo:</label>
             <select id="selectLogo" class="form-control" onchange="handleLogoChange()">
               <option value="blanco" selected>Texto Blanco (Para fondos oscuros)</option>
               <option value="negro">Texto Negro (Para fondos muy claros)</option>
               <option value="turquesa">Texto Turquesa (Estilo Marca)</option>
               <option value="custom">📁 Subir mi propio logo (PNG/JPG)</option>
-              <option value="none">🛑 Sin Logo (Desactivar Logo)</option>
             </select>
             <input type="file" id="inputCustomLogo" class="form-control hidden" accept="image/*" style="margin-top: 6px;" onchange="handleUserLogoUpload(event)">
           </div>
@@ -638,7 +645,7 @@
 
           <div class="form-group">
             <div class="bg-grid-header">
-              <label>Selecciona un Fondo (30 opciones):</label>
+              <label>Selecciona un Fondo (35 opciones activas):</label>
               <button class="btn btn-secondary" style="padding: 2px 8px; font-size: 0.75rem; min-height: 26px;" onclick="refreshAllBackgrounds()">🔄 Cambiar Opciones</button>
             </div>
             <div id="bgThumbnailGridContainer" class="bg-grid-container"></div>
@@ -675,6 +682,7 @@
         <label style="font-size:0.8rem; color:var(--text-muted); display:block; margin-bottom:4px;">Formato de Archivo:</label>
         <select id="modalFileFormat" class="form-control" style="min-height:36px; font-size:0.82rem;">
           <option value="png" selected>PNG (Calidad Máxima - Recomendado)</option>
+          <option value="jpg">JPG / JPEG (Formato Estándar Estático)</option>
           <option value="webp">WebP (Comprimido - Para Almacenamiento)</option>
         </select>
       </div>
@@ -823,6 +831,7 @@
 
     const QUOTES_BANK = buildExpandedQuoteBank();
 
+    /* POOL AMPLIADO DE FOTOGRAFÍAS (25 ENLACES DE ALTA CALIDAD) */
     const ALL_STOCK_PHOTOS = [
       'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1470240731273-7821a6eeb6bd?auto=format&fit=crop&w=800&q=80',
@@ -833,22 +842,70 @@
       'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?auto=format&fit=crop&w=800&q=80'
+      'https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1518837695005-2083093ee35b?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1426604966848-d7adac402bff?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1475924156734-496f6cac6ec1?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1499209974431-9dddcece7f88?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1497436072909-60f360e1d4b1?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1511497584788-876761c119ef?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1532274402911-5a369e4c4bb5?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1508739773434-c26b3d09e071?auto=format&fit=crop&w=800&q=80'
     ];
 
+    /* POOL AMPLIADO DE PATRONES Y TEXTURAS (20 ENLACES PROBADOS) */
     const ALL_PATTERNS = [
       'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1604076913837-52ab5629fba9?auto=format&fit=crop&w=800&q=80'
+      'https://images.unsplash.com/photo-1604076913837-52ab5629fba9?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1518640467707-6811f4a6ab73?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1508615039623-a25605d2b022?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1550684847-75317f2d3fbe?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1579546929662-711aa81148cf?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1528459801416-a9e53bbf4e17?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1533158307587-828f0a76ef46?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1554188248-986adbb73be4?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1508615070457-7baead006fe0?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1563089145-599997674d42?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1550684848-b4b727402682?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=800&q=80'
     ];
 
+    /* POOL AMPLIADO DE DEGRADADOS (20 PAREJAS DE COLORES) */
     const ALL_GRADIENTS = [
       ['#0f172a', '#1e3a8a'],
       ['#2d124d', '#1e1b4b'],
       ['#134e4a', '#064e3b'],
       ['#7c2d12', '#451a03'],
-      ['#312e81', '#4c1d95']
+      ['#312e81', '#4c1d95'],
+      ['#0f2027', '#203a43'],
+      ['#1a2a6c', '#b21f1f'],
+      ['#232526', '#414345'],
+      ['#1e130c', '#9a8478'],
+      ['#000428', '#004e92'],
+      ['#11998e', '#38ef7d'],
+      ['#3a1c71', '#d76d77'],
+      ['#000000', '#434343'],
+      ['#1f1c2c', '#928dab'],
+      ['#2c3e50', '#000000'],
+      ['#182848', '#4b6cb7'],
+      ['#141e30', '#243b55'],
+      ['#4b1248', '#f0c27b'],
+      ['#0575e6', '#00f260'],
+      ['#2c003e', '#028090']
     ];
 
     let activePhotos = [];
@@ -906,6 +963,7 @@
       document.getElementById('inputCitation').value = citation;
       document.getElementById('selectFontPhrase').value = fontPhrase;
       document.getElementById('selectFontCitation').value = fontCitation;
+      document.getElementById('chkShowLogo').checked = true;
       document.getElementById('selectLogo').value = logo;
       handleLogoChange();
       selectedBg = bg;
@@ -1082,10 +1140,11 @@
       }
     }
 
+    /* REFRESCAR Y OBTENER SÍ O SÍ 15 FOTOS, 10 PATRONES Y 10 GRADIENTES NUEVOS */
     function refreshAllBackgrounds() {
       activePhotos = getRandomItems(ALL_STOCK_PHOTOS, 15);
       activePatterns = getRandomItems(ALL_PATTERNS, 10);
-      activeGradients = getRandomItems(ALL_GRADIENTS, 5);
+      activeGradients = getRandomItems(ALL_GRADIENTS, 10);
       renderBgThumbnails(true);
       updateCustomCanvas();
     }
@@ -1158,7 +1217,7 @@
       container.appendChild(secPatterns);
 
       const secGrads = document.createElement('div');
-      secGrads.innerHTML = `<div class="bg-section-title">🌈 Degradados Elegantes (5)</div>`;
+      secGrads.innerHTML = `<div class="bg-section-title">🌈 Degradados Elegantes (10)</div>`;
       const gridGrads = document.createElement('div');
       gridGrads.className = 'bg-grid';
 
@@ -1463,6 +1522,8 @@
         return x === 0 ? 0 : x === 1 ? 1 : Math.pow(2, -10 * x) * Math.sin((x * 10 - 0.75) * c4) + 1;
       };
 
+      const showLogo = document.getElementById('chkShowLogo') ? document.getElementById('chkShowLogo').checked : true;
+
       let bgScale = 1.0;
       let contentScale = 1.0;
       let contentRotate = 0;
@@ -1599,15 +1660,17 @@
 
       /* LOGO SUPERIOR */
       let logoImg = null;
-      if (logoKey === 'custom' && userCustomLogoImg) {
-        logoImg = userCustomLogoImg;
-      } else if (logoKey !== 'none' && logoKey !== 'custom') {
-        logoImg = loadedLogos[logoKey];
-        if (!logoImg) {
-          try {
-            logoImg = await loadImage(LOGOS[logoKey]);
-            loadedLogos[logoKey] = logoImg;
-          } catch(e) {}
+      if (showLogo) {
+        if (logoKey === 'custom' && userCustomLogoImg) {
+          logoImg = userCustomLogoImg;
+        } else if (logoKey !== 'custom') {
+          logoImg = loadedLogos[logoKey];
+          if (!logoImg) {
+            try {
+              logoImg = await loadImage(LOGOS[logoKey]);
+              loadedLogos[logoKey] = logoImg;
+            } catch(e) {}
+          }
         }
       }
 
@@ -1617,7 +1680,7 @@
       logoY += logoYOffset;
 
       let logoHeight = 0;
-      if (logoKey !== 'none' && logoImg && logoAlpha > 0.01) {
+      if (showLogo && logoImg && logoAlpha > 0.01) {
         ctx.save();
         ctx.globalAlpha = logoAlpha;
         const logoWidth = 175;
@@ -1650,7 +1713,7 @@
       const totalTextHeight = (lines.length * phraseFontCfg.lineH) + 90;
       let startY = (canvas.height / 2) - (totalTextHeight / 2) + 20;
 
-      const minStartY = (logoKey !== 'none' && logoHeight > 0) ? (logoY + logoHeight + 50) : 160;
+      const minStartY = (showLogo && logoHeight > 0) ? (logoY + logoHeight + 50) : 160;
       if (startY < minStartY) startY = minStartY;
 
       if (phraseAlpha > 0.01) {
@@ -1711,7 +1774,7 @@
         ctx.restore();
       }
 
-      ctx.restore(); // RESTAURAR TRANSFORMACIÓN GENERAL DEL CONTENIDO
+      ctx.restore(); // RESTAURAR TRANSFORMACIÓN GENERAL
     }
 
     function drawGrad(ctx, canvas, index, scale = 1.0) {
@@ -1806,8 +1869,16 @@
       if (!currentDownloadConfig) return;
 
       const format = document.getElementById('modalFileFormat').value || 'png';
-      const mimeType = (format === 'webp') ? 'image/webp' : 'image/png';
-      const fileExt = (format === 'webp') ? 'webp' : 'png';
+      let mimeType = 'image/png';
+      let fileExt = 'png';
+
+      if (format === 'webp') {
+        mimeType = 'image/webp';
+        fileExt = 'webp';
+      } else if (format === 'jpg' || format === 'jpeg') {
+        mimeType = 'image/jpeg';
+        fileExt = 'jpg';
+      }
 
       const tempCanvas = document.createElement('canvas');
       await drawCanvasCard(
