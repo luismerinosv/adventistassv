@@ -896,7 +896,7 @@
           <div class="form-group">
             <div class="bg-grid-header">
               <label>Selecciona o Busca un Fondo:</label>
-              <button class="btn btn-secondary" style="padding: 2px 8px; font-size: 0.75rem; min-height: 26px;" onclick="refreshAllBackgrounds()">Nuevas Imágenes</button>
+              <button class="btn btn-secondary" style="padding: 2px 8px; font-size: 0.75rem; min-height: 26px;" onclick="refreshAllBackgrounds()">Nuevas Imágenes y Videos</button>
             </div>
             
             <div style="display: flex; gap: 6px; margin-top: 4px; margin-bottom: 8px;">
@@ -1122,15 +1122,26 @@
     let manualGenOffset = 0;
 
     let videoBgElement = null;
+    let currentVideoPosterImg = null;
     let videoRenderLoopId = null;
 
-    const STOCK_VIDEOS = [
+    // REPERTORIO AMPLIADO DE VIDEOS DE STOCK DE ALTA CALIDAD
+    const ALL_STOCK_VIDEOS = [
       { id: 'v_clouds', title: 'Cielo y Nubes', poster: 'https://images.unsplash.com/photo-1513002749550-c59d786b8e6c?auto=format&fit=crop&w=300&q=80', url: 'https://assets.mixkit.co/videos/preview/mixkit-clouds-and-blue-sky-2408-large.mp4' },
       { id: 'v_sunset', title: 'Mar Atardecer', poster: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=300&q=80', url: 'https://assets.mixkit.co/videos/preview/mixkit-sea-waves-and-sunset-4148-large.mp4' },
       { id: 'v_stars', title: 'Noche Estrellada', poster: 'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?auto=format&fit=crop&w=300&q=80', url: 'https://assets.mixkit.co/videos/preview/mixkit-stars-in-the-night-sky-1639-large.mp4' },
       { id: 'v_forest', title: 'Rayos de Sol Bosque', poster: 'https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=300&q=80', url: 'https://assets.mixkit.co/videos/preview/mixkit-sunbeams-through-trees-in-a-forest-4222-large.mp4' },
-      { id: 'v_bokeh', title: 'Luces Bokeh Doradas', poster: 'https://images.unsplash.com/photo-1518640467707-6811f4a6ab73?auto=format&fit=crop&w=300&q=80', url: 'https://assets.mixkit.co/videos/preview/mixkit-abstract-gold-particles-floating-41551-large.mp4' }
+      { id: 'v_bokeh', title: 'Luces Bokeh Doradas', poster: 'https://images.unsplash.com/photo-1518640467707-6811f4a6ab73?auto=format&fit=crop&w=300&q=80', url: 'https://assets.mixkit.co/videos/preview/mixkit-abstract-gold-particles-floating-41551-large.mp4' },
+      { id: 'v_ocean', title: 'Océano Azul Calmo', poster: 'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&w=300&q=80', url: 'https://assets.mixkit.co/videos/preview/mixkit-aerial-view-of-sea-waves-1188-large.mp4' },
+      { id: 'v_mountain', title: 'Montañas y Niebla', poster: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=300&q=80', url: 'https://assets.mixkit.co/videos/preview/mixkit-time-lapse-of-clouds-over-mountains-2503-large.mp4' },
+      { id: 'v_rain', title: 'Lluvia en Cristal', poster: 'https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?auto=format&fit=crop&w=300&q=80', url: 'https://assets.mixkit.co/videos/preview/mixkit-rain-drops-on-a-window-pane-1430-large.mp4' },
+      { id: 'v_river', title: 'Agua Cristalina', poster: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=300&q=80', url: 'https://assets.mixkit.co/videos/preview/mixkit-river-flow-in-the-forest-4225-large.mp4' },
+      { id: 'v_aurora', title: 'Luces Celestiales', poster: 'https://images.unsplash.com/photo-1531366936337-7c912a4589a7?auto=format&fit=crop&w=300&q=80', url: 'https://assets.mixkit.co/videos/preview/mixkit-light-leaks-and-lens-flare-overlay-2856-large.mp4' },
+      { id: 'v_sunflowers', title: 'Amanecer en Campo', poster: 'https://images.unsplash.com/photo-1470240731273-7821a6eeb6bd?auto=format&fit=crop&w=300&q=80', url: 'https://assets.mixkit.co/videos/preview/mixkit-sun-shining-through-tree-leaves-4223-large.mp4' },
+      { id: 'v_snow', title: 'Caída de Nieve', poster: 'https://images.unsplash.com/photo-1483664852095-d6cc6870702d?auto=format&fit=crop&w=300&q=80', url: 'https://assets.mixkit.co/videos/preview/mixkit-snow-falling-gently-in-a-forest-4224-large.mp4' }
     ];
+
+    let activeVideos = [];
 
     const ANIMATIONS_DATA = [
       { id: 'slide', title: 'Deslizar desde abajo (Slide Up)', desc: 'Entrada y salida con desplazamiento vertical' },
@@ -1475,6 +1486,9 @@
       const rng = createPRNG(Date.now() + manualGenOffset);
       activePatterns = seededShuffle(ALL_PATTERNS, rng);
       activeGradients = seededShuffle(ALL_GRADIENTS, rng);
+      
+      // ROTACIÓN Y SELECCIÓN DE NUEVOS VIDEOS DE STOCK AL PRESIONAR ACTUALIZAR
+      activeVideos = seededShuffle(ALL_STOCK_VIDEOS, rng).slice(0, 8);
 
       selectedBg = 'photo_0';
       renderBgThumbnails(true);
@@ -2089,13 +2103,14 @@
 
       // FONDOS DE VIDEO DE STOCK
       const secVideos = document.createElement('div');
-      secVideos.innerHTML = `<div class="bg-section-title">Videos de Stock Animados (Reels/Stories)</div>`;
+      secVideos.innerHTML = `<div class="bg-section-title">Videos de Stock Animados (${activeVideos.length})</div>`;
       const gridVideos = document.createElement('div');
       gridVideos.className = 'bg-grid';
 
-      STOCK_VIDEOS.forEach((vid, i) => {
+      activeVideos.forEach((vid, i) => {
         const div = document.createElement('div');
-        div.className = `bg-thumb ${selectedBg === 'video_' + i ? 'active' : ''}`;
+        const vidKey = 'video_' + vid.id;
+        div.className = `bg-thumb ${selectedBg === vidKey ? 'active' : ''}`;
         div.style.backgroundImage = `url('${vid.poster}')`;
         div.style.backgroundSize = 'cover';
         div.style.backgroundPosition = 'center';
@@ -2108,8 +2123,8 @@
         div.onclick = () => {
           document.querySelectorAll('.bg-thumb').forEach(t => t.classList.remove('active'));
           div.classList.add('active');
-          selectedBg = 'video_' + i;
-          setupVideoBg(vid.url);
+          selectedBg = vidKey;
+          setupVideoBg(vid.url, vid.poster);
         };
         gridVideos.appendChild(div);
       });
@@ -2193,21 +2208,42 @@
       container.appendChild(secGrads);
     }
 
-    function setupVideoBg(videoUrl) {
+    // CONFIGURACIÓN MEJORADA DE CARGA Y REPRODUCCIÓN DE VIDEO EN VISTA PREVIA
+    function setupVideoBg(videoUrl, posterUrl) {
       stopVideoBg();
+
+      if (posterUrl) {
+        loadImage(posterUrl).then(img => {
+          currentVideoPosterImg = img;
+          updateCustomCanvas();
+        }).catch(() => { currentVideoPosterImg = null; });
+      } else {
+        currentVideoPosterImg = null;
+      }
 
       videoBgElement = document.createElement('video');
       videoBgElement.crossOrigin = 'anonymous';
-      videoBgElement.src = videoUrl;
       videoBgElement.loop = true;
       videoBgElement.muted = true;
+      videoBgElement.defaultMuted = true;
       videoBgElement.playsInline = true;
+      videoBgElement.setAttribute('playsinline', '');
+      videoBgElement.setAttribute('webkit-playsinline', '');
 
-      videoBgElement.play().then(() => {
+      videoBgElement.oncanplay = () => {
+        videoBgElement.play().catch(e => console.log("Autoplay diferido:", e));
         startVideoRenderLoop();
-      }).catch(e => console.log("Autoplay video bg deferred", e));
+      };
 
-      updateCustomCanvas();
+      videoBgElement.onerror = () => {
+        console.warn("No se pudo cargar el video:", videoUrl);
+      };
+
+      videoBgElement.src = videoUrl;
+      videoBgElement.load();
+      videoBgElement.play().catch(e => console.log("Play diferido:", e));
+
+      startVideoRenderLoop();
     }
 
     function stopVideoBg() {
@@ -2220,6 +2256,7 @@
         videoBgElement.currentTime = 0;
         videoBgElement = null;
       }
+      currentVideoPosterImg = null;
     }
 
     function startVideoRenderLoop() {
@@ -2672,8 +2709,15 @@
         logoXOffset = handleXOffset = phraseXOffset = citationXOffset = 0;
       }
 
+      // RENDERIZADO MEJORADO DE VIDEO / RESERVA DE POSTER
       if (bgType.startsWith('video_') && videoBgElement) {
-        drawCoverImage(ctx, videoBgElement, canvas.width, canvas.height, bgScale);
+        if (videoBgElement.readyState >= 2) {
+          drawCoverImage(ctx, videoBgElement, canvas.width, canvas.height, bgScale);
+        } else if (currentVideoPosterImg) {
+          drawCoverImage(ctx, currentVideoPosterImg, canvas.width, canvas.height, bgScale);
+        } else {
+          drawGrad(ctx, canvas, 0, bgScale);
+        }
         ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
       } else if (bgType === 'user_custom' && userCustomImg) {
@@ -3066,7 +3110,7 @@
         await audio.play();
         activeAudioEl = audio;
       } catch(e) {
-        console.log("Play deferred:", e);
+        console.log("Play diferido:", e);
       }
 
       return audio;
