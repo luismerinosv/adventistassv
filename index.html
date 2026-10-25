@@ -29,7 +29,7 @@
   <!-- Tipografías Google Fonts Ampliadas -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Alex+Brush&family=Anton&family=Bebas+Neue&family=Caveat:wght@600;700&family=Cinzel+Decorative:wght@700&family=Cinzel:wght@700&family=Cormorant+Garamond:ital,wght@0,700;1,600&family=Courgette&family=Dancing+Script:wght@700&family=Great+Vibes&family=Italianno&family=Lora:ital,wght@0,600;1,500&family=Merriweather:ital,wght@0,700;1,400&family=Montserrat:ital,wght@0,700;1,500;1,600&family=Oswald:wght@600&family=Outfit:wght@600;700&family=Pacifico&family=Playfair+Display:ital,wght@0,700;1,600&family=Poppins:wght@400;500;600;700&family=Quicksand:wght@600;700&family=Righteous&family=Sacramento&family=Satisfy&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Alex+Brush&family=Anton&family=Bebas+Neue&family=Caveat:wght@600;700&family=Cinzel+Decorative:wght@700&family=Cinzel:wght@700&family=Cormorant+Garamond:ital,wght@0,700;1,600&family=Courgette&family=Dancing+Script:wght@700&family=Great+Vibes&family=Italianno&family=Lora:ital,wght@0,600;1,500&family=Merriweather:ital,wght@0,700;1,400&family=Montserrat:ital,wght@0,700;0,900;1,500;1,600&family=Oswald:wght@600&family=Outfit:wght@600;700;900&family=Pacifico&family=Playfair+Display:ital,wght@0,700;1,600&family=Poppins:wght@400;500;600;700;900&family=Quicksand:wght@600;700&family=Righteous&family=Sacramento&family=Satisfy&display=swap" rel="stylesheet">
 
   <!-- Librería Oficial para Inyección de Duración en Encabezados WebM / MP4 -->
   <script src="https://cdn.jsdelivr.net/npm/fix-webm-duration@1.0.5/fix-webm-duration.js"></script>
@@ -723,6 +723,22 @@
             <input type="text" id="inputHandle" class="form-control" value="@adventistassv" oninput="updateCustomCanvas()">
           </div>
 
+          <!-- SELLO / MARCA DE CAMPAÑA (UNAVOZ27) -->
+          <div class="form-group" style="margin-top: 4px; padding-top: 6px; border-top: 1px dashed var(--border);">
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 600; color: #fff;">
+              <input type="checkbox" id="chkShowStamp" checked onchange="toggleStampInputs(); updateCustomCanvas();" style="width: 18px; height: 18px; accent-color: var(--accent);">
+              Activar Sello / Marca de Campaña (ej. UnaVoz27)
+            </label>
+          </div>
+
+          <div id="stampInputsContainer" class="form-group" style="display: flex; flex-direction: column; gap: 6px;">
+            <label>Texto del Sello (Principal y Subtítulo):</label>
+            <div style="display: flex; gap: 8px;">
+              <input type="text" id="inputStampText" class="form-control" value="UNAVOZ27" placeholder="Texto Sello (ej. UNAVOZ27)" oninput="updateCustomCanvas()">
+              <input type="text" id="inputStampSub" class="form-control" value="MISIÓN PARA TODOS" placeholder="Subtítulo (ej. MISIÓN PARA TODOS)" oninput="updateCustomCanvas()">
+            </div>
+          </div>
+
           <div class="form-group">
             <label>Formato / Tamaño de Publicación:</label>
             <select id="selectRatio" class="form-control" onchange="updateCustomCanvas()">
@@ -1366,6 +1382,18 @@
       updateCustomCanvas();
 
       document.getElementById('editorSection').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function toggleStampInputs() {
+      const chk = document.getElementById('chkShowStamp');
+      const container = document.getElementById('stampInputsContainer');
+      if (chk && container) {
+        if (chk.checked) {
+          container.classList.remove('hidden');
+        } else {
+          container.classList.add('hidden');
+        }
+      }
     }
 
     async function shareWebsite() {
@@ -2366,7 +2394,8 @@
     async function drawCanvasCard(
       canvas, phrase, citation, fontPhraseName, fontCitationName, 
       logoKey, bgType, handleText = '@adventistassv', ratioKey = '4:5',
-      animOptions = { type: 'none', effect: 'none', time: 0, duration: 15 }
+      animOptions = { type: 'none', effect: 'none', time: 0, duration: 15 },
+      stampOptions = { show: true, text: 'UNAVOZ27', sub: 'MISIÓN PARA TODOS' }
     ) {
       const ctx = canvas.getContext('2d');
       
@@ -2399,6 +2428,17 @@
       };
 
       const showLogo = document.getElementById('chkShowLogo') ? document.getElementById('chkShowLogo').checked : true;
+
+      /* CONFIGURACIÓN DEL SELLO UNAVOZ27 */
+      let showStamp = stampOptions ? stampOptions.show : true;
+      let stampText = stampOptions ? stampOptions.text : 'UNAVOZ27';
+      let stampSub = stampOptions ? stampOptions.sub : 'MISIÓN PARA TODOS';
+
+      if (canvas.id === 'customCanvas') {
+        showStamp = document.getElementById('chkShowStamp') ? document.getElementById('chkShowStamp').checked : true;
+        stampText = document.getElementById('inputStampText') ? document.getElementById('inputStampText').value : 'UNAVOZ27';
+        stampSub = document.getElementById('inputStampSub') ? document.getElementById('inputStampSub').value : 'MISIÓN PARA TODOS';
+      }
 
       let bgScale = 1.0;
       let contentScale = 1.0;
@@ -2569,9 +2609,9 @@
         }
       }
 
-      /* POSICIONAMIENTO AJUSTADO DEL LOGO (MÁRGENES SEGUROS DE INSTAGRAM) */
+      /* POSICIONAMIENTO DEL LOGO */
       let logoY = 120;
-      if (ratioKey === '9:16') logoY = 260; // Bajado para evitar la barra superior de Reels
+      if (ratioKey === '9:16') logoY = 260; 
       if (ratioKey === '1:1') logoY = 110;
       logoY += logoYOffset;
 
@@ -2587,11 +2627,49 @@
         ctx.restore();
       }
 
-      /* POSICIONAMIENTO AJUSTADO DEL PIE DE IMAGEN / USUARIO */
-      let footerY = canvas.height - 110;
-      if (ratioKey === '9:16') footerY = canvas.height - 380; // Subido para librar la zona de comentarios/descripción de Reels
-      if (ratioKey === '1:1') footerY = canvas.height - 100;
-      footerY += handleYOffset;
+      /* POSICIONAMIENTO DEL PIE DE IMAGEN / USUARIO Y SELLO */
+      let baseFooterY = canvas.height - 110;
+      if (ratioKey === '9:16') baseFooterY = canvas.height - 380; 
+      if (ratioKey === '1:1') baseFooterY = canvas.height - 100;
+      baseFooterY += handleYOffset;
+
+      /* DIBUJAR SELLO DESTACADO (UNAVOZ27) SI ESTÁ ACTIVO */
+      let stampY = baseFooterY;
+      let handleY = baseFooterY;
+
+      const hasStampText = showStamp && stampText && stampText.trim() !== '';
+
+      if (hasStampText) {
+        // El sello se ubica justo arriba del usuario de forma independiente
+        stampY = baseFooterY - 45;
+        handleY = baseFooterY + 25;
+      }
+
+      /* DIBUJO DEL SELLO DESTACADO EN EL LIENZO */
+      if (hasStampText && handleAlpha > 0.01) {
+        ctx.save();
+        ctx.globalAlpha = handleAlpha;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'alphabetic';
+        
+        // Texto Principal del Sello (ej. UNAVOZ27)
+        ctx.font = '900 48px "Montserrat", "Outfit", "Bebas Neue", sans-serif';
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.95)';
+        ctx.shadowBlur = 12;
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = 3;
+        ctx.fillText(stampText.toUpperCase(), (canvas.width / 2) + handleXOffset, stampY);
+
+        // Subtítulo del Sello (ej. MISIÓN PARA TODOS)
+        if (stampSub && stampSub.trim() !== '') {
+          ctx.font = '600 16px "Montserrat", sans-serif';
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.90)';
+          ctx.shadowBlur = 8;
+          ctx.fillText(stampSub.toUpperCase(), (canvas.width / 2) + handleXOffset, stampY + 24);
+        }
+        ctx.restore();
+      }
 
       const phrCfg = FONT_MAP[fontPhraseName] || { family: '"Montserrat", sans-serif', weight: '700' };
       const citCfg = FONT_MAP[fontCitationName] || { family: '"Lora", serif', weight: '600' };
@@ -2626,8 +2704,10 @@
       const minStartY = (showLogo && logoHeight > 0) ? (logoY + logoHeight + 50) : 200;
       if (startY < minStartY) startY = minStartY;
 
-      /* Garantizar que la cita no choque con el usuario inferior */
-      const maxCitationY = footerY - 70;
+      /* Límite dinámico para evitar colisiones con el sello o usuario */
+      const lowestTopY = hasStampText ? (stampY - 35) : (handleY - 35);
+      const maxCitationY = lowestTopY - 25;
+
       let citationY = startY + (lines.length * phraseLineHeight) + 40 + citationYOffset;
       if (citationY > maxCitationY) {
         startY = maxCitationY - (lines.length * phraseLineHeight) - 40;
@@ -2669,7 +2749,8 @@
         ctx.restore();
       }
 
-      if (handleAlpha > 0.01) {
+      /* DIBUJAR USUARIO EN SU POSICIÓN DEDICADA */
+      if (handleAlpha > 0.01 && handleText && handleText.trim() !== '') {
         ctx.save();
         ctx.globalAlpha = handleAlpha;
         ctx.textAlign = 'center';
@@ -2680,7 +2761,7 @@
         ctx.shadowBlur = 8;
         ctx.shadowOffsetX = 0;
         ctx.shadowOffsetY = 2;
-        ctx.fillText(handleText || '@adventistassv', (canvas.width / 2) + handleXOffset, footerY);
+        ctx.fillText(handleText || '@adventistassv', (canvas.width / 2) + handleXOffset, handleY);
         ctx.restore();
       }
 
@@ -2802,7 +2883,8 @@
         currentDownloadConfig.bg,
         currentDownloadConfig.handle,
         ratioKey,
-        { type: 'none', effect: 'none' }
+        { type: 'none', effect: 'none' },
+        currentDownloadConfig.stamp
       );
 
       const link = document.createElement('a');
@@ -2816,6 +2898,10 @@
     }
 
     function downloadCustomImage() {
+      const chkStamp = document.getElementById('chkShowStamp');
+      const inputStampText = document.getElementById('inputStampText');
+      const inputStampSub = document.getElementById('inputStampSub');
+
       openDownloadModal({
         phrase: document.getElementById('inputPhrase').value || '',
         citation: document.getElementById('inputCitation').value || '',
@@ -2823,7 +2909,12 @@
         fontCitation: document.getElementById('selectFontCitation').value,
         logo: document.getElementById('selectLogo').value,
         bg: selectedBg,
-        handle: document.getElementById('inputHandle').value || '@adventistassv'
+        handle: document.getElementById('inputHandle').value || '@adventistassv',
+        stamp: {
+          show: chkStamp ? chkStamp.checked : true,
+          text: inputStampText ? inputStampText.value : 'UNAVOZ27',
+          sub: inputStampSub ? inputStampSub.value : 'MISIÓN PARA TODOS'
+        }
       });
     }
 
@@ -2923,9 +3014,20 @@
       const logo = document.getElementById('selectLogo').value;
       const ratio = document.getElementById('selectRatio').value;
 
+      const chkStamp = document.getElementById('chkShowStamp');
+      const inputStampText = document.getElementById('inputStampText');
+      const inputStampSub = document.getElementById('inputStampSub');
+
+      const stampObj = {
+        show: chkStamp ? chkStamp.checked : true,
+        text: inputStampText ? inputStampText.value : 'UNAVOZ27',
+        sub: inputStampSub ? inputStampSub.value : 'MISIÓN PARA TODOS'
+      };
+
       await drawCanvasCard(
         targetCanvas, phrase, citation, fontPhrase, fontCitation, logo,
-        selectedBg, handle, ratio, { type: animType, effect: effectType, time: time, duration: duration }
+        selectedBg, handle, ratio, { type: animType, effect: effectType, time: time, duration: duration },
+        stampObj
       );
     }
 
@@ -3071,8 +3173,18 @@
       const logo = document.getElementById('selectLogo').value;
       const ratio = document.getElementById('selectRatio').value;
 
+      const chkStamp = document.getElementById('chkShowStamp');
+      const inputStampText = document.getElementById('inputStampText');
+      const inputStampSub = document.getElementById('inputStampSub');
+
+      const stampObj = {
+        show: chkStamp ? chkStamp.checked : true,
+        text: inputStampText ? inputStampText.value : 'UNAVOZ27',
+        sub: inputStampSub ? inputStampSub.value : 'MISIÓN PARA TODOS'
+      };
+
       const canvas = document.getElementById('customCanvas');
-      drawCanvasCard(canvas, phrase, citation, fontPhrase, fontCitation, logo, selectedBg, handle, ratio, { type: 'none', effect: 'none' });
+      drawCanvasCard(canvas, phrase, citation, fontPhrase, fontCitation, logo, selectedBg, handle, ratio, { type: 'none', effect: 'none' }, stampObj);
     }
 
     function loadQuotesForSelectedDate(dateStr) {
@@ -3159,7 +3271,8 @@
             fontCitation: fontCitationName,
             logo: logoKey,
             bg: bgType,
-            handle: '@adventistassv'
+            handle: '@adventistassv',
+            stamp: { show: true, text: 'UNAVOZ27', sub: 'MISIÓN PARA TODOS' }
           });
         };
 
@@ -3172,7 +3285,12 @@
         card.appendChild(actions);
         grid.appendChild(card);
 
-        drawCanvasCard(canvas, item.frase, item.cita, fontPhraseName, fontCitationName, logoKey, bgType, '@adventistassv', '4:5', { type: 'none', effect: 'none' });
+        drawCanvasCard(
+          canvas, item.frase, item.cita, fontPhraseName, fontCitationName, 
+          logoKey, bgType, '@adventistassv', '4:5', 
+          { type: 'none', effect: 'none' }, 
+          { show: true, text: 'UNAVOZ27', sub: 'MISIÓN PARA TODOS' }
+        );
       }
     }
 
