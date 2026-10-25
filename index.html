@@ -677,7 +677,7 @@
           <input type="date" id="historyDate" class="form-control" style="width: auto; min-height: 36px; padding: 4px 8px;" onchange="loadQuotesForSelectedDate(this.value)">
           <button class="btn btn-secondary" style="min-height: 36px; padding: 4px 10px;" onclick="resetToTodayDate()">Hoy</button>
           
-          <button class="btn btn-secondary" style="min-height: 36px; padding: 4px 8px; white-space: nowrap;" onclick="generateNewQuotesSet()">🔄 Generar</button>
+          <button class="btn btn-secondary" style="min-height: 36px; padding: 4px 8px; white-space: nowrap;" onclick="generateNewQuotesSet()">🔄 Generar Nuevas</button>
         </div>
       </div>
       <div id="dailyGrid" class="grid-daily"></div>
@@ -696,7 +696,7 @@
           <div style="display: flex; flex-wrap: wrap; gap: 8px; width: 100%; max-width: 420px;">
             <button class="btn btn-secondary" style="flex: 1;" onclick="openCanvasModal(document.getElementById('customCanvas'))">Ver</button>
             <button class="btn btn-secondary" style="flex: 1;" onclick="shareCanvasCard(document.getElementById('customCanvas'), document.getElementById('inputPhrase').value, document.getElementById('inputCitation').value, document.getElementById('inputHandle').value)">Compartir</button>
-            <button class="btn" style="flex: 1;" onclick="downloadCustomImage()">Descargar PNG / JPG</button>
+            <button class="btn" style="flex: 1;" onclick="downloadCustomImage()">Descargar WebP / PNG</button>
             
             <button id="btnPlayPreview" class="btn btn-secondary" style="width: 100%; margin-top: 4px;" onclick="previewAnimation()">
               ▶ Previsualizar Animación Completa
@@ -727,7 +727,7 @@
           <div class="form-group" style="margin-top: 4px; padding-top: 6px; border-top: 1px dashed var(--border);">
             <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 600; color: #fff;">
               <input type="checkbox" id="chkShowStamp" onchange="toggleStampInputs(); updateCustomCanvas();" style="width: 18px; height: 18px; accent-color: var(--accent);">
-              Activar Sello / Marca de Campaña (ej. UnaVoz27)
+              Activar Sello / Marca de Campaña (ej. UNAVOZ27)
             </label>
           </div>
 
@@ -991,7 +991,7 @@
       <button class="minimal-menu-item" onclick="shareToPlatform('whatsapp')">WhatsApp</button>
       <button class="minimal-menu-item" onclick="shareToPlatform('facebook')">Facebook</button>
       <div class="minimal-divider"></div>
-      <button class="minimal-menu-item" onclick="copyShareTextAndDownload()">Copiar Texto y Descargar PNG</button>
+      <button class="minimal-menu-item" onclick="copyShareTextAndDownload()">Copiar Texto y Descargar WebP</button>
     </div>
   </div>
 
@@ -1002,9 +1002,9 @@
       <div style="padding: 10px 18px 6px;">
         <label style="font-size:0.8rem; color:var(--text-muted); display:block; margin-bottom:4px;">Formato de Archivo:</label>
         <select id="modalFileFormat" class="form-control" style="min-height:36px; font-size:0.82rem;">
-          <option value="png" selected>PNG (Calidad Máxima - Recomendado)</option>
+          <option value="webp" selected>WebP (Optimizado - Mínimo Espacio)</option>
+          <option value="png">PNG (Calidad Máxima)</option>
           <option value="jpg">JPG / JPEG (Formato Estándar Estático)</option>
-          <option value="webp">WebP (Comprimido - Para Almacenamiento)</option>
         </select>
       </div>
 
@@ -1035,17 +1035,21 @@
       'Lora', 'Merriweather', 'Quicksand', 'Montserrat', 'Poppins', 'Outfit'
     ];
 
-    /* BASE DE DATOS LOCAL NAVEGADOR (INDEXEDDB) PARA MÚSICA */
-    const DB_NAME = 'AdventistasMusicDB';
-    const STORE_NAME = 'cached_tracks';
+    /* BASE DE DATOS LOCAL DE NAVEGADOR EN WEBP (INDEXEDDB) PARA PERSISTENCIA DÍA A DÍA */
+    const DB_NAME = 'AdventistasSV_DB';
+    const CARDS_STORE = 'generated_cards_webp';
+    const TRACKS_STORE = 'cached_tracks';
 
-    function openMusicDB() {
+    function openAppDB() {
       return new Promise((resolve, reject) => {
-        const req = indexedDB.open(DB_NAME, 1);
+        const req = indexedDB.open(DB_NAME, 2);
         req.onupgradeneeded = (e) => {
           const db = e.target.result;
-          if (!db.objectStoreNames.contains(STORE_NAME)) {
-            db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+          if (!db.objectStoreNames.contains(CARDS_STORE)) {
+            db.createObjectStore(CARDS_STORE, { keyPath: 'id' });
+          }
+          if (!db.objectStoreNames.contains(TRACKS_STORE)) {
+            db.createObjectStore(TRACKS_STORE, { keyPath: 'id' });
           }
         };
         req.onsuccess = () => resolve(req.result);
@@ -1053,23 +1057,53 @@
       });
     }
 
+    async function saveWebpCardToDB(cardObj) {
+      try {
+        const db = await openAppDB();
+        const tx = db.transaction(CARDS_STORE, 'readwrite');
+        const store = tx.objectStore(CARDS_STORE);
+        store.put(cardObj);
+      } catch (e) {
+        console.warn("Error guardando WebP en IndexedDB:", e);
+      }
+    }
+
+    async function getStoredCardsByDate(dateStr) {
+      try {
+        const db = await openAppDB();
+        return new Promise((resolve) => {
+          const tx = db.transaction(CARDS_STORE, 'readonly');
+          const store = tx.objectStore(CARDS_STORE);
+          const req = store.getAll();
+          req.onsuccess = () => {
+            const all = req.result || [];
+            const filtered = all.filter(item => item.date === dateStr);
+            resolve(filtered);
+          };
+          req.onerror = () => resolve([]);
+        });
+      } catch (e) {
+        return [];
+      }
+    }
+
     async function saveTrackToDB(trackId, blobData, metadata) {
       try {
-        const db = await openMusicDB();
-        const tx = db.transaction(STORE_NAME, 'readwrite');
-        const store = tx.objectStore(STORE_NAME);
+        const db = await openAppDB();
+        const tx = db.transaction(TRACKS_STORE, 'readwrite');
+        const store = tx.objectStore(TRACKS_STORE);
         store.put({ id: trackId, blob: blobData, meta: metadata, timestamp: Date.now() });
       } catch (e) {
-        console.warn("Error guardando en IndexedDB:", e);
+        console.warn("Error guardando música en IndexedDB:", e);
       }
     }
 
     async function getTrackFromDB(trackId) {
       try {
-        const db = await openMusicDB();
+        const db = await openAppDB();
         return new Promise((resolve) => {
-          const tx = db.transaction(STORE_NAME, 'readonly');
-          const store = tx.objectStore(STORE_NAME);
+          const tx = db.transaction(TRACKS_STORE, 'readonly');
+          const store = tx.objectStore(TRACKS_STORE);
           const req = store.get(trackId);
           req.onsuccess = () => resolve(req.result);
           req.onerror = () => resolve(null);
@@ -1326,7 +1360,7 @@
       return text.toUpperCase();
     }
 
-    /* GENERADOR DE NÚMEROS PSEUDOALEATORIOS SEEDADOS (PRNG) */
+    /* PRNG SEEDED */
     function getDateSeed(dateStr) {
       let hash = 0;
       for (let i = 0; i < dateStr.length; i++) {
@@ -1365,7 +1399,6 @@
       return QUOTES_BANK;
     }
 
-    /* SELECCIÓN DE FRASES SIN REPETIR ENTRE DÍAS CONSECUTIVOS */
     function getQuotesForDate(dateStr, count = 10) {
       const category = document.getElementById('selectQuoteCategory')?.value || 'todas';
       const pool = getQuotesByCategory(category);
@@ -1376,14 +1409,11 @@
         return seededShuffle(pool, rng);
       }
 
-      /* Desplazamiento único diario basado en días transcurridos desde Epoch */
       const dayEpoch = getDaysEpoch(dateStr) + manualGenOffset;
       const shiftOffset = (dayEpoch * 7) % totalAvailable;
 
-      /* Rotación del banco de frases */
       const rotatedPool = [...pool.slice(shiftOffset), ...pool.slice(0, shiftOffset)];
 
-      /* Mezca seedada para variedad interna dentro del mismo día */
       const rng = createPRNG(getDateSeed(dateStr) + 777 + manualGenOffset);
       const shuffled = seededShuffle(rotatedPool, rng);
 
@@ -1395,7 +1425,7 @@
       refreshAllBackgrounds();
       const dateStr = document.getElementById('historyDate')?.value || new Date().toISOString().split('T')[0];
       const newQuotes = getQuotesForDate(dateStr, 10);
-      renderDailyGrid(newQuotes);
+      renderDailyGrid(newQuotes, true);
     }
 
     function editCardQuote(phrase, citation, fontPhrase, fontCitation, logo, bg) {
@@ -1953,37 +1983,49 @@
       }
     }
 
-    function refreshAllBackgrounds() {
+    /* GENERACIÓN Y ROTACIÓN DE FONDOS EN TIEMPO REAL CON BOTÓN Y BÚSQUEDA */
+    async function refreshAllBackgrounds() {
       const searchInput = document.getElementById('inputBgSearch');
       if (searchInput) searchInput.value = '';
 
-      const dateStr = document.getElementById('historyDate')?.value || new Date().toISOString().split('T')[0];
-      const rng = createPRNG(getDateSeed(dateStr) + manualGenOffset);
+      manualGenOffset += 1;
+      const nowSeed = Date.now();
+      const rng = createPRNG(nowSeed + manualGenOffset);
 
-      activePhotos = seededShuffle(ALL_STOCK_PHOTOS, rng).map(item => item.url);
+      const dynamicRealtimePhotos = [];
+      const topics = ['cross', 'mountains', 'sky', 'sunset', 'ocean', 'forest', 'clouds', 'stars', 'light', 'nature'];
+      
+      for (let i = 0; i < 12; i++) {
+        const topic = topics[(i + manualGenOffset) % topics.length];
+        dynamicRealtimePhotos.push(`https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80&sig=${nowSeed}_${i}&topic=${topic}`);
+      }
+
+      activePhotos = seededShuffle([...ALL_STOCK_PHOTOS.map(p => p.url), ...dynamicRealtimePhotos], rng);
       activePatterns = seededShuffle(ALL_PATTERNS, rng);
       activeGradients = seededShuffle(ALL_GRADIENTS, rng);
+
+      selectedBg = `photo_${Math.floor(rng() * activePhotos.length)}`;
 
       renderBgThumbnails(true);
       updateCustomCanvas();
     }
 
-    function searchBackgrounds() {
+    async function searchBackgrounds() {
       const term = document.getElementById('inputBgSearch').value.trim().toLowerCase();
       if (!term) {
         refreshAllBackgrounds();
         return;
       }
 
-      const matched = ALL_STOCK_PHOTOS.filter(item => item.tags.toLowerCase().includes(term)).map(item => item.url);
+      let matched = ALL_STOCK_PHOTOS.filter(item => item.tags.toLowerCase().includes(term)).map(item => item.url);
 
-      if (matched.length > 0) {
-        activePhotos = matched;
-      } else {
-        const rng = createPRNG(999);
-        activePhotos = seededShuffle(ALL_STOCK_PHOTOS, rng).map(item => item.url);
+      const nowSeed = Date.now();
+      for (let i = 0; i < 8; i++) {
+        matched.push(`https://images.unsplash.com/photo-1518837695005-2083093ee35b?auto=format&fit=crop&w=800&q=80&search=${encodeURIComponent(term)}&sig=${nowSeed}_${i}`);
       }
 
+      activePhotos = matched;
+      selectedBg = 'photo_0';
       renderBgThumbnails(true);
       updateCustomCanvas();
     }
@@ -2470,7 +2512,6 @@
 
       const showLogo = document.getElementById('chkShowLogo') ? document.getElementById('chkShowLogo').checked : true;
 
-      /* CONFIGURACIÓN DEL SELLO UNAVOZ27 */
       let showStamp = stampOptions ? stampOptions.show : false;
       let stampText = stampOptions ? stampOptions.text : 'UNAVOZ27';
       let stampSub = stampOptions ? stampOptions.sub : 'MISIÓN PARA TODOS';
@@ -2610,7 +2651,6 @@
         drawGrad(ctx, canvas, gIndex, bgScale);
       }
 
-      /* GRADIENTES DE SOMBRA PERIMETRAL */
       const topGradHeight = (ratioKey === '9:16') ? 380 : 260;
       const topGrad = ctx.createLinearGradient(0, 0, 0, topGradHeight);
       topGrad.addColorStop(0, 'rgba(0, 0, 0, 0.70)');
@@ -2650,7 +2690,6 @@
         }
       }
 
-      /* POSICIONAMIENTO DEL LOGO */
       let logoY = 120;
       if (ratioKey === '9:16') logoY = 260; 
       if (ratioKey === '1:1') logoY = 110;
@@ -2668,7 +2707,6 @@
         ctx.restore();
       }
 
-      /* POSICIONAMIENTO DEL PIE DE IMAGEN / USUARIO Y SELLO */
       let baseFooterY = canvas.height - 110;
       if (ratioKey === '9:16') baseFooterY = canvas.height - 380; 
       if (ratioKey === '1:1') baseFooterY = canvas.height - 100;
@@ -2684,7 +2722,6 @@
         handleY = baseFooterY + 25;
       }
 
-      /* DIBUJO DEL SELLO DESTACADO EN EL LIENZO SI ESTÁ ACTIVADO */
       if (hasStampText && handleAlpha > 0.01) {
         ctx.save();
         ctx.globalAlpha = handleAlpha;
@@ -2785,7 +2822,6 @@
         ctx.restore();
       }
 
-      /* DIBUJAR USUARIO EN SU POSICIÓN DEDICADA */
       if (handleAlpha > 0.01 && handleText && handleText.trim() !== '') {
         ctx.save();
         ctx.globalAlpha = handleAlpha;
@@ -2825,7 +2861,7 @@
     function openCanvasModal(canvas) {
       const modal = document.getElementById('imageModal');
       const modalImg = document.getElementById('modalImg');
-      modalImg.src = canvas.toDataURL('image/png');
+      modalImg.src = canvas.toDataURL('image/webp', 0.95);
       modal.classList.add('active');
     }
 
@@ -2837,7 +2873,7 @@
       const cleanUrl = getCleanBaseUrl();
       const shortUrl = await getShortUrl(cleanUrl);
       const shareText = `"${phrase}" - ${citation}\n\nVía ${handle}\n${shortUrl}`;
-      const file = dataURLtoFile(canvas.toDataURL('image/png'), 'adventistassv-frase.png');
+      const file = dataURLtoFile(canvas.toDataURL('image/webp', 0.90), 'adventistassv-frase.webp');
 
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         try {
@@ -2873,8 +2909,8 @@
       navigator.clipboard.writeText(currentShareText);
       if (currentShareCanvas) {
         const link = document.createElement('a');
-        link.download = 'adventistassv-frase.png';
-        link.href = currentShareCanvas.toDataURL('image/png');
+        link.download = 'adventistassv-frase.webp';
+        link.href = currentShareCanvas.toDataURL('image/webp', 0.90);
         link.click();
       }
       closeShareModal();
@@ -2896,13 +2932,13 @@
     async function triggerDownload(ratioKey) {
       if (!currentDownloadConfig) return;
 
-      const format = document.getElementById('modalFileFormat').value || 'png';
-      let mimeType = 'image/png';
-      let fileExt = 'png';
+      const format = document.getElementById('modalFileFormat').value || 'webp';
+      let mimeType = 'image/webp';
+      let fileExt = 'webp';
 
-      if (format === 'webp') {
-        mimeType = 'image/webp';
-        fileExt = 'webp';
+      if (format === 'png') {
+        mimeType = 'image/png';
+        fileExt = 'png';
       } else if (format === 'jpg' || format === 'jpeg') {
         mimeType = 'image/jpeg';
         fileExt = 'jpg';
@@ -2927,7 +2963,7 @@
       const cleanRatio = ratioKey.replace(':', 'x');
       const selectedDate = document.getElementById('historyDate').value || 'hoy';
       link.download = `adventistassv-${selectedDate}-${cleanRatio}.${fileExt}`;
-      link.href = tempCanvas.toDataURL(mimeType, 0.95);
+      link.href = tempCanvas.toDataURL(mimeType, 0.90);
       link.click();
 
       closeDownloadModal();
@@ -3072,7 +3108,6 @@
       await drawCustomCanvasOnTarget(canvas, time, duration, animType, effectType);
     }
 
-    /* GENERACIÓN DE VIDEO ANIMADO Y PROCESAMIENTO CON fix-webm-duration */
     async function generarVideoAnimado() {
       stopPreviewAnimation();
 
@@ -3146,7 +3181,6 @@
 
         const rawBlob = new Blob(recordedChunks, { type: mediaRecorder.mimeType || 'video/webm' });
 
-        /* Promesa con la librería ysFixWebmDuration para escribir la cabecera real */
         const applyDurationFix = (blob, duration) => {
           return new Promise((resolve) => {
             if (typeof window.ysFixWebmDuration === 'function') {
@@ -3223,23 +3257,122 @@
       drawCanvasCard(canvas, phrase, citation, fontPhrase, fontCitation, logo, selectedBg, handle, ratio, { type: 'none', effect: 'none' }, stampObj);
     }
 
-    function loadQuotesForSelectedDate(dateStr) {
+    async function loadQuotesForSelectedDate(dateStr) {
       if (!dateStr) return;
-      manualGenOffset = 0;
-      refreshAllBackgrounds();
-      const quotes = getQuotesForDate(dateStr, 10);
       document.getElementById('galleryTitle').innerText = `Frases del Día (${dateStr})`;
-      renderDailyGrid(quotes);
+      
+      const storedCards = await getStoredCardsByDate(dateStr);
+      if (storedCards && storedCards.length > 0 && manualGenOffset === 0) {
+        renderStoredWebpCards(storedCards);
+      } else {
+        refreshAllBackgrounds();
+        const quotes = getQuotesForDate(dateStr, 10);
+        renderDailyGrid(quotes);
+      }
     }
 
     function resetToTodayDate() {
       const today = new Date().toISOString().split('T')[0];
       document.getElementById('historyDate').value = today;
+      manualGenOffset = 0;
       loadQuotesForSelectedDate(today);
     }
 
-    /* RENDERING DE TARJETAS DIARIAS CON COMBINACIONES ÚNICAS DE FONDO Y TIPOGRAFÍA */
-    async function renderDailyGrid(quotesList) {
+    function renderStoredWebpCards(cardsList) {
+      const grid = document.getElementById('dailyGrid');
+      grid.innerHTML = '';
+
+      const svgEye = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+      const svgEdit = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>`;
+      const svgShare = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`;
+      const svgDownload = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`;
+
+      cardsList.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'card';
+
+        const canvasBox = document.createElement('div');
+        canvasBox.className = 'canvas-container';
+
+        const imgEl = document.createElement('img');
+        imgEl.src = item.webp;
+        imgEl.style.width = '100%';
+        imgEl.style.height = '100%';
+        imgEl.style.objectFit = 'cover';
+
+        canvasBox.onclick = () => {
+          const modal = document.getElementById('imageModal');
+          const modalImg = document.getElementById('modalImg');
+          modalImg.src = item.webp;
+          modal.classList.add('active');
+        };
+        canvasBox.appendChild(imgEl);
+
+        const actions = document.createElement('div');
+        actions.className = 'card-actions';
+
+        const btnView = document.createElement('button');
+        btnView.className = 'btn btn-secondary';
+        btnView.title = 'Ver imagen';
+        btnView.innerHTML = svgEye;
+        btnView.onclick = (e) => {
+          e.stopPropagation();
+          const modal = document.getElementById('imageModal');
+          const modalImg = document.getElementById('modalImg');
+          modalImg.src = item.webp;
+          modal.classList.add('active');
+        };
+
+        const btnEdit = document.createElement('button');
+        btnEdit.className = 'btn btn-secondary';
+        btnEdit.title = 'Editar frase';
+        btnEdit.innerHTML = svgEdit;
+        btnEdit.onclick = (e) => {
+          e.stopPropagation();
+          editCardQuote(item.quote.frase, item.quote.cita, item.quote.fontPhrase, item.quote.fontCitation, item.quote.logo, item.quote.bg);
+        };
+
+        const btnShare = document.createElement('button');
+        btnShare.className = 'btn btn-secondary';
+        btnShare.title = 'Compartir';
+        btnShare.innerHTML = svgShare;
+        btnShare.onclick = async (e) => {
+          e.stopPropagation();
+          const tempCanvas = document.createElement('canvas');
+          await drawCanvasCard(tempCanvas, item.quote.frase, item.quote.cita, item.quote.fontPhrase, item.quote.fontCitation, item.quote.logo, item.quote.bg, '@adventistassv', '4:5');
+          shareCanvasCard(tempCanvas, item.quote.frase, item.quote.cita, '@adventistassv');
+        };
+
+        const btnDownload = document.createElement('button');
+        btnDownload.className = 'btn';
+        btnDownload.title = 'Descargar';
+        btnDownload.innerHTML = svgDownload;
+        btnDownload.onclick = (e) => {
+          e.stopPropagation();
+          openDownloadModal({
+            phrase: item.quote.frase,
+            citation: item.quote.cita,
+            fontPhrase: item.quote.fontPhrase,
+            fontCitation: item.quote.fontCitation,
+            logo: item.quote.logo,
+            bg: item.quote.bg,
+            handle: '@adventistassv',
+            stamp: { show: false, text: 'UNAVOZ27', sub: 'MISIÓN PARA TODOS' }
+          });
+        };
+
+        actions.appendChild(btnView);
+        actions.appendChild(btnEdit);
+        actions.appendChild(btnShare);
+        actions.appendChild(btnDownload);
+
+        card.appendChild(canvasBox);
+        card.appendChild(actions);
+        grid.appendChild(card);
+      });
+    }
+
+    async function renderDailyGrid(quotesList, forceSaveNew = false) {
       const grid = document.getElementById('dailyGrid');
       grid.innerHTML = '';
 
@@ -3265,7 +3398,6 @@
         const fontCitationName = shuffledCitations[i % shuffledCitations.length];
         const logoKey = logoRotation[i % logoRotation.length];
         
-        /* Selección balanceada de tipos de fondo para la cuadrícula */
         const typeSelector = i % 3;
         let bgType;
         if (typeSelector === 0) {
@@ -3337,12 +3469,30 @@
         card.appendChild(actions);
         grid.appendChild(card);
 
-        drawCanvasCard(
+        await drawCanvasCard(
           canvas, item.frase, item.cita, fontPhraseName, fontCitationName, 
           logoKey, bgType, '@adventistassv', '4:5', 
           { type: 'none', effect: 'none' }, 
           { show: false, text: 'UNAVOZ27', sub: 'MISIÓN PARA TODOS' }
         );
+
+        /* GUARDADO EN WEBP DENTRO DE INDEXEDDB PARA EVITAR PÉRDIDAS AL RECARGAR */
+        const webpDataUrl = canvas.toDataURL('image/webp', 0.85);
+        const cardId = `card_${dateStr}_${i}_${manualGenOffset}`;
+        saveWebpCardToDB({
+          id: cardId,
+          date: dateStr,
+          webp: webpDataUrl,
+          quote: {
+            frase: item.frase,
+            cita: item.cita,
+            fontPhrase: fontPhraseName,
+            fontCitation: fontCitationName,
+            logo: logoKey,
+            bg: bgType
+          },
+          timestamp: Date.now()
+        });
       }
     }
 
