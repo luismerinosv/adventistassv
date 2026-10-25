@@ -521,6 +521,19 @@
       height: 100%;
       transition: transform 0.15s, border-color 0.15s;
       background-color: #1e293b;
+      position: relative;
+    }
+
+    .bg-thumb-video-tag {
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
+      background: rgba(0,0,0,0.7);
+      color: #fff;
+      font-size: 0.6rem;
+      padding: 1px 4px;
+      border-radius: 3px;
+      font-weight: 600;
     }
 
     .bg-thumb:hover { transform: scale(1.04); }
@@ -1108,6 +1121,17 @@
     let testModalAnimId = null;
     let manualGenOffset = 0;
 
+    let videoBgElement = null;
+    let videoRenderLoopId = null;
+
+    const STOCK_VIDEOS = [
+      { id: 'v_clouds', title: 'Cielo y Nubes', poster: 'https://images.unsplash.com/photo-1513002749550-c59d786b8e6c?auto=format&fit=crop&w=300&q=80', url: 'https://assets.mixkit.co/videos/preview/mixkit-clouds-and-blue-sky-2408-large.mp4' },
+      { id: 'v_sunset', title: 'Mar Atardecer', poster: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=300&q=80', url: 'https://assets.mixkit.co/videos/preview/mixkit-sea-waves-and-sunset-4148-large.mp4' },
+      { id: 'v_stars', title: 'Noche Estrellada', poster: 'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?auto=format&fit=crop&w=300&q=80', url: 'https://assets.mixkit.co/videos/preview/mixkit-stars-in-the-night-sky-1639-large.mp4' },
+      { id: 'v_forest', title: 'Rayos de Sol Bosque', poster: 'https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=300&q=80', url: 'https://assets.mixkit.co/videos/preview/mixkit-sunbeams-through-trees-in-a-forest-4222-large.mp4' },
+      { id: 'v_bokeh', title: 'Luces Bokeh Doradas', poster: 'https://images.unsplash.com/photo-1518640467707-6811f4a6ab73?auto=format&fit=crop&w=300&q=80', url: 'https://assets.mixkit.co/videos/preview/mixkit-abstract-gold-particles-floating-41551-large.mp4' }
+    ];
+
     const ANIMATIONS_DATA = [
       { id: 'slide', title: 'Deslizar desde abajo (Slide Up)', desc: 'Entrada y salida con desplazamiento vertical' },
       { id: 'slideLeft', title: 'Deslizar desde la izquierda', desc: 'Entrada y salida lateral izquierda' },
@@ -1367,11 +1391,13 @@
       return shuffled.slice(0, 10);
     }
 
+    // BÚSQUEDA OPTIMIZADA DE FONDOS LIMPIOS Y ADECUADOS PARA FRASES
     async function fetchImagesFromWeb(searchTerm) {
       const foundUrls = [];
 
       try {
-        const bgQuery = searchTerm ? `${searchTerm} wallpaper background nature portrait vertical` : 'landscape nature wallpaper background';
+        const quoteFriendlyFilter = 'minimalist subtle peaceful atmospheric background nature aesthetic -text -words -people';
+        const bgQuery = searchTerm ? `${searchTerm} ${quoteFriendlyFilter}` : `landscape nature cloud sky sunset ${quoteFriendlyFilter}`;
         const page = Math.floor(Math.random() * 10) + 1;
         const res = await fetch(`https://unsplash.com/napi/search/photos?query=${encodeURIComponent(bgQuery)}&per_page=20&page=${page}&orientation=portrait`);
         if (res.ok) {
@@ -1390,7 +1416,7 @@
 
       if (foundUrls.length < 10) {
         try {
-          const q = searchTerm ? encodeURIComponent(searchTerm + ' landscape background wallpaper') : 'landscape%20background%20wallpaper';
+          const q = searchTerm ? encodeURIComponent(searchTerm + ' landscape background wallpaper subtle') : 'landscape%20background%20wallpaper';
           const wikiUrl = `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${q}&gsrnamespace=6&gsrlimit=20&format=json&origin=*&prop=imageinfo&iiprop=url`;
           const res = await fetch(wikiUrl);
           if (res.ok) {
@@ -1614,7 +1640,7 @@
       while (n--) {
         u8arr[n] = bstr.charCodeAt(n);
       }
-      return new File([u8arr], filename, { type: mime });
+      return File([u8arr], filename, { type: mime });
     }
 
     async function preloadLogos() {
@@ -2007,6 +2033,7 @@
     function handleUserBgUpload(event) {
       const file = event.target.files[0];
       if (file) {
+        stopVideoBg();
         const reader = new FileReader();
         reader.onload = function(e) {
           const img = new Image();
@@ -2043,6 +2070,7 @@
           history.replaceState(null, null, '#editor');
         }
       } else {
+        stopVideoBg();
         gSec.classList.remove('hidden');
         eSec.classList.add('hidden');
         if (btnG) btnG.classList.add('active');
@@ -2059,8 +2087,38 @@
       if (container.children.length > 0 && !force) return;
       container.innerHTML = '';
 
+      // FONDOS DE VIDEO DE STOCK
+      const secVideos = document.createElement('div');
+      secVideos.innerHTML = `<div class="bg-section-title">Videos de Stock Animados (Reels/Stories)</div>`;
+      const gridVideos = document.createElement('div');
+      gridVideos.className = 'bg-grid';
+
+      STOCK_VIDEOS.forEach((vid, i) => {
+        const div = document.createElement('div');
+        div.className = `bg-thumb ${selectedBg === 'video_' + i ? 'active' : ''}`;
+        div.style.backgroundImage = `url('${vid.poster}')`;
+        div.style.backgroundSize = 'cover';
+        div.style.backgroundPosition = 'center';
+
+        const tag = document.createElement('span');
+        tag.className = 'bg-thumb-video-tag';
+        tag.innerText = 'VIDEO';
+        div.appendChild(tag);
+
+        div.onclick = () => {
+          document.querySelectorAll('.bg-thumb').forEach(t => t.classList.remove('active'));
+          div.classList.add('active');
+          selectedBg = 'video_' + i;
+          setupVideoBg(vid.url);
+        };
+        gridVideos.appendChild(div);
+      });
+      secVideos.appendChild(gridVideos);
+      container.appendChild(secVideos);
+
+      // FOTOGRAFÍAS
       const secPhotos = document.createElement('div');
-      secPhotos.innerHTML = `<div class="bg-section-title">Fotografías (${activePhotos.length})</div>`;
+      secPhotos.innerHTML = `<div class="bg-section-title">Fotografías Especiales para Frases (${activePhotos.length})</div>`;
       const gridPhotos = document.createElement('div');
       gridPhotos.className = 'bg-grid';
 
@@ -2075,6 +2133,7 @@
         };
 
         img.onclick = () => {
+          stopVideoBg();
           document.querySelectorAll('.bg-thumb').forEach(t => t.classList.remove('active'));
           img.classList.add('active');
           selectedBg = 'photo_' + i;
@@ -2085,6 +2144,7 @@
       secPhotos.appendChild(gridPhotos);
       container.appendChild(secPhotos);
 
+      // PATRONES Y TEXTURAS
       const secPatterns = document.createElement('div');
       secPatterns.innerHTML = `<div class="bg-section-title">Patrones y Texturas (${activePatterns.length})</div>`;
       const gridPatterns = document.createElement('div');
@@ -2099,6 +2159,7 @@
           this.src = ALL_PATTERNS[0];
         };
         img.onclick = () => {
+          stopVideoBg();
           document.querySelectorAll('.bg-thumb').forEach(t => t.classList.remove('active'));
           img.classList.add('active');
           selectedBg = 'pattern_' + i;
@@ -2109,6 +2170,7 @@
       secPatterns.appendChild(gridPatterns);
       container.appendChild(secPatterns);
 
+      // DEGRADADOS
       const secGrads = document.createElement('div');
       secGrads.innerHTML = `<div class="bg-section-title">Degradados Elegantes (${activeGradients.length})</div>`;
       const gridGrads = document.createElement('div');
@@ -2119,6 +2181,7 @@
         div.className = `bg-thumb ${selectedBg === 'grad_' + i ? 'active' : ''}`;
         div.style.background = `linear-gradient(135deg, ${grad[0]}, ${grad[1]})`;
         div.onclick = () => {
+          stopVideoBg();
           document.querySelectorAll('.bg-thumb').forEach(t => t.classList.remove('active'));
           div.classList.add('active');
           selectedBg = 'grad_' + i;
@@ -2130,8 +2193,53 @@
       container.appendChild(secGrads);
     }
 
+    function setupVideoBg(videoUrl) {
+      stopVideoBg();
+
+      videoBgElement = document.createElement('video');
+      videoBgElement.crossOrigin = 'anonymous';
+      videoBgElement.src = videoUrl;
+      videoBgElement.loop = true;
+      videoBgElement.muted = true;
+      videoBgElement.playsInline = true;
+
+      videoBgElement.play().then(() => {
+        startVideoRenderLoop();
+      }).catch(e => console.log("Autoplay video bg deferred", e));
+
+      updateCustomCanvas();
+    }
+
+    function stopVideoBg() {
+      if (videoRenderLoopId) {
+        cancelAnimationFrame(videoRenderLoopId);
+        videoRenderLoopId = null;
+      }
+      if (videoBgElement) {
+        videoBgElement.pause();
+        videoBgElement.currentTime = 0;
+        videoBgElement = null;
+      }
+    }
+
+    function startVideoRenderLoop() {
+      if (videoRenderLoopId) cancelAnimationFrame(videoRenderLoopId);
+
+      function loop() {
+        if (selectedBg.startsWith('video_') && videoBgElement && !isPreviewPlaying) {
+          updateCustomCanvas();
+          videoRenderLoopId = requestAnimationFrame(loop);
+        }
+      }
+      videoRenderLoopId = requestAnimationFrame(loop);
+    }
+
     function drawCoverImage(ctx, img, targetW, targetH, scale = 1.0) {
-      const imgRatio = img.naturalWidth / img.naturalHeight;
+      const w = img.naturalWidth || img.videoWidth || img.width;
+      const h = img.naturalHeight || img.videoHeight || img.height;
+      if (!w || !h) return;
+
+      const imgRatio = w / h;
       const targetRatio = targetW / targetH;
       let renderW, renderH, offsetX, offsetY;
 
@@ -2564,7 +2672,11 @@
         logoXOffset = handleXOffset = phraseXOffset = citationXOffset = 0;
       }
 
-      if (bgType === 'user_custom' && userCustomImg) {
+      if (bgType.startsWith('video_') && videoBgElement) {
+        drawCoverImage(ctx, videoBgElement, canvas.width, canvas.height, bgScale);
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      } else if (bgType === 'user_custom' && userCustomImg) {
         drawCoverImage(ctx, userCustomImg, canvas.width, canvas.height, bgScale);
         ctx.fillStyle = 'rgba(0, 0, 0, 0.48)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -2984,7 +3096,7 @@
       const animType = document.getElementById('selectAnimation').value;
       const effectType = document.getElementById('selectEffect').value;
       
-      if (animType === 'none' && effectType === 'none') {
+      if (animType === 'none' && effectType === 'none' && !selectedBg.startsWith('video_')) {
         updateCustomCanvas();
         return;
       }
