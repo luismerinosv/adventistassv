@@ -518,16 +518,16 @@
           </div>
 
           <div class="form-group">
-            <label>Transición / Animación de Texto:</label>
+            <label>Transición / Animación de Texto y Elementos:</label>
             <select id="selectAnimation" class="form-control" onchange="previewAnimation()">
               <option value="slide" selected>⬆ Deslizar desde abajo (Slide Up)</option>
               <option value="slideLeft">⬅ Deslizar desde la izquierda (Slide Left)</option>
-              <option value="fade">✨ Desvanecer (Fade In)</option>
+              <option value="fade">✨ Desvanecer (Fade In General)</option>
               <option value="zoom">🔍 Zoom Suave a Fondo (Ken Burns)</option>
-              <option value="zoomText">🔎 Zoom In/Out de Texto</option>
-              <option value="sequential">📜 Aparición Escalonada (Frase → Cita)</option>
-              <option value="typewriter">⌨️ Máquina de Escribir (Letra por Letra)</option>
-              <option value="bounce">⚽ Rebote Elástico (Bounce In)</option>
+              <option value="zoomText">🔎 Zoom In/Out General</option>
+              <option value="sequential">📜 Aparición Escalonada (Logo → Frase → Cita → Usuario)</option>
+              <option value="typewriter">⌨️ Máquina de Escribir (Frase) + Entradas Suaves</option>
+              <option value="bounce">⚽ Rebote Elástico General (Bounce In)</option>
               <option value="rotate">🌀 Rotación Elegante (Rotate & Scale)</option>
               <option value="blur">🌫️ Desenfoque a Claridad (Blur Fade)</option>
               <option value="none">🛑 Sin Transición (Estático)</option>
@@ -1433,36 +1433,40 @@
       };
 
       let bgScale = 1.0;
-      let logoAlpha = 1.0, logoYOffset = 0;
-      let phraseAlpha = 1.0, phraseYOffset = 0, phraseXOffset = 0, phraseScale = 1.0, phraseRotate = 0;
-      let citationAlpha = 1.0, citationYOffset = 0;
-      let handleAlpha = 1.0, handleYOffset = 0;
+      let contentScale = 1.0;
+      let contentRotate = 0;
+
+      let logoAlpha = 1.0, logoYOffset = 0, logoXOffset = 0;
+      let phraseAlpha = 1.0, phraseYOffset = 0, phraseXOffset = 0;
+      let citationAlpha = 1.0, citationYOffset = 0, citationXOffset = 0;
+      let handleAlpha = 1.0, handleYOffset = 0, handleXOffset = 0;
+
       let typewriterChars = phrase.length;
 
       if (animType === 'fade') {
         const a = Math.min(progress / 0.25, 1.0);
-        logoAlpha = a; phraseAlpha = a; citationAlpha = a; handleAlpha = a;
+        logoAlpha = phraseAlpha = citationAlpha = handleAlpha = a;
       } else if (animType === 'slide') {
         const p = Math.min(progress / 0.30, 1.0);
         const e = easeOutCubic(p);
-        logoAlpha = e; logoYOffset = (1 - e) * 40;
-        phraseAlpha = e; phraseYOffset = (1 - e) * 50;
-        citationAlpha = e; citationYOffset = (1 - e) * 50;
-        handleAlpha = e; handleYOffset = (1 - e) * 30;
+        const yOff = (1 - e) * 60;
+        logoYOffset = phraseYOffset = citationYOffset = handleYOffset = yOff;
+        logoAlpha = phraseAlpha = citationAlpha = handleAlpha = e;
       } else if (animType === 'slideLeft') {
         const p = Math.min(progress / 0.30, 1.0);
         const e = easeOutCubic(p);
-        logoAlpha = e; phraseAlpha = e; citationAlpha = e; handleAlpha = e;
-        phraseXOffset = (1 - e) * (-250);
+        const xOff = (1 - e) * (-250);
+        logoXOffset = phraseXOffset = citationXOffset = handleXOffset = xOff;
+        logoAlpha = phraseAlpha = citationAlpha = handleAlpha = e;
       } else if (animType === 'zoom') {
         bgScale = 1.0 + (progress * 0.12);
         const a = Math.min(progress / 0.20, 1.0);
-        logoAlpha = a; phraseAlpha = a; citationAlpha = a; handleAlpha = a;
+        logoAlpha = phraseAlpha = citationAlpha = handleAlpha = a;
       } else if (animType === 'zoomText') {
         const p = Math.min(progress / 0.35, 1.0);
         const e = easeOutCubic(p);
-        phraseScale = 0.5 + (e * 0.5);
-        phraseAlpha = e; logoAlpha = e; citationAlpha = e; handleAlpha = e;
+        contentScale = 0.5 + (e * 0.5);
+        logoAlpha = phraseAlpha = citationAlpha = handleAlpha = e;
       } else if (animType === 'sequential') {
         const pLogo = Math.min(progress / 0.15, 1.0);
         const eLogo = easeOutCubic(pLogo);
@@ -1483,20 +1487,26 @@
         const pText = Math.min(progress / 0.55, 1.0);
         typewriterChars = Math.floor(pText * phrase.length);
         logoAlpha = Math.min(progress / 0.15, 1.0);
+        phraseAlpha = 1.0;
         citationAlpha = Math.max(0, Math.min((progress - 0.50) / 0.25, 1.0));
         handleAlpha = Math.max(0, Math.min((progress - 0.65) / 0.25, 1.0));
       } else if (animType === 'bounce') {
         const p = Math.min(progress / 0.45, 1.0);
         const e = easeOutElastic(p);
-        phraseScale = Math.max(0.01, e);
-        phraseAlpha = Math.min(p * 2, 1.0);
-        logoAlpha = phraseAlpha; citationAlpha = phraseAlpha; handleAlpha = phraseAlpha;
+        contentScale = Math.max(0.01, e);
+        const a = Math.min(p * 2, 1.0);
+        logoAlpha = phraseAlpha = citationAlpha = handleAlpha = a;
       } else if (animType === 'rotate') {
         const p = Math.min(progress / 0.35, 1.0);
         const e = easeOutCubic(p);
-        phraseRotate = (1 - e) * (-0.15);
-        phraseScale = 0.7 + (e * 0.3);
-        phraseAlpha = e; logoAlpha = e; citationAlpha = e; handleAlpha = e;
+        contentRotate = (1 - e) * (-0.15);
+        contentScale = 0.7 + (e * 0.3);
+        const a = e;
+        logoAlpha = phraseAlpha = citationAlpha = handleAlpha = a;
+      } else if (animType === 'blur') {
+        const a = Math.min(progress / 0.30, 1.0);
+        contentScale = 0.95 + (a * 0.05);
+        logoAlpha = phraseAlpha = citationAlpha = handleAlpha = a;
       }
 
       /* FONDO */
@@ -1547,6 +1557,15 @@
       /* DIBUJAR EFECTOS EN MOVIMIENTO DE PARTÍCULAS */
       drawOverlayEffects(ctx, canvas.width, canvas.height, effectType, time);
 
+      /* TRANSFORMACIÓN GENERAL DEL CONTENIDO (LOGO, FRASE, CITA Y USUARIO) */
+      ctx.save();
+      if (contentScale !== 1.0 || contentRotate !== 0) {
+        ctx.translate(canvas.width / 2, canvas.height / 2);
+        ctx.scale(contentScale, contentScale);
+        ctx.rotate(contentRotate);
+        ctx.translate(-canvas.width / 2, -canvas.height / 2);
+      }
+
       /* LOGO SUPERIOR */
       let logoImg = loadedLogos[logoKey];
       if (!logoImg) {
@@ -1568,7 +1587,7 @@
         const logoWidth = 175;
         const aspectRatio = logoImg.naturalHeight / logoImg.naturalWidth || 1;
         logoHeight = logoWidth * aspectRatio;
-        const logoX = (canvas.width - logoWidth) / 2;
+        const logoX = ((canvas.width - logoWidth) / 2) + logoXOffset;
         ctx.drawImage(logoImg, logoX, logoY, logoWidth, logoHeight);
         ctx.restore();
       }
@@ -1610,13 +1629,6 @@
         ctx.shadowOffsetX = 0;
         ctx.shadowOffsetY = 3;
 
-        if (phraseScale !== 1.0 || phraseRotate !== 0) {
-          ctx.translate(canvas.width / 2, canvas.height / 2);
-          ctx.scale(phraseScale, phraseScale);
-          ctx.rotate(phraseRotate);
-          ctx.translate(-canvas.width / 2, -canvas.height / 2);
-        }
-
         let y = startY + phraseYOffset;
         for (let i = 0; i < lines.length; i++) {
           ctx.fillText(lines[i], (canvas.width / 2) + phraseXOffset, y);
@@ -1638,11 +1650,11 @@
         ctx.shadowBlur = 10;
         ctx.shadowOffsetX = 0;
         ctx.shadowOffsetY = 2;
-        ctx.fillText(citation, canvas.width / 2, citationY);
+        ctx.fillText(citation, (canvas.width / 2) + citationXOffset, citationY);
         ctx.restore();
       }
 
-      /* PIE DE IMAGEN (@HANDLE) */
+      /* PIE DE IMAGEN (@HANDLE / USUARIO) */
       let footerY = canvas.height - 90;
       if (ratioKey === '9:16') footerY = canvas.height - 140;
       if (ratioKey === '1:1') footerY = canvas.height - 90;
@@ -1659,9 +1671,11 @@
         ctx.shadowBlur = 8;
         ctx.shadowOffsetX = 0;
         ctx.shadowOffsetY = 2;
-        ctx.fillText(handleText || '@adventistassv', canvas.width / 2, footerY);
+        ctx.fillText(handleText || '@adventistassv', (canvas.width / 2) + handleXOffset, footerY);
         ctx.restore();
       }
+
+      ctx.restore(); // RESTAURAR TRANSFORMACIÓN GENERAL DEL CONTENIDO
     }
 
     function drawGrad(ctx, canvas, index, scale = 1.0) {
