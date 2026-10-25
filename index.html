@@ -79,7 +79,7 @@
 
     header p { color: var(--text-muted); font-size: 0.82rem; }
 
-    /* NAVEGACIÓN FIJA AL SCROLL (STICKY) */
+    /* NAVEGACIÓN FIJA AL SCROLL */
     .sticky-nav-wrapper {
       position: -webkit-sticky;
       position: sticky;
@@ -300,6 +300,138 @@
       min-height: 75px;
     }
 
+    /* TARJETA ACTIVADORA DEL SELECTOR DE MÚSICA ESTILO INSTAGRAM */
+    .ig-music-trigger-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg-dark);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .ig-music-trigger-card:hover {
+      border-color: var(--accent);
+      background: rgba(0, 131, 143, 0.08);
+    }
+    .ig-music-icon-box {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #00838f, #00acc1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      color: #fff;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(0, 131, 143, 0.4);
+    }
+
+    /* MODAL MÚSICA ESTILO INSTAGRAM */
+    .music-modal-card {
+      background: #1e293b;
+      width: 100%;
+      max-width: 480px;
+      max-height: 85vh;
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+    }
+
+    .music-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px 12px;
+      border-bottom: 1px solid var(--border);
+      font-weight: 600;
+      font-size: 1.05rem;
+    }
+
+    .music-search-bar-wrapper {
+      padding: 12px 16px 8px;
+      display: flex;
+      gap: 8px;
+    }
+
+    .music-tabs-scroll {
+      display: flex;
+      gap: 8px;
+      padding: 4px 16px 12px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .music-tab-pill {
+      padding: 6px 14px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+    }
+    .music-tab-pill.active {
+      background: #fff;
+      color: #000;
+      border-color: #fff;
+      font-weight: 600;
+    }
+
+    .music-list-container {
+      overflow-y: auto;
+      max-height: 420px;
+      padding: 0 8px 12px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .music-track-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.15s ease;
+      margin-bottom: 2px;
+    }
+    .music-track-item:hover {
+      background: rgba(255, 255, 255, 0.06);
+    }
+    .music-track-item.selected {
+      background: rgba(0, 131, 143, 0.22);
+      border: 1px solid var(--accent);
+    }
+
+    .track-preview-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+    .track-preview-btn:hover {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
     .bg-grid-header {
       display: flex;
       justify-content: space-between;
@@ -463,13 +595,12 @@
   </nav>
 
   <div class="container">
-    <!-- GALERÍA DIARIA CON SELECTOR DE CATEGORÍA Y FECHA -->
+    <!-- GALERÍA DIARIA -->
     <div id="gallerySection">
       <div class="section-header">
         <h2 class="section-title" id="galleryTitle">Frases del Día</h2>
         <div class="date-selector-group">
           
-          <!-- FILTRO DE CATEGORÍAS SOLICITADO -->
           <label for="selectQuoteCategory" style="font-size: 0.82rem; color: var(--text-muted);">Ver:</label>
           <select id="selectQuoteCategory" class="form-control" style="width: auto; min-height: 36px; padding: 4px 8px; font-size:0.82rem;" onchange="generateNewQuotesSet()">
             <option value="todas" selected>✨ Todas las Frases</option>
@@ -591,22 +722,19 @@
             </select>
           </div>
 
+          <!-- NUEVO SELECTOR DE MÚSICA ESTILO INSTAGRAM -->
           <div class="form-group">
-            <label>Música / Audio Instrumental Libre:</label>
-            <select id="selectAudio" class="form-control" onchange="handleAudioChange()">
-              <option value="none">🔇 Sin Audio de Fondo</option>
-              <option value="piano" selected>🎹 Piano Suave y Paz</option>
-              <option value="inspirational">🎻 Orquestal Inspirador</option>
-              <option value="ambient">🍃 Acústico Meditativo</option>
-              <option value="guitar">🎸 Guitarra Acústica Serena</option>
-              <option value="violin">🎻 Violín Profundo y Devocional</option>
-              <option value="celestial">🌌 Arpa y Melodía Celestial</option>
-              <option value="hymn">🕊️ Himno Instrumental de Esperanza</option>
-              <option value="cinematic">🎬 Cine Épico y Reflexivo</option>
-              <option value="nature">🌊 Brisa y Naturaleza Pacífica</option>
-              <option value="custom">📁 Subir mi propio audio (MP3/WAV)</option>
-            </select>
-            <input type="file" id="inputCustomAudio" class="form-control hidden" accept="audio/*" style="margin-top: 6px;" onchange="handleUserAudioUpload(event)">
+            <label>Música / Audio Instrumental de Fondo:</label>
+            <div class="ig-music-trigger-card" onclick="openMusicModal()">
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <div class="ig-music-icon-box" id="musicTriggerIcon">🎵</div>
+                <div>
+                  <div id="musicTriggerTitle" style="font-weight: 600; font-size: 0.9rem; color: #fff;">Piano Suave y Paz</div>
+                  <div id="musicTriggerSub" style="font-size: 0.76rem; color: var(--text-muted);">Instrumental • Devocional</div>
+                </div>
+              </div>
+              <button class="btn btn-secondary" style="min-height: 32px; padding: 4px 10px; font-size: 0.78rem;">Cambiar 🎵</button>
+            </div>
           </div>
 
           <div class="form-group">
@@ -684,7 +812,34 @@
     </div>
   </div>
 
-  <!-- MODALES Y DIÁLOGOS -->
+  <!-- MODAL BUSCADOR DE MÚSICA ESTILO INSTAGRAM -->
+  <div id="musicModal" class="modal" onclick="closeMusicModal()">
+    <div class="music-modal-card" onclick="event.stopPropagation()">
+      <div class="music-modal-header">
+        <span>🎵 Seleccionar Música</span>
+        <button class="modal-close" style="position:static;" onclick="closeMusicModal()">✕</button>
+      </div>
+      
+      <div class="music-search-bar-wrapper">
+        <input type="text" id="musicSearchInput" class="form-control" placeholder="🔍 Buscar música por nombre..." onkeyup="filterMusicList()">
+        <button class="btn btn-secondary" style="min-height: 40px; padding: 4px 12px; white-space: nowrap; flex-shrink: 0;" onclick="document.getElementById('inputCustomAudioModal').click()">📁 Subir MP3</button>
+        <input type="file" id="inputCustomAudioModal" accept="audio/*" class="hidden" onchange="handleUserAudioUploadModal(event)">
+      </div>
+
+      <div class="music-tabs-scroll">
+        <button class="music-tab-pill active" onclick="setMusicCategory('all', this)">Para ti</button>
+        <button class="music-tab-pill" onclick="setMusicCategory('piano', this)">Piano</button>
+        <button class="music-tab-pill" onclick="setMusicCategory('orquestal', this)">Orquestal</button>
+        <button class="music-tab-pill" onclick="setMusicCategory('himnos', this)">Himnos</button>
+        <button class="music-tab-pill" onclick="setMusicCategory('acustico', this)">Acústico</button>
+        <button class="music-tab-pill" onclick="setMusicCategory('naturaleza', this)">Naturaleza</button>
+      </div>
+
+      <div id="musicListContainer" class="music-list-container"></div>
+    </div>
+  </div>
+
+  <!-- OTROS MODALES -->
   <div id="imageModal" class="modal" onclick="closeModal()">
     <button class="modal-close" onclick="closeModal()">✕</button>
     <img id="modalImg" class="modal-content" src="" alt="Vista Previa" onclick="event.stopPropagation()">
@@ -736,18 +891,23 @@
       'Alex Brush', 'Sacramento', 'Italianno', 'Courgette', 'Abril Fatface'
     ];
 
-    const AUDIO_TRACKS = {
-      none: null,
-      piano: 'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3',
-      inspirational: 'https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c8a81773.mp3',
-      ambient: 'https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3',
-      guitar: 'https://cdn.pixabay.com/download/audio/2022/10/14/audio_9939f375f0.mp3',
-      violin: 'https://cdn.pixabay.com/download/audio/2022/11/06/audio_c9ef6a0845.mp3',
-      celestial: 'https://cdn.pixabay.com/download/audio/2022/08/02/audio_884fe92db1.mp3',
-      hymn: 'https://cdn.pixabay.com/download/audio/2023/04/09/audio_27732d847d.mp3',
-      cinematic: 'https://cdn.pixabay.com/download/audio/2022/05/16/audio_db6591201e.mp3',
-      nature: 'https://cdn.pixabay.com/download/audio/2021/09/06/audio_83a1523f46.mp3'
-    };
+    /* BIBLIOTECA EXTENSA DE PISTAS DE MÚSICA */
+    const AUDIO_LIBRARY = [
+      { id: 'piano', title: 'Piano Suave y Paz', artist: 'Instrumental • Devocional', cat: 'piano', url: 'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3', icon: '🎹' },
+      { id: 'inspirational', title: 'Orquestal Inspirador', artist: 'Sinfónico • Elevado', cat: 'orquestal', url: 'https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c8a81773.mp3', icon: '🎻' },
+      { id: 'ambient', title: 'Acústico Meditativo', artist: 'Paz Interior • Serenidad', cat: 'acustico', url: 'https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3', icon: '🍃' },
+      { id: 'guitar', title: 'Guitarra Acústica Serena', artist: 'Cuerdas • Calma Suave', cat: 'acustico', url: 'https://cdn.pixabay.com/download/audio/2022/10/14/audio_9939f375f0.mp3', icon: '🎸' },
+      { id: 'violin', title: 'Violín Profundo', artist: 'Reflexión y Oración', cat: 'orquestal', url: 'https://cdn.pixabay.com/download/audio/2022/11/06/audio_c9ef6a0845.mp3', icon: '🎻' },
+      { id: 'celestial', title: 'Arpa y Melodía Celestial', artist: 'Paz Divina • Armonía', cat: 'orquestal', url: 'https://cdn.pixabay.com/download/audio/2022/08/02/audio_884fe92db1.mp3', icon: '🌌' },
+      { id: 'hymn', title: 'Himno de Esperanza', artist: 'Tradicional Adventista', cat: 'himnos', url: 'https://cdn.pixabay.com/download/audio/2023/04/09/audio_27732d847d.mp3', icon: '🕊️' },
+      { id: 'cinematic', title: 'Cine Épico e Inspirador', artist: 'Profundo y Majestuoso', cat: 'orquestal', url: 'https://cdn.pixabay.com/download/audio/2022/05/16/audio_db6591201e.mp3', icon: '🎬' },
+      { id: 'nature', title: 'Brisa y Naturaleza', artist: 'Sonidos del Creador', cat: 'naturaleza', url: 'https://cdn.pixabay.com/download/audio/2021/09/06/audio_83a1523f46.mp3', icon: '🌊' },
+      { id: 'none', title: 'Sin Audio de Fondo', artist: 'Silencio', cat: 'ninguno', url: null, icon: '🔇' }
+    ];
+
+    let selectedAudioKey = 'piano';
+    let modalAudioPreview = null;
+    let playingPreviewId = null;
 
     let userCustomAudio = null;
     let userCustomLogoImg = null;
@@ -832,7 +992,7 @@
 
     const QUOTES_BANK = [...RAW_BIBLIA, ...RAW_ESCRITOS, ...RAW_HIMNOS];
 
-    /* 📸 BANCO DE 50 FOTOGRAFÍAS DE ALTA RESOLUCIÓN */
+    /* BANCO DE 50 FOTOGRAFÍAS DE ALTA RESOLUCIÓN */
     const ALL_STOCK_PHOTOS = [
       { url: 'https://images.unsplash.com/photo-1513002749550-c59d786b8e6c?auto=format&fit=crop&w=800&q=80', tags: 'cielo nubes azul sol luz sky' },
       { url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80', tags: 'mar playa sol agua orilla ocean' },
@@ -858,35 +1018,10 @@
       { url: 'https://images.unsplash.com/photo-1511497584788-876761c119ef?auto=format&fit=crop&w=800&q=80', tags: 'bosque verde arboles naturaleza' },
       { url: 'https://images.unsplash.com/photo-1532274402911-5a369e4c4bb5?auto=format&fit=crop&w=800&q=80', tags: 'puente lago madera serenidad' },
       { url: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=800&q=80', tags: 'cruz fe luz cielo esperanza' },
-      { url: 'https://images.unsplash.com/photo-1508739773434-c26b3d09e071?auto=format&fit=crop&w=800&q=80', tags: 'cielo purpura noche estrellas paz' },
-      { url: 'https://images.unsplash.com/photo-1510784722466-f2aa9c52fff6?auto=format&fit=crop&w=800&q=80', tags: 'atardecer cielo rosa nube sol' },
-      { url: 'https://images.unsplash.com/photo-1506765515384-028b60a970df?auto=format&fit=crop&w=800&q=80', tags: 'cruz fe luz atardecer silueta' },
-      { url: 'https://images.unsplash.com/photo-1490730141103-6cac27aaab94?auto=format&fit=crop&w=800&q=80', tags: 'pajaro libertad cielo sol amanecer' },
-      { url: 'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?auto=format&fit=crop&w=800&q=80', tags: 'flores campo primavera naturaleza' },
-      { url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80', tags: 'costa playa mar azul horizonte' },
-      { url: 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?auto=format&fit=crop&w=800&q=80', tags: 'luz solar sol arbol hojas verde' },
-      { url: 'https://images.unsplash.com/photo-1418065460487-3e41a6c84dc5?auto=format&fit=crop&w=800&q=80', tags: 'bosque verde musgo paz sendero' },
-      { url: 'https://images.unsplash.com/photo-1473448912268-2022ce9509d8?auto=format&fit=crop&w=800&q=80', tags: 'bosque otono hojas doradas arboles' },
-      { url: 'https://images.unsplash.com/photo-1502134249126-9f3755a50d78?auto=format&fit=crop&w=800&q=80', tags: 'universo estrellas nebulosa noche cosmos' },
-      { url: 'https://images.unsplash.com/photo-1519817650390-64a93db51149?auto=format&fit=crop&w=800&q=80', tags: 'cruz altar iglesia fe luz' },
-      { url: 'https://images.unsplash.com/photo-1438786657495-640937046d18?auto=format&fit=crop&w=800&q=80', tags: 'faro mar noche luz guia esperanza' },
-      { url: 'https://images.unsplash.com/photo-1498855926480-d98e83099315?auto=format&fit=crop&w=800&q=80', tags: 'montaña nieve frio cumbre azul' },
-      { url: 'https://images.unsplash.com/photo-1504608524841-42fe6f032b4b?auto=format&fit=crop&w=800&q=80', tags: 'tormenta nubes rayos esperanza luz' },
-      { url: 'https://images.unsplash.com/photo-1492571350019-22de08371fd3?auto=format&fit=crop&w=800&q=80', tags: 'jardin flores calma paz meditar' },
-      { url: 'https://images.unsplash.com/photo-1501854140801-50d01698950b?auto=format&fit=crop&w=800&q=80', tags: 'paisaje verde colinas libertad' },
-      { url: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=800&q=80', tags: 'espacio universo noche azul estrellas' },
-      { url: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=800&q=80', tags: 'senderismo montaña libertad sol caminata' },
-      { url: 'https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?auto=format&fit=crop&w=800&q=80', tags: 'bosque puente madera arboles camino' },
-      { url: 'https://images.unsplash.com/photo-1476820865390-c52aeea957d7?auto=format&fit=crop&w=800&q=80', tags: 'otono camino hojas doradas paz' },
-      { url: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=800&q=80', tags: 'silueta fe oracion atardecer meditar' },
-      { url: 'https://images.unsplash.com/photo-1518098268026-4e89f1a2cd8b?auto=format&fit=crop&w=800&q=80', tags: 'cielo nubes doradas amanecer sol' },
-      { url: 'https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?auto=format&fit=crop&w=800&q=80', tags: 'atardecer mar sol fuego oro' },
-      { url: 'https://images.unsplash.com/photo-1517824806704-9040b037703b?auto=format&fit=crop&w=800&q=80', tags: 'bosque niebla mistico paz arboles' },
-      { url: 'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&w=800&q=80', tags: 'mar azul infinito tranquilidad orilla' },
-      { url: 'https://images.unsplash.com/photo-1500964757637-c85e8a162699?auto=format&fit=crop&w=800&q=80', tags: 'colinas prado verde cielo nubes' }
+      { url: 'https://images.unsplash.com/photo-1508739773434-c26b3d09e071?auto=format&fit=crop&w=800&q=80', tags: 'cielo purpura noche estrellas paz' }
     ];
 
-    /* 🎨 BANCO DE 50 PATRONES Y TEXTURAS */
+    /* PATRONES Y TEXTURAS */
     const ALL_PATTERNS = [
       'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80',
@@ -897,64 +1032,14 @@
       'https://images.unsplash.com/photo-1508615039623-a25605d2b022?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1528459801416-a9e53bbf4e17?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1550684847-75bdda21cc95?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1533158307587-828f0a76ef46?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1579546929662-711aa81148cf?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1557683316-973673baf926?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1557683311-eac922347aa1?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1557682250-33bd709cbe85?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1604076913837-52ab5629fba9?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1518640467707-6811f4a6ab73?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1508615039623-a25605d2b022?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1528459801416-a9e53bbf4e17?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1550684847-75bdda21cc95?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1533158307587-828f0a76ef46?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1579546929662-711aa81148cf?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1604076913837-52ab5629fba9?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1518640467707-6811f4a6ab73?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1508615039623-a25605d2b022?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1528459801416-a9e53bbf4e17?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1550684847-75bdda21cc95?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1533158307587-828f0a76ef46?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1579546929662-711aa81148cf?auto=format&fit=crop&w=800&q=80'
+      'https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&w=800&q=80'
     ];
 
-    /* 🌈 BANCO DE 50 DEGRADADOS ELEGANTES */
+    /* DEGRADADOS ELEGANTES */
     const ALL_GRADIENTS = [
       ['#0f172a', '#1e3a8a'], ['#2d124d', '#1e1b4b'], ['#134e4a', '#064e3b'], ['#7c2d12', '#451a03'],
       ['#312e81', '#4c1d95'], ['#0f2027', '#203a43'], ['#1a2a6c', '#b21f1f'], ['#232526', '#414345'],
-      ['#1e130c', '#9a8478'], ['#000428', '#004e92'], ['#2c3e50', '#000000'], ['#3a1c71', '#d76d77'],
-      ['#0f0c29', '#24243e'], ['#141e30', '#243b55'], ['#42275a', '#734b6d'], ['#101010', '#2c2c2c'],
-      ['#16222a', '#3a6073'], ['#1f1c2c', '#928dab'], ['#23074d', '#cc5333'], ['#11998e', '#38ef7d'],
-      ['#00b4db', '#0083b0'], ['#40e0d0', '#ff8c00'], ['#3e5151', '#decba4'], ['#121212', '#383838'],
-      ['#1a1c20', '#30343f'], ['#0d1117', '#161b22'], ['#181925', '#24273a'], ['#281e22', '#39282f'],
-      ['#102a43', '#243b53'], ['#0a2540', '#205493'], ['#1e2022', '#686d76'], ['#1b2a4a', '#3b5998'],
-      ['#132238', '#214068'], ['#191825', '#865d36'], ['#1b1a17', '#a370f0'], ['#000000', '#434343'],
-      ['#161616', '#363636'], ['#1c1c1c', '#444444'], ['#020205', '#191923'], ['#0b0c10', '#1f2833'],
-      ['#031b33', '#003366'], ['#120078', '#9d0191'], ['#1e0338', '#4b0082'], ['#220033', '#660066'],
-      ['#002020', '#004040'], ['#2b0000', '#550000'], ['#002200', '#005500'], ['#1a0033', '#330066'],
-      ['#26001b', '#510038'], ['#001a26', '#003652']
+      ['#1e130c', '#9a8478'], ['#000428', '#004e92'], ['#2c3e50', '#000000'], ['#3a1c71', '#d76d77']
     ];
 
     let activePhotos = [];
@@ -1015,7 +1100,6 @@
       return shuffled.slice(0, count);
     }
 
-    /* FILTRAR BANCO POR CATEGORÍA SELECCIONADA */
     function getQuotesByCategory(category) {
       if (category === 'biblia') return RAW_BIBLIA;
       if (category === 'escritos') return RAW_ESCRITOS;
@@ -1037,7 +1121,6 @@
       return quotes;
     }
 
-    /* GENERAR NUEVAS FRASES CON FONDOS FRESCOS */
     async function generateNewQuotesSet() {
       refreshAllBackgrounds();
       const category = document.getElementById('selectQuoteCategory')?.value || 'todas';
@@ -1195,23 +1278,156 @@
       }
     }
 
-    function handleAudioChange() {
-      const val = document.getElementById('selectAudio').value;
-      const customInput = document.getElementById('inputCustomAudio');
-      if (val === 'custom') {
-        customInput.classList.remove('hidden');
-      } else {
-        customInput.classList.add('hidden');
-      }
-      if (isPreviewPlaying) previewAnimation();
+    /* MÉTODOS DEL MODAL DE MÚSICA ESTILO INSTAGRAM */
+    let currentMusicCategory = 'all';
+
+    function openMusicModal() {
+      stopModalPreview();
+      document.getElementById('musicSearchInput').value = '';
+      currentMusicCategory = 'all';
+      
+      const tabs = document.querySelectorAll('.music-tab-pill');
+      tabs.forEach(t => t.classList.remove('active'));
+      if(tabs[0]) tabs[0].classList.add('active');
+
+      renderMusicList();
+      document.getElementById('musicModal').classList.add('active');
     }
 
-    function handleUserAudioUpload(event) {
+    function closeMusicModal() {
+      stopModalPreview();
+      document.getElementById('musicModal').classList.remove('active');
+    }
+
+    function setMusicCategory(cat, btnEl) {
+      currentMusicCategory = cat;
+      document.querySelectorAll('.music-tab-pill').forEach(b => b.classList.remove('active'));
+      if (btnEl) btnEl.classList.add('active');
+      filterMusicList();
+    }
+
+    function filterMusicList() {
+      const query = document.getElementById('musicSearchInput').value.trim().toLowerCase();
+      renderMusicList(query, currentMusicCategory);
+    }
+
+    function stopModalPreview() {
+      if (modalAudioPreview) {
+        modalAudioPreview.pause();
+        modalAudioPreview.currentTime = 0;
+        modalAudioPreview = null;
+      }
+      playingPreviewId = null;
+    }
+
+    function togglePreviewAudio(e, trackId, trackUrl) {
+      e.stopPropagation();
+
+      if (playingPreviewId === trackId) {
+        stopModalPreview();
+        renderMusicList(document.getElementById('musicSearchInput').value.trim().toLowerCase(), currentMusicCategory);
+        return;
+      }
+
+      stopModalPreview();
+
+      if (!trackUrl) return;
+
+      modalAudioPreview = new Audio();
+      modalAudioPreview.crossOrigin = "anonymous";
+      modalAudioPreview.src = trackUrl;
+      playingPreviewId = trackId;
+
+      modalAudioPreview.play().catch(e => console.log(e));
+      modalAudioPreview.onended = () => {
+        playingPreviewId = null;
+        renderMusicList(document.getElementById('musicSearchInput').value.trim().toLowerCase(), currentMusicCategory);
+      };
+
+      renderMusicList(document.getElementById('musicSearchInput').value.trim().toLowerCase(), currentMusicCategory);
+    }
+
+    function selectMusicTrack(track) {
+      stopModalPreview();
+      selectedAudioKey = track.id;
+
+      document.getElementById('musicTriggerIcon').innerText = track.icon || '🎵';
+      document.getElementById('musicTriggerTitle').innerText = track.title;
+      document.getElementById('musicTriggerSub').innerText = track.artist;
+
+      closeMusicModal();
+
+      if (isPreviewPlaying) {
+        previewAnimation();
+      }
+    }
+
+    function handleUserAudioUploadModal(event) {
       const file = event.target.files[0];
       if (file) {
         userCustomAudio = URL.createObjectURL(file);
-        if (isPreviewPlaying) previewAnimation();
+        const customTrack = {
+          id: 'custom',
+          title: file.name.replace(/\.[^/.]+$/, ""),
+          artist: 'Audio Personalizado Subido',
+          cat: 'custom',
+          url: userCustomAudio,
+          icon: '📁'
+        };
+        selectMusicTrack(customTrack);
       }
+    }
+
+    function renderMusicList(filterQuery = '', category = 'all') {
+      const container = document.getElementById('musicListContainer');
+      container.innerHTML = '';
+
+      let list = AUDIO_LIBRARY;
+
+      if (category !== 'all') {
+        list = list.filter(item => item.cat === category);
+      }
+
+      if (filterQuery) {
+        list = list.filter(item => 
+          item.title.toLowerCase().includes(filterQuery) || 
+          item.artist.toLowerCase().includes(filterQuery)
+        );
+      }
+
+      if (list.length === 0) {
+        container.innerHTML = `<div style="text-align:center; padding:30px; color:var(--text-muted); font-size:0.85rem;">No se encontraron canciones relacionadas.</div>`;
+        return;
+      }
+
+      list.forEach(track => {
+        const itemEl = document.createElement('div');
+        const isSelected = (selectedAudioKey === track.id);
+        const isPlaying = (playingPreviewId === track.id);
+
+        itemEl.className = `music-track-item ${isSelected ? 'selected' : ''}`;
+        itemEl.onclick = () => selectMusicTrack(track);
+
+        const playBtnIcon = isPlaying ? '⏸' : '▶';
+
+        itemEl.innerHTML = `
+          <div style="display:flex; align-items:center; gap:12px; overflow:hidden;">
+            <div style="width:40px; height:40px; border-radius:10px; background:rgba(255,255,255,0.06); display:flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0;">
+              ${track.icon}
+            </div>
+            <div style="overflow:hidden;">
+              <div style="font-weight:600; font-size:0.86rem; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${track.title}</div>
+              <div style="font-size:0.75rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${track.artist}</div>
+            </div>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            ${track.url ? `<button class="track-preview-btn" onclick="togglePreviewAudio(event, '${track.id}', '${track.url}')">${playBtnIcon}</button>` : ''}
+            ${isSelected ? `<span style="color:var(--accent); font-weight:bold; font-size:1.1rem; padding-left:4px;">✓</span>` : ''}
+          </div>
+        `;
+
+        container.appendChild(itemEl);
+      });
     }
 
     function handleUserBgUpload(event) {
@@ -1232,7 +1448,6 @@
       }
     }
 
-    /* REFRESCAR CON NUEVAS IMÁGENES ALEATORIAS DEL BANCO DE 50 */
     function refreshAllBackgrounds() {
       const searchInput = document.getElementById('inputBgSearch');
       if (searchInput) searchInput.value = '';
@@ -1736,7 +1951,7 @@
         logoAlpha = phraseAlpha = citationAlpha = handleAlpha = a;
       }
 
-      /* DIBUJAR FONDO */
+      /* FONDO */
       if (bgType === 'user_custom' && userCustomImg) {
         drawCoverImage(ctx, userCustomImg, canvas.width, canvas.height, bgScale);
         ctx.fillStyle = 'rgba(0, 0, 0, 0.48)';
@@ -1766,7 +1981,6 @@
         drawGrad(ctx, canvas, gIndex, bgScale);
       }
 
-      /* OSCURECIMIENTO GRADUAL EN BORDES */
       const topGradHeight = (ratioKey === '9:16') ? 320 : 260;
       const topGrad = ctx.createLinearGradient(0, 0, 0, topGradHeight);
       topGrad.addColorStop(0, 'rgba(0, 0, 0, 0.70)');
@@ -1824,7 +2038,7 @@
         ctx.restore();
       }
 
-      /* TEXTO DE LA FRASE */
+      /* FRASE */
       const displayPhrase = (animType === 'typewriter') ? formattedPhrase.substring(0, typewriterChars) : formattedPhrase;
       const words = displayPhrase.split(' ');
       let lines = [];
@@ -1869,7 +2083,7 @@
         ctx.restore();
       }
 
-      /* CITA BÍBLICA O REFERENCIA */
+      /* CITA BÍBLICA */
       let citationY = startY + (lines.length * phraseFontCfg.lineH) + 45 + citationYOffset;
       if (citationAlpha > 0.01) {
         ctx.save();
@@ -1886,7 +2100,7 @@
         ctx.restore();
       }
 
-      /* USUARIO / PIE DE PÁGINA */
+      /* PIE DE IMAGEN */
       let footerY = canvas.height - 90;
       if (ratioKey === '9:16') footerY = canvas.height - 140;
       if (ratioKey === '1:1') footerY = canvas.height - 90;
@@ -2061,14 +2275,14 @@
     async function startAudioPlayback() {
       stopAudioPlayback();
 
-      const audioSel = document.getElementById('selectAudio').value;
-      if (audioSel === 'none') return null;
+      if (selectedAudioKey === 'none') return null;
 
       let srcUrl = null;
-      if (audioSel === 'custom' && userCustomAudio) {
+      if (selectedAudioKey === 'custom' && userCustomAudio) {
         srcUrl = userCustomAudio;
-      } else if (AUDIO_TRACKS[audioSel]) {
-        srcUrl = AUDIO_TRACKS[audioSel];
+      } else {
+        const found = AUDIO_LIBRARY.find(a => a.id === selectedAudioKey);
+        if (found) srcUrl = found.url;
       }
 
       if (!srcUrl) return null;
@@ -2314,7 +2528,6 @@
         const fontCitationName = fontKeys[Math.floor(Math.random() * fontKeys.length)];
         const logoKey = logoRotation[i % logoRotation.length];
         
-        // Selección variada entre fotos, patrones y degradados
         const bgChoice = Math.floor(Math.random() * 3);
         let bgType = `photo_${Math.floor(Math.random() * activePhotos.length)}`;
         if (bgChoice === 1) bgType = `pattern_${Math.floor(Math.random() * activePatterns.length)}`;
