@@ -88,7 +88,7 @@
       background: rgba(15, 23, 42, 0.98);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      padding: 10px 15px;
+      padding: 10px 12px;
       border-bottom: 1px solid var(--border);
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
     }
@@ -96,24 +96,29 @@
     .nav-tabs {
       display: flex;
       justify-content: center;
-      gap: 6px;
+      align-items: center;
+      gap: 5px;
       width: 100%;
-      max-width: 550px;
+      max-width: 580px;
       margin: 0 auto;
     }
     .tab-btn {
       flex: 1;
-      padding: 8px 10px;
+      padding: 8px 8px;
       border: 1px solid var(--border);
       background: rgba(255, 255, 255, 0.03);
       color: var(--text-muted);
       border-radius: 8px;
       font-weight: 500;
       cursor: pointer;
-      font-size: 0.82rem;
+      font-size: 0.80rem;
       transition: all 0.2s ease;
       text-align: center;
       white-space: nowrap;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
     .tab-btn:hover { background: rgba(255, 255, 255, 0.08); color: #fff; }
     .tab-btn.active {
@@ -125,6 +130,25 @@
       background: transparent;
       border-color: rgba(255, 255, 255, 0.15);
       color: var(--text);
+    }
+
+    .tab-btn-social {
+      flex: 0 0 auto;
+      width: 36px;
+      height: 36px;
+      padding: 0;
+      border-color: rgba(255, 255, 255, 0.15);
+      color: var(--text);
+      border-radius: 8px;
+    }
+    .tab-btn-social:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    .tab-btn-social svg {
+      width: 18px;
+      height: 18px;
     }
 
     .container {
@@ -341,7 +365,7 @@
       background: #1e293b;
       width: 100%;
       max-width: 520px;
-      max-height: 85vh;
+      max-height: 90vh;
       border-radius: 20px;
       display: flex;
       flex-direction: column;
@@ -354,10 +378,28 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 16px 20px 12px;
+      padding: 14px 20px;
       border-bottom: 1px solid var(--border);
       font-weight: 600;
-      font-size: 1.05rem;
+      font-size: 0.98rem;
+    }
+
+    .modal-preview-top-container {
+      padding: 12px;
+      background: #0f172a;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+    }
+    .modal-preview-canvas-wrapper {
+      width: 200px;
+      aspect-ratio: 4 / 5;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+      background: #000;
+      border: 1px solid var(--border);
     }
 
     .music-search-bar-wrapper {
@@ -394,7 +436,7 @@
 
     .music-list-container {
       overflow-y: auto;
-      max-height: 440px;
+      max-height: 380px;
       padding: 0 8px 12px;
       display: flex;
       flex-direction: column;
@@ -580,7 +622,7 @@
       }
       .header-logo { height: 50px; }
       .container { padding: 12px; }
-      .tab-btn { font-size: 0.78rem; padding: 7px 6px; }
+      .tab-btn { font-size: 0.76rem; padding: 7px 4px; }
     }
   </style>
 </head>
@@ -594,12 +636,28 @@
     <p>Frases e inspiración diaria • @adventistassv</p>
   </header>
 
-  <!-- NAVEGACIÓN FIJA AL SCROLL -->
+  <!-- NAVEGACIÓN FIJA AL SCROLL CON BOTONES SOCIALES CORREGIDOS -->
   <nav class="sticky-nav-wrapper">
     <div class="nav-tabs">
       <button id="tabBtnGallery" class="tab-btn active" onclick="switchTab('gallery')">Frases del Día</button>
-      <button id="tabBtnEditor" class="tab-btn" onclick="switchTab('editor')">Creador Personalizado</button>
-      <button class="tab-btn tab-btn-share" onclick="shareWebsite()">Compartir Página</button>
+      <button id="tabBtnEditor" class="tab-btn" onclick="switchTab('editor')">Creador</button>
+      <button class="tab-btn tab-btn-share" onclick="shareWebsite()">Compartir</button>
+      
+      <!-- BOTÓN INSTAGRAM DE @ADVENTISTASSV -->
+      <a href="https://instagram.com/adventistassv" target="_blank" rel="noopener" class="tab-btn tab-btn-social" title="Síguenos en Instagram (@adventistassv)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+          <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+          <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+        </svg>
+      </a>
+
+      <!-- BOTÓN FACEBOOK DE @ADVENTISTASSV -->
+      <a href="https://facebook.com/adventistassv" target="_blank" rel="noopener" class="tab-btn tab-btn-social" title="Síguenos en Facebook (@adventistassv)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+        </svg>
+      </a>
     </div>
   </nav>
 
@@ -697,7 +755,7 @@
             <input type="file" id="inputCustomLogo" class="form-control hidden" accept="image/*" style="margin-top: 6px;" onchange="handleUserLogoUpload(event)">
           </div>
 
-          <!-- SELECTOR INTERACTIVO DE TRANSICIONES DE TEXTO CON VISTA PREVIA -->
+          <!-- SELECTOR INTERACTIVO DE TRANSICIONES DE TEXTO -->
           <div class="form-group">
             <label>Transición / Animación de Texto:</label>
             <div class="ig-music-trigger-card" onclick="openAnimModal()">
@@ -705,7 +763,7 @@
                 <div class="ig-music-icon-box" id="animTriggerIcon">⬆️</div>
                 <div style="overflow: hidden;">
                   <div id="animTriggerTitle" style="font-weight: 600; font-size: 0.88rem; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Deslizar desde abajo (Slide Up)</div>
-                  <div id="animTriggerSub" style="font-size: 0.76rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Toca para probar y seleccionar</div>
+                  <div id="animTriggerSub" style="font-size: 0.76rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Toca para probar con tu imagen</div>
                 </div>
               </div>
               <button class="btn btn-secondary" style="min-height: 32px; padding: 4px 10px; font-size: 0.78rem; flex-shrink: 0;">Probar 🔍</button>
@@ -732,7 +790,7 @@
             </select>
           </div>
 
-          <!-- SELECTOR INTERACTIVO DE EFECTOS / OVERLAY CON VISTA PREVIA -->
+          <!-- SELECTOR INTERACTIVO DE EFECTOS / OVERLAY -->
           <div class="form-group">
             <label>Efectos de Movimiento / Partículas Overlay:</label>
             <div class="ig-music-trigger-card" onclick="openEffectModal()">
@@ -740,7 +798,7 @@
                 <div class="ig-music-icon-box" id="effectTriggerIcon">✨</div>
                 <div style="overflow: hidden;">
                   <div id="effectTriggerTitle" style="font-weight: 600; font-size: 0.88rem; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Destellos y Estrellas Brillantes</div>
-                  <div id="effectTriggerSub" style="font-size: 0.76rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Toca para probar y seleccionar</div>
+                  <div id="effectTriggerSub" style="font-size: 0.76rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Toca para probar con tu imagen</div>
                 </div>
               </div>
               <button class="btn btn-secondary" style="min-height: 32px; padding: 4px 10px; font-size: 0.78rem; flex-shrink: 0;">Probar 🔍</button>
@@ -768,7 +826,7 @@
             </select>
           </div>
 
-          <!-- SELECTOR DE MÚSICA EN TIEMPO REAL CON ALMACENAMIENTO LOCAL -->
+          <!-- SELECTOR DE MÚSICA EN TIEMPO REAL -->
           <div class="form-group">
             <label>Música / Audio Instrumental de Fondo:</label>
             <div class="ig-music-trigger-card" onclick="openMusicModal()">
@@ -783,7 +841,7 @@
             </div>
           </div>
 
-          <!-- DURACIÓN PREDETERMINADA AHORA EN 15 SEGUNDOS -->
+          <!-- DURACIÓN PREDETERMINADA 15 SEGUNDOS -->
           <div class="form-group">
             <label>Duración del Video (Predeterminado 15 Segundos):</label>
             <select id="selectDuration" class="form-control" onchange="previewAnimation()">
@@ -853,24 +911,40 @@
     </div>
   </div>
 
-  <!-- MODAL BUSCADOR Y PROBADOR DE TRANSICIONES DE TEXTO -->
+  <!-- MODAL BUSCADOR Y PROBADOR DE TRANSICIONES DE TEXTO (IMAGEN ARRIBA) -->
   <div id="animModal" class="modal" onclick="closeAnimModal()">
     <div class="music-modal-card" onclick="event.stopPropagation()">
       <div class="music-modal-header">
         <span>🎭 Selector y Probador de Transiciones</span>
         <button class="modal-close" style="position:static;" onclick="closeAnimModal()">✕</button>
       </div>
+      
+      <!-- CANVA DE VISTA PREVIA EN TIEMPO REAL ARRIBA -->
+      <div class="modal-preview-top-container">
+        <div class="modal-preview-canvas-wrapper">
+          <canvas id="animModalCanvas"></canvas>
+        </div>
+      </div>
+
       <div id="animListContainer" class="music-list-container" style="padding-top: 12px;"></div>
     </div>
   </div>
 
-  <!-- MODAL BUSCADOR Y PROBADOR DE EFECTOS / OVERLAY -->
+  <!-- MODAL BUSCADOR Y PROBADOR DE EFECTOS / OVERLAY (IMAGEN ARRIBA) -->
   <div id="effectModal" class="modal" onclick="closeEffectModal()">
     <div class="music-modal-card" onclick="event.stopPropagation()">
       <div class="music-modal-header">
         <span>✨ Selector y Probador de Efectos</span>
         <button class="modal-close" style="position:static;" onclick="closeEffectModal()">✕</button>
       </div>
+
+      <!-- CANVA DE VISTA PREVIA EN TIEMPO REAL ARRIBA -->
+      <div class="modal-preview-top-container">
+        <div class="modal-preview-canvas-wrapper">
+          <canvas id="effectModalCanvas"></canvas>
+        </div>
+      </div>
+
       <div id="effectListContainer" class="music-list-container" style="padding-top: 12px;"></div>
     </div>
   </div>
@@ -1442,7 +1516,7 @@
       }
     }
 
-    /* FUNCIONES DE MODALES Y VISTA PREVIA DE TRANSICIONES Y EFECTOS */
+    /* FUNCIONES DE MODALES CON CANVAS DE VISTA PREVIA INTEGRADO ARRIBA */
     function stopTestModalAnim() {
       if (testModalAnimId) {
         cancelAnimationFrame(testModalAnimId);
@@ -1451,8 +1525,13 @@
     }
 
     function openAnimModal() {
+      stopPreviewAnimation();
+      stopTestModalAnim();
       renderAnimModalList();
       document.getElementById('animModal').classList.add('active');
+      
+      const currentAnim = document.getElementById('selectAnimation').value;
+      testAnimPreview(null, currentAnim);
     }
 
     function closeAnimModal() {
@@ -1490,12 +1569,12 @@
 
     function testAnimPreview(e, animId) {
       if (e) e.stopPropagation();
-      stopPreviewAnimation();
       stopTestModalAnim();
 
       let startTime = null;
       const testDur = 4;
       const currentEffect = document.getElementById('selectEffect').value;
+      const modalCanvas = document.getElementById('animModalCanvas');
 
       function loop(ts) {
         if (!startTime) startTime = ts;
@@ -1504,7 +1583,8 @@
           startTime = ts;
           elapsed = 0;
         }
-        drawCustomCanvasWithAnim(elapsed, testDur, animId, currentEffect);
+        
+        drawCustomCanvasOnTarget(modalCanvas, elapsed, testDur, animId, currentEffect);
         testModalAnimId = requestAnimationFrame(loop);
       }
       testModalAnimId = requestAnimationFrame(loop);
@@ -1516,12 +1596,16 @@
       document.getElementById('animTriggerIcon').innerText = icon;
       document.getElementById('animTriggerTitle').innerText = title;
       closeAnimModal();
-      updateCustomCanvas();
     }
 
     function openEffectModal() {
+      stopPreviewAnimation();
+      stopTestModalAnim();
       renderEffectModalList();
       document.getElementById('effectModal').classList.add('active');
+
+      const currentEffect = document.getElementById('selectEffect').value;
+      testEffectPreview(null, currentEffect);
     }
 
     function closeEffectModal() {
@@ -1559,12 +1643,12 @@
 
     function testEffectPreview(e, effectId) {
       if (e) e.stopPropagation();
-      stopPreviewAnimation();
       stopTestModalAnim();
 
       let startTime = null;
       const testDur = 4;
       const currentAnim = document.getElementById('selectAnimation').value;
+      const modalCanvas = document.getElementById('effectModalCanvas');
 
       function loop(ts) {
         if (!startTime) startTime = ts;
@@ -1573,7 +1657,8 @@
           startTime = ts;
           elapsed = 0;
         }
-        drawCustomCanvasWithAnim(elapsed, testDur, currentAnim, effectId);
+        
+        drawCustomCanvasOnTarget(modalCanvas, elapsed, testDur, currentAnim, effectId);
         testModalAnimId = requestAnimationFrame(loop);
       }
       testModalAnimId = requestAnimationFrame(loop);
@@ -1585,7 +1670,6 @@
       document.getElementById('effectTriggerIcon').innerText = icon;
       document.getElementById('effectTriggerTitle').innerText = title;
       closeEffectModal();
-      updateCustomCanvas();
     }
 
     /* BUSCADOR DE MÚSICA EN TIEMPO REAL CON API DE ITUNES */
@@ -2846,7 +2930,8 @@
       previewAnimId = requestAnimationFrame(step);
     }
 
-    async function drawCustomCanvasWithAnim(time, duration, animType, effectType) {
+    async function drawCustomCanvasOnTarget(targetCanvas, time, duration, animType, effectType) {
+      if (!targetCanvas) return;
       const phrase = document.getElementById('inputPhrase').value || '';
       const citation = document.getElementById('inputCitation').value || '';
       const handle = document.getElementById('inputHandle').value || '@adventistassv';
@@ -2855,11 +2940,15 @@
       const logo = document.getElementById('selectLogo').value;
       const ratio = document.getElementById('selectRatio').value;
 
-      const canvas = document.getElementById('customCanvas');
       await drawCanvasCard(
-        canvas, phrase, citation, fontPhrase, fontCitation, logo,
+        targetCanvas, phrase, citation, fontPhrase, fontCitation, logo,
         selectedBg, handle, ratio, { type: animType, effect: effectType, time: time, duration: duration }
       );
+    }
+
+    async function drawCustomCanvasWithAnim(time, duration, animType, effectType) {
+      const canvas = document.getElementById('customCanvas');
+      await drawCustomCanvasOnTarget(canvas, time, duration, animType, effectType);
     }
 
     /* GENERACIÓN DE VIDEO ANIMADO EXPORTADO EN MP4 NATIVO */
