@@ -43,19 +43,17 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body {
-      overflow-x: hidden;
-      width: 100%;
-    }
+    
     body {
       font-family: 'Poppins', system-ui, -apple-system, sans-serif;
       background-color: var(--bg-dark);
       color: var(--text);
       line-height: 1.5;
       padding-bottom: 40px;
+      width: 100%;
     }
 
-    /* ENCABEZADO NORMAL */
+    /* ENCABEZADO NORMAL (SE OCULTA AL SCROLL) */
     header {
       text-align: center;
       padding: 16px 15px 8px;
@@ -81,16 +79,18 @@
 
     header p { color: var(--text-muted); font-size: 0.82rem; }
 
-    /* BARRAS DE NAVEGACIÓN FIJA AL SCROLL */
+    /* BARRAS DE NAVEGACIÓN FIJA Y PERMANENTE EN LA PARTE SUPERIOR */
     .sticky-nav-wrapper {
+      position: -webkit-sticky;
       position: sticky;
       top: 0;
-      z-index: 100;
-      background: rgba(9, 13, 22, 0.96);
-      backdrop-filter: blur(10px);
+      z-index: 9999;
+      background: rgba(15, 23, 42, 0.98);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       padding: 10px 15px;
       border-bottom: 1px solid var(--border);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
     }
 
     .nav-tabs {
@@ -132,6 +132,7 @@
       max-width: 1200px;
       margin: 0 auto;
       padding: 16px;
+      overflow-x: hidden;
     }
 
     .section-header {
@@ -343,6 +344,7 @@
       width: 100%;
       height: 100%;
       transition: transform 0.15s, border-color 0.15s;
+      background-color: #1e293b;
     }
 
     .bg-thumb:hover { transform: scale(1.04); }
@@ -357,7 +359,7 @@
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(0, 0, 0, 0.82);
-      z-index: 1000;
+      z-index: 10000;
       justify-content: center;
       align-items: center;
       padding: 16px;
@@ -443,7 +445,7 @@
 </head>
 <body>
 
-  <!-- ENCABEZADO SUPERIOR CON LOGO (SE OCULTA AL SCROLL) -->
+  <!-- ENCABEZADO SUPERIOR CON LOGO (SE OCULTA AL DESPLAZAR) -->
   <header>
     <div class="header-logo-container">
       <img id="mainLogoHeader" src="logo.png" alt="Adventistas SV" class="header-logo" onload="processHeaderLogo(this)">
@@ -451,11 +453,11 @@
     <p>Frases e inspiración diaria • @adventistassv</p>
   </header>
 
-  <!-- CONTENEDOR FIJO PARA LOS 3 BOTONES DE MENÚ -->
+  <!-- BARRAS DE NAVEGACIÓN FIJA AL SCROLL -->
   <nav class="sticky-nav-wrapper">
     <div class="nav-tabs">
-      <button class="tab-btn active" onclick="switchTab('gallery')">Frases del Día</button>
-      <button class="tab-btn" onclick="switchTab('editor')">Creador Personalizado</button>
+      <button id="tabBtnGallery" class="tab-btn active" onclick="switchTab('gallery')">Frases del Día</button>
+      <button id="tabBtnEditor" class="tab-btn" onclick="switchTab('editor')">Creador Personalizado</button>
       <button class="tab-btn tab-btn-share" onclick="shareWebsite()">Compartir Página</button>
     </div>
   </nav>
@@ -653,7 +655,7 @@
             <input type="file" id="inputCustomBg" class="form-control" accept="image/*" onchange="handleUserBgUpload(event)">
           </div>
 
-          <!-- BUSCADOR DE FONDOS POR PALABRAS Y REFRESCADOR DINÁMICO -->
+          <!-- BUSCADOR DE FONDOS POR PALABRAS Y REFRESCADOR -->
           <div class="form-group">
             <div class="bg-grid-header">
               <label>Selecciona o Busca un Fondo:</label>
@@ -661,7 +663,7 @@
             </div>
             
             <div style="display: flex; gap: 6px; margin-top: 4px; margin-bottom: 8px;">
-              <input type="text" id="inputBgSearch" class="form-control" placeholder="Buscar temas (ej: cielo, montaña, mar, luz, cruz, bosque)..." onkeyup="if(event.key==='Enter') searchBackgrounds()">
+              <input type="text" id="inputBgSearch" class="form-control" placeholder="Buscar (ej: cielo, montaña, mar, luz, cruz, bosque)..." onkeyup="if(event.key==='Enter') searchBackgrounds()">
               <button class="btn" style="min-height: 38px; padding: 4px 12px; flex-shrink: 0;" onclick="searchBackgrounds()">🔍 Buscar</button>
             </div>
 
@@ -855,28 +857,28 @@
 
     const QUOTES_BANK = buildExpandedQuoteBank();
 
-    /* COLECCIÓN EXTENSA DE FOTOGRAFÍAS CON ETIQUETAS TEMÁTICAS */
+    /* BANCO GARANTIZADO DE FOTOGRAFÍAS DE ALTA RESOLUCIÓN CON CATEGORÍAS */
     const ALL_STOCK_PHOTOS = [
-      { url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80', tags: 'mar playa sol ocean amanecer sunset luz' },
-      { url: 'https://images.unsplash.com/photo-1470240731273-7821a6eeb6bd?auto=format&fit=crop&w=800&q=80', tags: 'montaña bosque naturaleza sky cielo luz' },
-      { url: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=800&q=80', tags: 'estrellas galaxia noche cielo noche star' },
-      { url: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80', tags: 'lago agua montaña reflejo naturaleza' },
-      { url: 'https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=800&q=80', tags: 'bosque verde arboles pino naturaleza' },
-      { url: 'https://images.unsplash.com/photo-1513002749550-c59d786b8e6c?auto=format&fit=crop&w=800&q=80', tags: 'nubes cielo azul blanco luz sol' },
-      { url: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=800&q=80', tags: 'camino desierto libertad viaje fe' },
+      { url: 'https://images.unsplash.com/photo-1513002749550-c59d786b8e6c?auto=format&fit=crop&w=800&q=80', tags: 'cielo nubes azul sol luz sky' },
+      { url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80', tags: 'mar playa sol agua orilla ocean' },
+      { url: 'https://images.unsplash.com/photo-1470240731273-7821a6eeb6bd?auto=format&fit=crop&w=800&q=80', tags: 'montaña bosque verde naturaleza' },
+      { url: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=800&q=80', tags: 'estrellas noche galaxia cielo star' },
+      { url: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80', tags: 'lago agua montaña reflejo azul' },
+      { url: 'https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=800&q=80', tags: 'bosque verde pino arboles naturaleza' },
+      { url: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=800&q=80', tags: 'camino desierto libertad fe viaje' },
       { url: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=800&q=80', tags: 'paisaje lago paz calma azul' },
-      { url: 'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&w=800&q=80', tags: 'campo verde atardecer sol naturaleza' },
-      { url: 'https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?auto=format&fit=crop&w=800&q=80', tags: 'cascada agua rio roca vida' },
+      { url: 'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&w=800&q=80', tags: 'campo prado sol verde luz' },
+      { url: 'https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?auto=format&fit=crop&w=800&q=80', tags: 'cascada agua rio rocas vida' },
       { url: 'https://images.unsplash.com/photo-1518837695005-2083093ee35b?auto=format&fit=crop&w=800&q=80', tags: 'mar azul ola agua orilla' },
-      { url: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=800&q=80', tags: 'niebla montaña misterio manana verde' },
+      { url: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=800&q=80', tags: 'niebla montaña verde paz manana' },
       { url: 'https://images.unsplash.com/photo-1426604966848-d7adac402bff?auto=format&fit=crop&w=800&q=80', tags: 'valle verde montaña cielo rocas' },
-      { url: 'https://images.unsplash.com/photo-1475924156734-496f6cac6ec1?auto=format&fit=crop&w=800&q=80', tags: 'atardecer sol amanecer dorado fuego' },
-      { url: 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=800&q=80', tags: 'arbol hoja naturaleza verde vida' },
+      { url: 'https://images.unsplash.com/photo-1475924156734-496f6cac6ec1?auto=format&fit=crop&w=800&q=80', tags: 'atardecer sol amanecer dorado fuego sunset' },
+      { url: 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=800&q=80', tags: 'arbol hoja verde naturaleza vida' },
       { url: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=800&q=80', tags: 'montaña cumbre nieve alto cima' },
       { url: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80', tags: 'campo prado sol luz dorada' },
       { url: 'https://images.unsplash.com/photo-1499209974431-9dddcece7f88?auto=format&fit=crop&w=800&q=80', tags: 'fe biblia oracion manos paz' },
-      { url: 'https://images.unsplash.com/photo-1497436072909-60f360e1d4b1?auto=format&fit=crop&w=800&q=80', tags: 'agua cristalina rio piedra naturaleza' },
-      { url: 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=800&q=80', tags: 'pino nieve invierno frio paz' },
+      { url: 'https://images.unsplash.com/photo-1497436072909-60f360e1d4b1?auto=format&fit=crop&w=800&q=80', tags: 'agua rio cristalina naturaleza' },
+      { url: 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=800&q=80', tags: 'pino nieve frio invierno paz' },
       { url: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=800&q=80', tags: 'bosque sol rayos luz arboles' },
       { url: 'https://images.unsplash.com/photo-1511497584788-876761c119ef?auto=format&fit=crop&w=800&q=80', tags: 'bosque verde arboles naturaleza' },
       { url: 'https://images.unsplash.com/photo-1532274402911-5a369e4c4bb5?auto=format&fit=crop&w=800&q=80', tags: 'puente lago madera serenidad' },
@@ -884,7 +886,7 @@
       { url: 'https://images.unsplash.com/photo-1508739773434-c26b3d09e071?auto=format&fit=crop&w=800&q=80', tags: 'cielo purpura noche estrellas paz' }
     ];
 
-    /* POOL DE PATRONES Y TEXTURAS */
+    /* PATRONES Y TEXTURAS */
     const ALL_PATTERNS = [
       'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80',
@@ -898,7 +900,7 @@
       'https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&w=800&q=80'
     ];
 
-    /* POOL DE DEGRADADOS */
+    /* DEGRADADOS */
     const ALL_GRADIENTS = [
       ['#0f172a', '#1e3a8a'],
       ['#2d124d', '#1e1b4b'],
@@ -1177,33 +1179,19 @@
       }
     }
 
-    /* REFRESCAR Y GENERAR NUEVAS IMÁGENES DINÁMICAMENTE */
+    /* OBTENER IMÁGENES GARANTIZADAS SIN ERRORES */
     function refreshAllBackgrounds() {
       const searchInput = document.getElementById('inputBgSearch');
       if (searchInput) searchInput.value = '';
 
-      // Generar URLs totalmente dinámicas con semillas aleatorias únicas
-      const freshPhotos = [];
-      const timestamp = Date.now();
-      
-      // Seleccionar 10 aleatorias del pool local etiquetado
-      const shuffledLocal = getRandomItems(ALL_STOCK_PHOTOS, 10).map(item => item.url);
-      freshPhotos.push(...shuffledLocal);
-
-      // Generar 10 nuevas imágenes dinámicas vía LoremFlickr / Picsum
-      for (let i = 0; i < 10; i++) {
-        const randomSeed = Math.floor(Math.random() * 900000) + timestamp + i;
-        freshPhotos.push(`https://loremflickr.com/800/1000/nature,sky,cross,mountain/all?lock=${randomSeed}`);
-      }
-
-      activePhotos = freshPhotos;
+      activePhotos = getRandomItems(ALL_STOCK_PHOTOS, 16).map(item => item.url);
       activePatterns = getRandomItems(ALL_PATTERNS, 8);
       activeGradients = getRandomItems(ALL_GRADIENTS, 8);
       renderBgThumbnails(true);
       updateCustomCanvas();
     }
 
-    /* BÚSQUEDA DE IMÁGENES POR PALABRAS CLAVE EN TIEMPO REAL */
+    /* BÚSQUEDA ROBUSTA DE IMÁGENES POR PALABRAS CLAVE CON FALLBACK GARANTIZADO */
     function searchBackgrounds() {
       const term = document.getElementById('inputBgSearch').value.trim().toLowerCase();
       if (!term) {
@@ -1211,43 +1199,49 @@
         return;
       }
 
-      // 1. Filtrar por etiquetas locales
-      const matchedLocal = ALL_STOCK_PHOTOS.filter(item => item.tags.toLowerCase().includes(term)).map(item => item.url);
+      // Filtrar imágenes que coincidan con la búsqueda
+      const matched = ALL_STOCK_PHOTOS.filter(item => item.tags.toLowerCase().includes(term)).map(item => item.url);
 
-      // 2. Generar resultados dinámicos basados en la palabra buscada
-      const dynamicResults = [];
-      const cleanTerm = encodeURIComponent(term);
-      const timestamp = Date.now();
-
-      for (let i = 0; i < 12; i++) {
-        const lockId = timestamp + i;
-        dynamicResults.push(`https://loremflickr.com/800/1000/${cleanTerm}/all?lock=${lockId}`);
+      if (matched.length > 0) {
+        activePhotos = matched;
+      } else {
+        // Si no hay coincidencia exacta, mostrar selección aleatoria sin romper la pantalla
+        activePhotos = getRandomItems(ALL_STOCK_PHOTOS, 12).map(item => item.url);
       }
 
-      activePhotos = [...matchedLocal, ...dynamicResults];
       renderBgThumbnails(true);
       updateCustomCanvas();
     }
 
-    function switchTab(tab) {
+    /* CAMBIO Y PERSISTENCIA DE PESTAÑAS (GUARDA ESTADO EN LOCALSTORAGE Y HASH) */
+    function switchTab(tab, updateHistory = true) {
       stopPreviewAnimation();
       const gSec = document.getElementById('gallerySection');
       const eSec = document.getElementById('editorSection');
-      const btns = document.querySelectorAll('.tab-btn');
+      const btnG = document.getElementById('tabBtnGallery');
+      const btnE = document.getElementById('tabBtnEditor');
 
-      if (tab === 'gallery') {
-        gSec.classList.remove('hidden');
-        eSec.classList.add('hidden');
-        btns[0].classList.add('active');
-        btns[1].classList.remove('active');
-      } else {
+      if (tab === 'editor') {
         gSec.classList.add('hidden');
         eSec.classList.remove('hidden');
-        btns[0].classList.remove('active');
-        btns[1].classList.add('active');
+        if (btnG) btnG.classList.remove('active');
+        if (btnE) btnE.classList.add('active');
         if (activePhotos.length === 0) refreshAllBackgrounds();
         else renderBgThumbnails();
         updateCustomCanvas();
+        if (updateHistory) {
+          localStorage.setItem('activeTab', 'editor');
+          history.replaceState(null, null, '#editor');
+        }
+      } else {
+        gSec.classList.remove('hidden');
+        eSec.classList.add('hidden');
+        if (btnG) btnG.classList.add('active');
+        if (btnE) btnE.classList.remove('active');
+        if (updateHistory) {
+          localStorage.setItem('activeTab', 'gallery');
+          history.replaceState(null, null, '#gallery');
+        }
       }
     }
 
@@ -1257,7 +1251,7 @@
       container.innerHTML = '';
 
       const secPhotos = document.createElement('div');
-      secPhotos.innerHTML = `<div class="bg-section-title">📷 Fotografías (${activePhotos.length} Encontradas)</div>`;
+      secPhotos.innerHTML = `<div class="bg-section-title">📷 Fotografías (${activePhotos.length})</div>`;
       const gridPhotos = document.createElement('div');
       gridPhotos.className = 'bg-grid';
 
@@ -1265,6 +1259,15 @@
         const img = document.createElement('img');
         img.src = url;
         img.className = `bg-thumb ${selectedBg === 'photo_' + i ? 'active' : ''}`;
+        
+        // Manejo automático de errores de carga de imágenes para evitar íconos rotos
+        img.onerror = function() {
+          this.onerror = null;
+          const fallback = ALL_STOCK_PHOTOS[i % ALL_STOCK_PHOTOS.length].url;
+          this.src = fallback;
+          activePhotos[i] = fallback;
+        };
+
         img.onclick = () => {
           document.querySelectorAll('.bg-thumb').forEach(t => t.classList.remove('active'));
           img.classList.add('active');
@@ -1285,6 +1288,10 @@
         const img = document.createElement('img');
         img.src = url;
         img.className = `bg-thumb ${selectedBg === 'pattern_' + i ? 'active' : ''}`;
+        img.onerror = function() {
+          this.onerror = null;
+          this.src = ALL_PATTERNS[0];
+        };
         img.onclick = () => {
           document.querySelectorAll('.bg-thumb').forEach(t => t.classList.remove('active'));
           img.classList.add('active');
@@ -2344,6 +2351,10 @@
 
       refreshAllBackgrounds();
       resetToTodayDate();
+
+      // Detectar y mantener la pestaña activa al recargar la página (Editor o Galería)
+      const currentTab = window.location.hash === '#editor' || localStorage.getItem('activeTab') === 'editor' ? 'editor' : 'gallery';
+      switchTab(currentTab, false);
     }
 
     window.onload = initDailyGallery;
