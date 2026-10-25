@@ -772,6 +772,18 @@
             <input type="file" id="inputCustomLogo" class="form-control hidden" accept="image/*" style="margin-top: 6px;" onchange="handleUserLogoUpload(event)">
           </div>
 
+          <!-- PROBADOR / SELECTOR DE VIDEOS DE FONDO -->
+          <div class="form-group">
+            <label>Video Animado de Fondo (Probador e Interactivo):</label>
+            <div class="ig-music-trigger-card" onclick="openVideoModal()">
+              <div style="overflow: hidden;">
+                <div id="videoTriggerTitle" style="font-weight: 600; font-size: 0.88rem; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Probar / Seleccionar Video de Fondo</div>
+                <div id="videoTriggerSub" style="font-size: 0.76rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Toca para probar videos en tiempo real</div>
+              </div>
+              <button class="btn btn-secondary" style="min-height: 32px; padding: 4px 10px; font-size: 0.78rem; flex-shrink: 0;">Probar Videos</button>
+            </div>
+          </div>
+
           <div class="form-group">
             <label>Transición / Animación de Texto:</label>
             <div class="ig-music-trigger-card" onclick="openAnimModal()">
@@ -910,6 +922,24 @@
         </div>
 
       </div>
+    </div>
+  </div>
+
+  <!-- MODAL BUSCADOR Y PROBADOR DE VIDEOS DE FONDO -->
+  <div id="videoModal" class="modal" onclick="closeVideoModal()">
+    <div class="music-modal-card" onclick="event.stopPropagation()">
+      <div class="music-modal-header">
+        <span>Selector y Probador de Videos de Fondo</span>
+        <button class="modal-close" style="position:static;" onclick="closeVideoModal()">✕</button>
+      </div>
+
+      <div class="modal-preview-top-container">
+        <div class="modal-preview-canvas-wrapper">
+          <canvas id="videoModalCanvas"></canvas>
+        </div>
+      </div>
+
+      <div id="videoListContainer" class="music-list-container" style="padding-top: 12px;"></div>
     </div>
   </div>
 
@@ -1127,18 +1157,18 @@
 
     // REPERTORIO AMPLIADO DE VIDEOS DE STOCK DE ALTA CALIDAD
     const ALL_STOCK_VIDEOS = [
-      { id: 'v_clouds', title: 'Cielo y Nubes', poster: 'https://images.unsplash.com/photo-1513002749550-c59d786b8e6c?auto=format&fit=crop&w=300&q=80', url: 'https://assets.mixkit.co/videos/preview/mixkit-clouds-and-blue-sky-2408-large.mp4' },
-      { id: 'v_sunset', title: 'Mar Atardecer', poster: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=300&q=80', url: 'https://assets.mixkit.co/videos/preview/mixkit-sea-waves-and-sunset-4148-large.mp4' },
-      { id: 'v_stars', title: 'Noche Estrellada', poster: 'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?auto=format&fit=crop&w=300&q=80', url: 'https://assets.mixkit.co/videos/preview/mixkit-stars-in-the-night-sky-1639-large.mp4' },
-      { id: 'v_forest', title: 'Rayos de Sol Bosque', poster: 'https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=300&q=80', url: 'https://assets.mixkit.co/videos/preview/mixkit-sunbeams-through-trees-in-a-forest-4222-large.mp4' },
+      { id: 'v_clouds', title: 'Cielo y Nubes Celestiales', poster: 'https://images.unsplash.com/photo-1513002749550-c59d786b8e6c?auto=format&fit=crop&w=300&q=80', url: 'https://assets.mixkit.co/videos/preview/mixkit-clouds-and-blue-sky-2408-large.mp4' },
+      { id: 'v_sunset', title: 'Atardecer Pacífico en el Mar', poster: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=300&q=80', url: 'https://assets.mixkit.co/videos/preview/mixkit-sea-waves-and-sunset-4148-large.mp4' },
+      { id: 'v_stars', title: 'Noche Estrellada y Firmamento', poster: 'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?auto=format&fit=crop&w=300&q=80', url: 'https://assets.mixkit.co/videos/preview/mixkit-stars-in-the-night-sky-1639-large.mp4' },
+      { id: 'v_forest', title: 'Rayos de Sol sobre Bosque', poster: 'https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=300&q=80', url: 'https://assets.mixkit.co/videos/preview/mixkit-sunbeams-through-trees-in-a-forest-4222-large.mp4' },
       { id: 'v_bokeh', title: 'Luces Bokeh Doradas', poster: 'https://images.unsplash.com/photo-1518640467707-6811f4a6ab73?auto=format&fit=crop&w=300&q=80', url: 'https://assets.mixkit.co/videos/preview/mixkit-abstract-gold-particles-floating-41551-large.mp4' },
-      { id: 'v_ocean', title: 'Océano Azul Calmo', poster: 'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&w=300&q=80', url: 'https://assets.mixkit.co/videos/preview/mixkit-aerial-view-of-sea-waves-1188-large.mp4' },
-      { id: 'v_mountain', title: 'Montañas y Niebla', poster: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=300&q=80', url: 'https://assets.mixkit.co/videos/preview/mixkit-time-lapse-of-clouds-over-mountains-2503-large.mp4' },
-      { id: 'v_rain', title: 'Lluvia en Cristal', poster: 'https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?auto=format&fit=crop&w=300&q=80', url: 'https://assets.mixkit.co/videos/preview/mixkit-rain-drops-on-a-window-pane-1430-large.mp4' },
-      { id: 'v_river', title: 'Agua Cristalina', poster: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=300&q=80', url: 'https://assets.mixkit.co/videos/preview/mixkit-river-flow-in-the-forest-4225-large.mp4' },
-      { id: 'v_aurora', title: 'Luces Celestiales', poster: 'https://images.unsplash.com/photo-1531366936337-7c912a4589a7?auto=format&fit=crop&w=300&q=80', url: 'https://assets.mixkit.co/videos/preview/mixkit-light-leaks-and-lens-flare-overlay-2856-large.mp4' },
-      { id: 'v_sunflowers', title: 'Amanecer en Campo', poster: 'https://images.unsplash.com/photo-1470240731273-7821a6eeb6bd?auto=format&fit=crop&w=300&q=80', url: 'https://assets.mixkit.co/videos/preview/mixkit-sun-shining-through-tree-leaves-4223-large.mp4' },
-      { id: 'v_snow', title: 'Caída de Nieve', poster: 'https://images.unsplash.com/photo-1483664852095-d6cc6870702d?auto=format&fit=crop&w=300&q=80', url: 'https://assets.mixkit.co/videos/preview/mixkit-snow-falling-gently-in-a-forest-4224-large.mp4' }
+      { id: 'v_ocean', title: 'Océano Azul Profundo', poster: 'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&w=300&q=80', url: 'https://assets.mixkit.co/videos/preview/mixkit-aerial-view-of-sea-waves-1188-large.mp4' },
+      { id: 'v_mountain', title: 'Montañas y Niebla Solemne', poster: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=300&q=80', url: 'https://assets.mixkit.co/videos/preview/mixkit-time-lapse-of-clouds-over-mountains-2503-large.mp4' },
+      { id: 'v_rain', title: 'Lluvia Serena sobre Cristal', poster: 'https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?auto=format&fit=crop&w=300&q=80', url: 'https://assets.mixkit.co/videos/preview/mixkit-rain-drops-on-a-window-pane-1430-large.mp4' },
+      { id: 'v_river', title: 'Agua Cristalina de Río', poster: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=300&q=80', url: 'https://assets.mixkit.co/videos/preview/mixkit-river-flow-in-the-forest-4225-large.mp4' },
+      { id: 'v_aurora', title: 'Luces Celestiales Espirituales', poster: 'https://images.unsplash.com/photo-1531366936337-7c912a4589a7?auto=format&fit=crop&w=300&q=80', url: 'https://assets.mixkit.co/videos/preview/mixkit-light-leaks-and-lens-flare-overlay-2856-large.mp4' },
+      { id: 'v_sunflowers', title: 'Amanecer Luminoso en Campo', poster: 'https://images.unsplash.com/photo-1470240731273-7821a6eeb6bd?auto=format&fit=crop&w=300&q=80', url: 'https://assets.mixkit.co/videos/preview/mixkit-sun-shining-through-tree-leaves-4223-large.mp4' },
+      { id: 'v_snow', title: 'Caída Serena de Nieve', poster: 'https://images.unsplash.com/photo-1483664852095-d6cc6870702d?auto=format&fit=crop&w=300&q=80', url: 'https://assets.mixkit.co/videos/preview/mixkit-snow-falling-gently-in-a-forest-4224-large.mp4' }
     ];
 
     let activeVideos = [];
@@ -1705,6 +1735,86 @@
       }
     }
 
+    /* MODAL SELECTOR Y PROBADOR DE VIDEOS DE FONDO */
+    function openVideoModal() {
+      stopPreviewAnimation();
+      stopTestModalAnim();
+      renderVideoModalList();
+      document.getElementById('videoModal').classList.add('active');
+
+      if (ALL_STOCK_VIDEOS.length > 0) {
+        testVideoPreview(null, ALL_STOCK_VIDEOS[0]);
+      }
+    }
+
+    function closeVideoModal() {
+      stopTestModalAnim();
+      document.getElementById('videoModal').classList.remove('active');
+      updateCustomCanvas();
+    }
+
+    function renderVideoModalList() {
+      const container = document.getElementById('videoListContainer');
+      container.innerHTML = '';
+
+      ALL_STOCK_VIDEOS.forEach(vid => {
+        const vidKey = 'video_' + vid.id;
+        const isSelected = (selectedBg === vidKey);
+        const itemEl = document.createElement('div');
+        itemEl.className = `music-track-item ${isSelected ? 'selected' : ''}`;
+
+        itemEl.innerHTML = `
+          <div style="display:flex; align-items:center; gap:12px; overflow:hidden;">
+            <div style="width:40px; height:48px; border-radius:6px; background-image:url('${vid.poster}'); background-size:cover; background-position:center; flex-shrink:0;"></div>
+            <div style="overflow:hidden;">
+              <div style="font-weight:600; font-size:0.86rem; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${vid.title}</div>
+              <div style="font-size:0.75rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Video de Stock HD</div>
+            </div>
+          </div>
+          <div style="display:flex; align-items:center; gap:6px;">
+            <button class="track-preview-btn" onclick="testVideoPreview(event, ALL_STOCK_VIDEOS.find(v => v.id === '${vid.id}'))">Probar</button>
+            <button class="btn btn-secondary" style="min-height:32px; padding:2px 10px; font-size:0.76rem;" onclick="applyVideoChoice(ALL_STOCK_VIDEOS.find(v => v.id === '${vid.id}'))">Aplicar</button>
+          </div>
+        `;
+        container.appendChild(itemEl);
+      });
+    }
+
+    function testVideoPreview(e, vidObj) {
+      if (e) e.stopPropagation();
+      stopTestModalAnim();
+
+      setupVideoBg(vidObj.url, vidObj.poster);
+
+      let startTime = null;
+      const testDur = 6;
+      const currentAnim = document.getElementById('selectAnimation').value;
+      const currentEffect = document.getElementById('selectEffect').value;
+      const modalCanvas = document.getElementById('videoModalCanvas');
+
+      function loop(ts) {
+        if (!startTime) startTime = ts;
+        let elapsed = (ts - startTime) / 1000;
+        if (elapsed > testDur) {
+          startTime = ts;
+          elapsed = 0;
+        }
+
+        drawCustomCanvasOnTarget(modalCanvas, elapsed, testDur, currentAnim, currentEffect);
+        testModalAnimId = requestAnimationFrame(loop);
+      }
+      testModalAnimId = requestAnimationFrame(loop);
+    }
+
+    function applyVideoChoice(vidObj) {
+      stopTestModalAnim();
+      selectedBg = 'video_' + vidObj.id;
+      setupVideoBg(vidObj.url, vidObj.poster);
+      document.getElementById('videoTriggerTitle').innerText = vidObj.title;
+      document.getElementById('videoTriggerSub').innerText = 'Video de Fondo Activo';
+      closeVideoModal();
+    }
+
     function openAnimModal() {
       stopPreviewAnimation();
       stopTestModalAnim();
@@ -2214,7 +2324,7 @@
       container.appendChild(secGrads);
     }
 
-    // CONFIGURACIÓN CORREGIDA CON VÍNCULO AL DOM PARA RENDERIZADO GARANTIZADO EN CANAVAS
+    // CONFIGURACIÓN CORREGIDA CON VÍNCULO AL DOM Y ACTIVACIÓN POR INTERACCIÓN DIRECTA
     function setupVideoBg(videoUrl, posterUrl) {
       stopVideoBg();
 
