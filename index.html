@@ -1090,6 +1090,7 @@
     let activeAudioEl = null;
 
     let testModalAnimId = null;
+    let manualGenOffset = 0;
 
     const ANIMATIONS_DATA = [
       { id: 'slide', icon: '⬆️', title: 'Deslizar desde abajo (Slide Up)', desc: 'Desplazamiento vertical suave ascendente' },
@@ -1258,7 +1259,12 @@
       { url: 'https://images.unsplash.com/photo-1511497584788-876761c119ef?auto=format&fit=crop&w=800&q=80', tags: 'bosque verde arboles naturaleza' },
       { url: 'https://images.unsplash.com/photo-1532274402911-5a369e4c4bb5?auto=format&fit=crop&w=800&q=80', tags: 'puente lago madera serenidad' },
       { url: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=800&q=80', tags: 'cruz fe luz cielo esperanza' },
-      { url: 'https://images.unsplash.com/photo-1508739773434-c26b3d09e071?auto=format&fit=crop&w=800&q=80', tags: 'cielo purpura noche estrellas paz' }
+      { url: 'https://images.unsplash.com/photo-1508739773434-c26b3d09e071?auto=format&fit=crop&w=800&q=80', tags: 'cielo purpura noche estrellas paz' },
+      { url: 'https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?auto=format&fit=crop&w=800&q=80', tags: 'atardecer dorado horizonte nubes' },
+      { url: 'https://images.unsplash.com/photo-1509023464722-18d996393ca8?auto=format&fit=crop&w=800&q=80', tags: 'bosque pino amanecer neblina' },
+      { url: 'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?auto=format&fit=crop&w=800&q=80', tags: 'flores campo primavera naturaleza' },
+      { url: 'https://images.unsplash.com/photo-1476820865390-c52aeea957d7?auto=format&fit=crop&w=800&q=80', tags: 'noche estrellas firmamento infinito' },
+      { url: 'https://images.unsplash.com/photo-1500964757637-c85e8a162699?auto=format&fit=crop&w=800&q=80', tags: 'montañas cordillera cumbre aire fresco' }
     ];
 
     const ALL_PATTERNS = [
@@ -1320,6 +1326,7 @@
       return text.toUpperCase();
     }
 
+    /* GENERADOR DE NÚMEROS PSEUDOALEATORIOS SEEDADOS (PRNG) */
     function getDateSeed(dateStr) {
       let hash = 0;
       for (let i = 0; i < dateStr.length; i++) {
@@ -1328,14 +1335,27 @@
       return Math.abs(hash);
     }
 
-    function seededRandom(seed) {
-      const x = Math.sin(seed) * 10000;
-      return x - Math.floor(x);
+    function createPRNG(seed) {
+      let s = seed % 2147483647;
+      if (s <= 0) s += 2147483646;
+      return function() {
+        s = (s * 16807) % 2147483647;
+        return (s - 1) / 2147483646;
+      };
     }
 
-    function getRandomItems(arr, count) {
-      const shuffled = [...arr].sort(() => 0.5 - Math.random());
-      return shuffled.slice(0, count);
+    function seededShuffle(arr, rng) {
+      const shuffled = [...arr];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(rng() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      return shuffled;
+    }
+
+    function getDaysEpoch(dateStr) {
+      const d = new Date(dateStr + 'T00:00:00');
+      return Math.floor(d.getTime() / (1000 * 60 * 60 * 24));
     }
 
     function getQuotesByCategory(category) {
@@ -1345,26 +1365,37 @@
       return QUOTES_BANK;
     }
 
+    /* SELECCIÓN DE FRASES SIN REPETIR ENTRE DÍAS CONSECUTIVOS */
     function getQuotesForDate(dateStr, count = 10) {
       const category = document.getElementById('selectQuoteCategory')?.value || 'todas';
       const pool = getQuotesByCategory(category);
-      const baseSeed = getDateSeed(dateStr);
-      const quotes = [];
       const totalAvailable = pool.length;
 
-      for (let i = 0; i < count; i++) {
-        const index = Math.floor(seededRandom(baseSeed + i) * totalAvailable);
-        quotes.push(pool[index % totalAvailable]);
+      if (totalAvailable <= count) {
+        const rng = createPRNG(getDateSeed(dateStr) + manualGenOffset);
+        return seededShuffle(pool, rng);
       }
-      return quotes;
+
+      /* Desplazamiento único diario basado en días transcurridos desde Epoch */
+      const dayEpoch = getDaysEpoch(dateStr) + manualGenOffset;
+      const shiftOffset = (dayEpoch * 7) % totalAvailable;
+
+      /* Rotación del banco de frases */
+      const rotatedPool = [...pool.slice(shiftOffset), ...pool.slice(0, shiftOffset)];
+
+      /* Mezca seedada para variedad interna dentro del mismo día */
+      const rng = createPRNG(getDateSeed(dateStr) + 777 + manualGenOffset);
+      const shuffled = seededShuffle(rotatedPool, rng);
+
+      return shuffled.slice(0, count);
     }
 
     async function generateNewQuotesSet() {
+      manualGenOffset += 1;
       refreshAllBackgrounds();
-      const category = document.getElementById('selectQuoteCategory')?.value || 'todas';
-      const pool = getQuotesByCategory(category);
-      const shuffledQuotes = [...pool].sort(() => 0.5 - Math.random()).slice(0, 10);
-      renderDailyGrid(shuffledQuotes);
+      const dateStr = document.getElementById('historyDate')?.value || new Date().toISOString().split('T')[0];
+      const newQuotes = getQuotesForDate(dateStr, 10);
+      renderDailyGrid(newQuotes);
     }
 
     function editCardQuote(phrase, citation, fontPhrase, fontCitation, logo, bg) {
@@ -1926,9 +1957,13 @@
       const searchInput = document.getElementById('inputBgSearch');
       if (searchInput) searchInput.value = '';
 
-      activePhotos = getRandomItems(ALL_STOCK_PHOTOS, 20).map(item => item.url);
-      activePatterns = getRandomItems(ALL_PATTERNS, 16);
-      activeGradients = getRandomItems(ALL_GRADIENTS, 16);
+      const dateStr = document.getElementById('historyDate')?.value || new Date().toISOString().split('T')[0];
+      const rng = createPRNG(getDateSeed(dateStr) + manualGenOffset);
+
+      activePhotos = seededShuffle(ALL_STOCK_PHOTOS, rng).map(item => item.url);
+      activePatterns = seededShuffle(ALL_PATTERNS, rng);
+      activeGradients = seededShuffle(ALL_GRADIENTS, rng);
+
       renderBgThumbnails(true);
       updateCustomCanvas();
     }
@@ -1945,7 +1980,8 @@
       if (matched.length > 0) {
         activePhotos = matched;
       } else {
-        activePhotos = getRandomItems(ALL_STOCK_PHOTOS, 16).map(item => item.url);
+        const rng = createPRNG(999);
+        activePhotos = seededShuffle(ALL_STOCK_PHOTOS, rng).map(item => item.url);
       }
 
       renderBgThumbnails(true);
@@ -3189,6 +3225,8 @@
 
     function loadQuotesForSelectedDate(dateStr) {
       if (!dateStr) return;
+      manualGenOffset = 0;
+      refreshAllBackgrounds();
       const quotes = getQuotesForDate(dateStr, 10);
       document.getElementById('galleryTitle').innerText = `Frases del Día (${dateStr})`;
       renderDailyGrid(quotes);
@@ -3200,11 +3238,19 @@
       loadQuotesForSelectedDate(today);
     }
 
+    /* RENDERING DE TARJETAS DIARIAS CON COMBINACIONES ÚNICAS DE FONDO Y TIPOGRAFÍA */
     async function renderDailyGrid(quotesList) {
       const grid = document.getElementById('dailyGrid');
       grid.innerHTML = '';
 
+      const dateStr = document.getElementById('historyDate')?.value || new Date().toISOString().split('T')[0];
+      const daySeed = getDateSeed(dateStr) + manualGenOffset;
+      const rng = createPRNG(daySeed);
+
       const fontKeys = Object.keys(FONT_MAP);
+      const shuffledFonts = seededShuffle(fontKeys, rng);
+      const shuffledCitations = seededShuffle(LEGIBLE_CITATION_FONTS, createPRNG(daySeed + 101));
+
       const logoRotation = ['blanco', 'turquesa', 'blanco', 'blanco', 'turquesa'];
 
       const svgEye = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
@@ -3214,15 +3260,21 @@
 
       for (let i = 0; i < quotesList.length; i++) {
         const item = quotesList[i];
-        const fontPhraseName = fontKeys[Math.floor(Math.random() * fontKeys.length)];
-        const fontCitationName = LEGIBLE_CITATION_FONTS[Math.floor(Math.random() * LEGIBLE_CITATION_FONTS.length)];
         
+        const fontPhraseName = shuffledFonts[i % shuffledFonts.length];
+        const fontCitationName = shuffledCitations[i % shuffledCitations.length];
         const logoKey = logoRotation[i % logoRotation.length];
         
-        const bgChoice = Math.floor(Math.random() * 3);
-        let bgType = `photo_${Math.floor(Math.random() * activePhotos.length)}`;
-        if (bgChoice === 1) bgType = `pattern_${Math.floor(Math.random() * activePatterns.length)}`;
-        if (bgChoice === 2) bgType = `grad_${Math.floor(Math.random() * activeGradients.length)}`;
+        /* Selección balanceada de tipos de fondo para la cuadrícula */
+        const typeSelector = i % 3;
+        let bgType;
+        if (typeSelector === 0) {
+          bgType = `photo_${i % activePhotos.length}`;
+        } else if (typeSelector === 1) {
+          bgType = `pattern_${i % activePatterns.length}`;
+        } else {
+          bgType = `grad_${i % activeGradients.length}`;
+        }
 
         const card = document.createElement('div');
         card.className = 'card';
