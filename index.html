@@ -2529,14 +2529,15 @@
         drawGrad(ctx, canvas, gIndex, bgScale);
       }
 
-      const topGradHeight = (ratioKey === '9:16') ? 320 : 260;
+      /* GRADIENTES DE SOMBRA PERIMETRAL */
+      const topGradHeight = (ratioKey === '9:16') ? 380 : 260;
       const topGrad = ctx.createLinearGradient(0, 0, 0, topGradHeight);
       topGrad.addColorStop(0, 'rgba(0, 0, 0, 0.70)');
       topGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
       ctx.fillStyle = topGrad;
       ctx.fillRect(0, 0, canvas.width, topGradHeight);
 
-      const botGradHeight = (ratioKey === '9:16') ? 280 : 220;
+      const botGradHeight = (ratioKey === '9:16') ? 480 : 220;
       const botGrad = ctx.createLinearGradient(0, canvas.height - botGradHeight, 0, canvas.height);
       botGrad.addColorStop(0, 'rgba(0, 0, 0, 0)');
       botGrad.addColorStop(1, 'rgba(0, 0, 0, 0.70)');
@@ -2568,22 +2569,29 @@
         }
       }
 
-      let logoY = 90;
-      if (ratioKey === '9:16') logoY = 150;
-      if (ratioKey === '1:1') logoY = 90;
+      /* POSICIONAMIENTO AJUSTADO DEL LOGO (MÁRGENES SEGUROS DE INSTAGRAM) */
+      let logoY = 120;
+      if (ratioKey === '9:16') logoY = 260; // Bajado para evitar la barra superior de Reels
+      if (ratioKey === '1:1') logoY = 110;
       logoY += logoYOffset;
 
       let logoHeight = 0;
       if (showLogo && logoImg && logoAlpha > 0.01) {
         ctx.save();
         ctx.globalAlpha = logoAlpha;
-        const logoWidth = 175;
+        const logoWidth = 170;
         const aspectRatio = logoImg.naturalHeight / logoImg.naturalWidth || 1;
         logoHeight = logoWidth * aspectRatio;
         const logoX = ((canvas.width - logoWidth) / 2) + logoXOffset;
         ctx.drawImage(logoImg, logoX, logoY, logoWidth, logoHeight);
         ctx.restore();
       }
+
+      /* POSICIONAMIENTO AJUSTADO DEL PIE DE IMAGEN / USUARIO */
+      let footerY = canvas.height - 110;
+      if (ratioKey === '9:16') footerY = canvas.height - 380; // Subido para librar la zona de comentarios/descripción de Reels
+      if (ratioKey === '1:1') footerY = canvas.height - 100;
+      footerY += handleYOffset;
 
       const phrCfg = FONT_MAP[fontPhraseName] || { family: '"Montserrat", sans-serif', weight: '700' };
       const citCfg = FONT_MAP[fontCitationName] || { family: '"Lora", serif', weight: '600' };
@@ -2613,10 +2621,18 @@
       lines.push(currentLine.trim());
 
       const totalTextHeight = (lines.length * phraseLineHeight) + 80;
-      let startY = (canvas.height / 2) - (totalTextHeight / 2) + 20;
+      let startY = (canvas.height / 2) - (totalTextHeight / 2) + 10;
 
-      const minStartY = (showLogo && logoHeight > 0) ? (logoY + logoHeight + 50) : 160;
+      const minStartY = (showLogo && logoHeight > 0) ? (logoY + logoHeight + 50) : 200;
       if (startY < minStartY) startY = minStartY;
+
+      /* Garantizar que la cita no choque con el usuario inferior */
+      const maxCitationY = footerY - 70;
+      let citationY = startY + (lines.length * phraseLineHeight) + 40 + citationYOffset;
+      if (citationY > maxCitationY) {
+        startY = maxCitationY - (lines.length * phraseLineHeight) - 40;
+        citationY = maxCitationY;
+      }
 
       if (phraseAlpha > 0.01) {
         ctx.save();
@@ -2638,7 +2654,6 @@
         ctx.restore();
       }
 
-      let citationY = startY + (lines.length * phraseLineHeight) + 40 + citationYOffset;
       if (citationAlpha > 0.01) {
         ctx.save();
         ctx.globalAlpha = citationAlpha;
@@ -2653,11 +2668,6 @@
         ctx.fillText(citation, (canvas.width / 2) + citationXOffset, citationY);
         ctx.restore();
       }
-
-      let footerY = canvas.height - 90;
-      if (ratioKey === '9:16') footerY = canvas.height - 140;
-      if (ratioKey === '1:1') footerY = canvas.height - 90;
-      footerY += handleYOffset;
 
       if (handleAlpha > 0.01) {
         ctx.save();
