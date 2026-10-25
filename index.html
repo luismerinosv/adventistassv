@@ -31,6 +31,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Alex+Brush&family=Anton&family=Bebas+Neue&family=Caveat:wght@600;700&family=Cinzel+Decorative:wght@700&family=Cinzel:wght@700&family=Cormorant+Garamond:ital,wght@0,700;1,600&family=Courgette&family=Dancing+Script:wght@700&family=Great+Vibes&family=Italianno&family=Lora:ital,wght@0,600;1,500&family=Merriweather:ital,wght@0,700;1,400&family=Montserrat:ital,wght@0,700;1,500;1,600&family=Oswald:wght@600&family=Outfit:wght@600;700&family=Pacifico&family=Playfair+Display:ital,wght@0,700;1,600&family=Poppins:wght@400;500;600;700&family=Quicksand:wght@600;700&family=Righteous&family=Sacramento&family=Satisfy&display=swap" rel="stylesheet">
 
+  <!-- Librería Oficial para Inyección de Duración en Encabezados WebM / MP4 -->
+  <script src="https://cdn.jsdelivr.net/npm/fix-webm-duration@1.0.5/fix-webm-duration.js"></script>
+
   <style>
     :root {
       --bg-dark: #0f172a;
@@ -2921,61 +2924,7 @@
       await drawCustomCanvasOnTarget(canvas, time, duration, animType, effectType);
     }
 
-    /* REPARADOR DE METADATOS DE DURACIÓN EN CABECERA DE VIDEO (WEBM / MP4) */
-    function fixWebmDuration(blob, durationMs) {
-      return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = function() {
-          const buffer = reader.result;
-          const view = new DataView(buffer);
-
-          let infoPos = -1;
-          for (let i = 0; i < view.byteLength - 4; i++) {
-            if (view.getUint32(i) === 0x1549A966) {
-              infoPos = i;
-              break;
-            }
-          }
-
-          if (infoPos !== -1) {
-            let durationPos = -1;
-            for (let i = infoPos; i < Math.min(infoPos + 150, view.byteLength - 8); i++) {
-              if (view.getUint16(i) === 0x4489) {
-                durationPos = i;
-                break;
-              }
-            }
-
-            if (durationPos !== -1) {
-              const len = view.getUint8(durationPos + 2);
-              if (len === 0x84) {
-                view.setFloat32(durationPos + 3, durationMs, false);
-              } else if (len === 0x88) {
-                view.setFloat64(durationPos + 3, durationMs, false);
-              }
-              return resolve(new Blob([buffer], { type: blob.type }));
-            } else {
-              const durTag = new Uint8Array(11);
-              durTag[0] = 0x44; durTag[1] = 0x89; durTag[2] = 0x88;
-              const dv = new DataView(durTag.buffer);
-              dv.setFloat64(3, durationMs, false);
-
-              const insertPos = infoPos + 8;
-              const newBuffer = new Uint8Array(buffer.byteLength + 11);
-              newBuffer.set(new Uint8Array(buffer, 0, insertPos), 0);
-              newBuffer.set(durTag, insertPos);
-              newBuffer.set(new Uint8Array(buffer, insertPos), insertPos + 11);
-
-              return resolve(new Blob([newBuffer.buffer], { type: blob.type }));
-            }
-          }
-          resolve(blob);
-        };
-        reader.readAsArrayBuffer(blob);
-      });
-    }
-
-    /* GENERACIÓN DE VIDEO ANIMADO CON MARCAS DE TIEMPO Y DURACIÓN REPARADAS */
+    /* GENERACIÓN DE VIDEO ANIMADO Y PROCESAMIENTO CON fix-webm-duration */
     async function generarVideoAnimado() {
       stopPreviewAnimation();
 
@@ -3026,9 +2975,8 @@
 
       const recordedChunks = [];
 
-      let mimeType = 'video/mp4;codecs=avc1,mp4a.40.2';
-      if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'video/mp4';
-      if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'video/webm;codecs=vp9';
+      let mimeType = 'video/webm;codecs=vp9';
+      if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'video/webm;codecs=vp8';
       if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'video/webm';
 
       let mediaRecorder;
@@ -3048,21 +2996,28 @@
         stopAudioPlayback();
         if (audioCtx) { audioCtx.close(); }
 
-        const actualMime = mediaRecorder.mimeType || 'video/mp4';
-        const isWebm = actualMime.includes('webm');
-        const fileExt = isWebm ? 'webm' : 'mp4';
-        const blobType = isWebm ? 'video/webm' : 'video/mp4';
+        const rawBlob = new Blob(recordedChunks, { type: mediaRecorder.mimeType || 'video/webm' });
 
-        const rawBlob = new Blob(recordedChunks, { type: blobType });
+        /* Promesa con la librería ysFixWebmDuration para escribir la cabecera real */
+        const applyDurationFix = (blob, duration) => {
+          return new Promise((resolve) => {
+            if (typeof window.ysFixWebmDuration === 'function') {
+              window.ysFixWebmDuration(blob, duration, (fixedBlob) => {
+                resolve(fixedBlob);
+              });
+            } else {
+              resolve(blob);
+            }
+          });
+        };
 
-        /* Inyectar metadatos de duración para evitar recorte en redes sociales */
-        const finalBlob = await fixWebmDuration(rawBlob, durationMs);
+        const finalBlob = await applyDurationFix(rawBlob, durationMs);
 
         const url = URL.createObjectURL(finalBlob);
         const a = document.createElement('a');
         a.href = url;
         const selectedDate = document.getElementById('historyDate')?.value || 'frase';
-        a.download = `adventistassv-video-${selectedDate}.${fileExt}`;
+        a.download = `adventistassv-video-${selectedDate}.webm`;
         a.click();
         URL.revokeObjectURL(url);
 
@@ -3071,7 +3026,6 @@
         updateCustomCanvas();
       };
 
-      /* Graba en fragmentos de 100ms para mantener timestamps estables */
       mediaRecorder.start(100);
 
       const totalFrames = Math.round(durationSec * fps);
