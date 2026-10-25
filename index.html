@@ -723,7 +723,7 @@
             <input type="text" id="inputHandle" class="form-control" value="@adventistassv" oninput="updateCustomCanvas()">
           </div>
 
-          <!-- SELLO / MARCA DE CAMPAÑA (UNAVOZ27) -->
+          <!-- SELLO / MARCA DE CAMPAÑA -->
           <div class="form-group" style="margin-top: 4px; padding-top: 6px; border-top: 1px dashed var(--border);">
             <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 600; color: #fff;">
               <input type="checkbox" id="chkShowStamp" onchange="toggleStampInputs(); updateCustomCanvas();" style="width: 18px; height: 18px; accent-color: var(--accent);">
@@ -1268,6 +1268,7 @@
 
     const QUOTES_BANK = [...RAW_BIBLIA, ...RAW_ESCRITOS, ...RAW_HIMNOS];
 
+    /* BASE DE DATOS DE FOTOGRAFÍAS ÚNICAS Y DIFERENTES PARA EVITAR DUPLICADOS */
     const ALL_STOCK_PHOTOS = [
       { url: 'https://images.unsplash.com/photo-1513002749550-c59d786b8e6c?auto=format&fit=crop&w=800&q=80', tags: 'cielo nubes azul sol luz sky' },
       { url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80', tags: 'mar playa sol agua orilla ocean' },
@@ -1422,7 +1423,7 @@
 
     async function generateNewQuotesSet() {
       manualGenOffset += 1;
-      refreshAllBackgrounds();
+      await refreshAllBackgrounds();
       const dateStr = document.getElementById('historyDate')?.value || new Date().toISOString().split('T')[0];
       const newQuotes = getQuotesForDate(dateStr, 10);
       renderDailyGrid(newQuotes, true);
@@ -1983,46 +1984,76 @@
       }
     }
 
-    /* GENERACIÓN Y ROTACIÓN DE FONDOS EN TIEMPO REAL CON BOTÓN Y BÚSQUEDA */
+    /* BÚSQUEDA Y REFRESCO DE FONDOS REALES EN TIEMPO REAL VÍA UNSPLASH API */
     async function refreshAllBackgrounds() {
       const searchInput = document.getElementById('inputBgSearch');
       if (searchInput) searchInput.value = '';
 
       manualGenOffset += 1;
-      const nowSeed = Date.now();
-      const rng = createPRNG(nowSeed + manualGenOffset);
+      const topics = ['sky', 'nature', 'mountains', 'sunset', 'ocean', 'forest', 'clouds', 'stars', 'cross', 'landscape'];
+      const topic = topics[manualGenOffset % topics.length];
+      const page = (manualGenOffset % 5) + 1;
 
-      const dynamicRealtimePhotos = [];
-      const topics = ['cross', 'mountains', 'sky', 'sunset', 'ocean', 'forest', 'clouds', 'stars', 'light', 'nature'];
-      
-      for (let i = 0; i < 12; i++) {
-        const topic = topics[(i + manualGenOffset) % topics.length];
-        dynamicRealtimePhotos.push(`https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80&sig=${nowSeed}_${i}&topic=${topic}`);
+      try {
+        const res = await fetch(`https://unsplash.com/napi/search/photos?query=${encodeURIComponent(topic)}&per_page=20&page=${page}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.results && data.results.length > 0) {
+            activePhotos = data.results.map(item => `${item.urls.raw}&auto=format&fit=crop&w=800&q=80`);
+            const rng = createPRNG(Date.now());
+            activePatterns = seededShuffle(ALL_PATTERNS, rng);
+            activeGradients = seededShuffle(ALL_GRADIENTS, rng);
+
+            selectedBg = 'photo_0';
+            renderBgThumbnails(true);
+            updateCustomCanvas();
+            return;
+          }
+        }
+      } catch (e) {
+        console.warn("Error en la conexión con Unsplash:", e);
       }
 
-      activePhotos = seededShuffle([...ALL_STOCK_PHOTOS.map(p => p.url), ...dynamicRealtimePhotos], rng);
+      // De respaldo si falla la API: Barajar fotografias locales totalmente únicas
+      const rng = createPRNG(Date.now() + manualGenOffset);
+      activePhotos = seededShuffle(ALL_STOCK_PHOTOS.map(p => p.url), rng);
       activePatterns = seededShuffle(ALL_PATTERNS, rng);
       activeGradients = seededShuffle(ALL_GRADIENTS, rng);
 
-      selectedBg = `photo_${Math.floor(rng() * activePhotos.length)}`;
-
+      selectedBg = 'photo_0';
       renderBgThumbnails(true);
       updateCustomCanvas();
     }
 
     async function searchBackgrounds() {
-      const term = document.getElementById('inputBgSearch').value.trim().toLowerCase();
+      const term = document.getElementById('inputBgSearch').value.trim();
       if (!term) {
         refreshAllBackgrounds();
         return;
       }
 
-      let matched = ALL_STOCK_PHOTOS.filter(item => item.tags.toLowerCase().includes(term)).map(item => item.url);
+      const container = document.getElementById('bgThumbnailGridContainer');
+      container.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-muted); font-size:0.86rem;">🔍 Buscando imágenes de "${term}" en Unsplash...</div>`;
 
-      const nowSeed = Date.now();
-      for (let i = 0; i < 8; i++) {
-        matched.push(`https://images.unsplash.com/photo-1518837695005-2083093ee35b?auto=format&fit=crop&w=800&q=80&search=${encodeURIComponent(term)}&sig=${nowSeed}_${i}`);
+      try {
+        const res = await fetch(`https://unsplash.com/napi/search/photos?query=${encodeURIComponent(term)}&per_page=20`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.results && data.results.length > 0) {
+            activePhotos = data.results.map(item => `${item.urls.raw}&auto=format&fit=crop&w=800&q=80`);
+            selectedBg = 'photo_0';
+            renderBgThumbnails(true);
+            updateCustomCanvas();
+            return;
+          }
+        }
+      } catch(e) {
+        console.warn("Unsplash search error:", e);
       }
+
+      // Filtro local si no hay internet
+      let matched = ALL_STOCK_PHOTOS.filter(item => item.tags.toLowerCase().includes(term.toLowerCase())).map(item => item.url);
+      if (matched.length === 0) matched = ALL_STOCK_PHOTOS.map(p => p.url);
 
       activePhotos = matched;
       selectedBg = 'photo_0';
@@ -3265,7 +3296,7 @@
       if (storedCards && storedCards.length > 0 && manualGenOffset === 0) {
         renderStoredWebpCards(storedCards);
       } else {
-        refreshAllBackgrounds();
+        await refreshAllBackgrounds();
         const quotes = getQuotesForDate(dateStr, 10);
         renderDailyGrid(quotes);
       }
@@ -3505,7 +3536,7 @@
         processHeaderLogo(imgHeader);
       }
 
-      refreshAllBackgrounds();
+      await refreshAllBackgrounds();
       resetToTodayDate();
 
       const currentTab = window.location.hash === '#editor' || localStorage.getItem('activeTab') === 'editor' ? 'editor' : 'gallery';
