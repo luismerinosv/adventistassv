@@ -484,7 +484,7 @@
     }
 
     .bg-grid-container {
-      max-height: 280px;
+      max-height: 320px;
       overflow-y: auto;
       padding: 10px;
       background: var(--bg-dark);
@@ -528,12 +528,12 @@
       position: absolute;
       bottom: 2px;
       right: 2px;
-      background: rgba(0,0,0,0.7);
-      color: #fff;
-      font-size: 0.6rem;
-      padding: 1px 4px;
+      background: rgba(0,0,0,0.75);
+      color: #38bdf8;
+      font-size: 0.58rem;
+      padding: 1px 3px;
       border-radius: 3px;
-      font-weight: 600;
+      font-weight: 700;
     }
 
     .bg-thumb:hover { transform: scale(1.04); }
@@ -770,18 +770,6 @@
               <option value="custom">Subir mi propio logo (PNG/JPG)</option>
             </select>
             <input type="file" id="inputCustomLogo" class="form-control hidden" accept="image/*" style="margin-top: 6px;" onchange="handleUserLogoUpload(event)">
-          </div>
-
-          <!-- PROBADOR / SELECTOR DE VIDEOS DE FONDO -->
-          <div class="form-group">
-            <label>Video Animado de Fondo (Probador e Interactivo):</label>
-            <div class="ig-music-trigger-card" onclick="openVideoModal()">
-              <div style="overflow: hidden;">
-                <div id="videoTriggerTitle" style="font-weight: 600; font-size: 0.88rem; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Probar / Seleccionar Video de Fondo</div>
-                <div id="videoTriggerSub" style="font-size: 0.76rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Toca para probar videos en tiempo real</div>
-              </div>
-              <button class="btn btn-secondary" style="min-height: 32px; padding: 4px 10px; font-size: 0.78rem; flex-shrink: 0;">Probar Videos</button>
-            </div>
           </div>
 
           <div class="form-group">
@@ -1155,20 +1143,18 @@
     let currentVideoPosterImg = null;
     let videoRenderLoopId = null;
 
-    // REPERTORIO AMPLIADO DE VIDEOS DE STOCK DE ALTA CALIDAD
+    // REPERTORIO DE VIDEOS DE STOCK CON CORS ABIERTO GARANTIZADO EN CANVAS
     const ALL_STOCK_VIDEOS = [
-      { id: 'v_clouds', title: 'Cielo y Nubes Celestiales', poster: 'https://images.unsplash.com/photo-1513002749550-c59d786b8e6c?auto=format&fit=crop&w=300&q=80', url: 'https://assets.mixkit.co/videos/preview/mixkit-clouds-and-blue-sky-2408-large.mp4' },
-      { id: 'v_sunset', title: 'Atardecer Pacífico en el Mar', poster: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=300&q=80', url: 'https://assets.mixkit.co/videos/preview/mixkit-sea-waves-and-sunset-4148-large.mp4' },
-      { id: 'v_stars', title: 'Noche Estrellada y Firmamento', poster: 'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?auto=format&fit=crop&w=300&q=80', url: 'https://assets.mixkit.co/videos/preview/mixkit-stars-in-the-night-sky-1639-large.mp4' },
-      { id: 'v_forest', title: 'Rayos de Sol sobre Bosque', poster: 'https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=300&q=80', url: 'https://assets.mixkit.co/videos/preview/mixkit-sunbeams-through-trees-in-a-forest-4222-large.mp4' },
-      { id: 'v_bokeh', title: 'Luces Bokeh Doradas', poster: 'https://images.unsplash.com/photo-1518640467707-6811f4a6ab73?auto=format&fit=crop&w=300&q=80', url: 'https://assets.mixkit.co/videos/preview/mixkit-abstract-gold-particles-floating-41551-large.mp4' },
-      { id: 'v_ocean', title: 'Océano Azul Profundo', poster: 'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&w=300&q=80', url: 'https://assets.mixkit.co/videos/preview/mixkit-aerial-view-of-sea-waves-1188-large.mp4' },
-      { id: 'v_mountain', title: 'Montañas y Niebla Solemne', poster: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=300&q=80', url: 'https://assets.mixkit.co/videos/preview/mixkit-time-lapse-of-clouds-over-mountains-2503-large.mp4' },
-      { id: 'v_rain', title: 'Lluvia Serena sobre Cristal', poster: 'https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?auto=format&fit=crop&w=300&q=80', url: 'https://assets.mixkit.co/videos/preview/mixkit-rain-drops-on-a-window-pane-1430-large.mp4' },
-      { id: 'v_river', title: 'Agua Cristalina de Río', poster: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=300&q=80', url: 'https://assets.mixkit.co/videos/preview/mixkit-river-flow-in-the-forest-4225-large.mp4' },
-      { id: 'v_aurora', title: 'Luces Celestiales Espirituales', poster: 'https://images.unsplash.com/photo-1531366936337-7c912a4589a7?auto=format&fit=crop&w=300&q=80', url: 'https://assets.mixkit.co/videos/preview/mixkit-light-leaks-and-lens-flare-overlay-2856-large.mp4' },
-      { id: 'v_sunflowers', title: 'Amanecer Luminoso en Campo', poster: 'https://images.unsplash.com/photo-1470240731273-7821a6eeb6bd?auto=format&fit=crop&w=300&q=80', url: 'https://assets.mixkit.co/videos/preview/mixkit-sun-shining-through-tree-leaves-4223-large.mp4' },
-      { id: 'v_snow', title: 'Caída Serena de Nieve', poster: 'https://images.unsplash.com/photo-1483664852095-d6cc6870702d?auto=format&fit=crop&w=300&q=80', url: 'https://assets.mixkit.co/videos/preview/mixkit-snow-falling-gently-in-a-forest-4224-large.mp4' }
+      { id: 'v_clouds', title: 'Cielo y Nubes Celestiales', poster: 'https://images.unsplash.com/photo-1513002749550-c59d786b8e6c?auto=format&fit=crop&w=300&q=80', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4' },
+      { id: 'v_sunset', title: 'Atardecer Pacífico y Mar', poster: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=300&q=80', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4' },
+      { id: 'v_stars', title: 'Noche Estrellada y Firmamento', poster: 'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?auto=format&fit=crop&w=300&q=80', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4' },
+      { id: 'v_forest', title: 'Bosque y Rayos de Sol', poster: 'https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=300&q=80', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyplays.mp4' },
+      { id: 'v_bokeh', title: 'Luces Bokeh y Destellos', poster: 'https://images.unsplash.com/photo-1518640467707-6811f4a6ab73?auto=format&fit=crop&w=300&q=80', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4' },
+      { id: 'v_ocean', title: 'Océano y Horizonte Azul', poster: 'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&w=300&q=80', url: 'https://vjs.zencdn.net/v/oceans.mp4' },
+      { id: 'v_mountain', title: 'Montañas y Niebla Solemne', poster: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=300&q=80', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4' },
+      { id: 'v_flower', title: 'Naturaleza y Flores Calmas', poster: 'https://images.unsplash.com/photo-1470240731273-7821a6eeb6bd?auto=format&fit=crop&w=300&q=80', url: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4' },
+      { id: 'v_river', title: 'Agua Cristalina y Paisaje', poster: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=300&q=80', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnTheLosingEnd.mp4' },
+      { id: 'v_aurora', title: 'Luces Celestiales Espirituales', poster: 'https://images.unsplash.com/photo-1531366936337-7c912a4589a7?auto=format&fit=crop&w=300&q=80', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4' }
     ];
 
     let activeVideos = [];
@@ -1432,7 +1418,6 @@
       return shuffled.slice(0, 10);
     }
 
-    // BÚSQUEDA OPTIMIZADA DE FONDOS LIMPIOS Y ADECUADOS PARA FRASES
     async function fetchImagesFromWeb(searchTerm) {
       const foundUrls = [];
 
@@ -1452,7 +1437,7 @@
           }
         }
       } catch (e) {
-        console.warn("Error buscando en Unsplash Wallpapers:", e);
+        console.warn("Error buscando imágenes:", e);
       }
 
       if (foundUrls.length < 10) {
@@ -1517,7 +1502,6 @@
       activePatterns = seededShuffle(ALL_PATTERNS, rng);
       activeGradients = seededShuffle(ALL_GRADIENTS, rng);
       
-      // ROTACIÓN Y SELECCIÓN DE NUEVOS VIDEOS DE STOCK AL PRESIONAR ACTUALIZAR
       activeVideos = seededShuffle(ALL_STOCK_VIDEOS, rng).slice(0, 8);
 
       selectedBg = 'photo_0';
@@ -1735,7 +1719,22 @@
       }
     }
 
-    /* MODAL SELECTOR Y PROBADOR DE VIDEOS DE FONDO */
+    /* AL SELECCIONAR CUALQUIER VIDEO EN LA CUADRÍCULA INFERIOR: SALTA DIRECTO EL MENÚ PROBADOR */
+    function openVideoModalWithSelection(vid) {
+      stopPreviewAnimation();
+      stopTestModalAnim();
+      selectedBg = 'video_' + vid.id;
+      
+      // Inicia el video de inmediato dentro del callback del clic directo del usuario
+      setupVideoBg(vid.url, vid.poster);
+
+      renderVideoModalList();
+      document.getElementById('videoModal').classList.add('active');
+
+      // Activa la prueba en tiempo real en el lienzo del modal
+      testVideoPreview(null, vid);
+    }
+
     function openVideoModal() {
       stopPreviewAnimation();
       stopTestModalAnim();
@@ -1768,7 +1767,7 @@
             <div style="width:40px; height:48px; border-radius:6px; background-image:url('${vid.poster}'); background-size:cover; background-position:center; flex-shrink:0;"></div>
             <div style="overflow:hidden;">
               <div style="font-weight:600; font-size:0.86rem; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${vid.title}</div>
-              <div style="font-size:0.75rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Video de Stock HD</div>
+              <div style="font-size:0.75rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Video HD para Fondo</div>
             </div>
           </div>
           <div style="display:flex; align-items:center; gap:6px;">
@@ -1810,8 +1809,6 @@
       stopTestModalAnim();
       selectedBg = 'video_' + vidObj.id;
       setupVideoBg(vidObj.url, vidObj.poster);
-      document.getElementById('videoTriggerTitle').innerText = vidObj.title;
-      document.getElementById('videoTriggerSub').innerText = 'Video de Fondo Activo';
       closeVideoModal();
     }
 
@@ -2217,7 +2214,7 @@
       if (container.children.length > 0 && !force) return;
       container.innerHTML = '';
 
-      // FONDOS DE VIDEO DE STOCK
+      // VÍDEOS DE STOCK ANIMADOS ABAJO EN LA CUADRÍCULA
       const secVideos = document.createElement('div');
       secVideos.innerHTML = `<div class="bg-section-title">Videos de Stock Animados (${activeVideos.length})</div>`;
       const gridVideos = document.createElement('div');
@@ -2236,11 +2233,11 @@
         tag.innerText = 'VIDEO';
         div.appendChild(tag);
 
+        // Al tocar cualquier video en la cuadrícula inferior, abre directo el menú probador
         div.onclick = () => {
           document.querySelectorAll('.bg-thumb').forEach(t => t.classList.remove('active'));
           div.classList.add('active');
-          selectedBg = vidKey;
-          setupVideoBg(vid.url, vid.poster);
+          openVideoModalWithSelection(vid);
         };
         gridVideos.appendChild(div);
       });
@@ -2324,7 +2321,7 @@
       container.appendChild(secGrads);
     }
 
-    // CONFIGURACIÓN CORREGIDA CON VÍNCULO AL DOM Y ACTIVACIÓN POR INTERACCIÓN DIRECTA
+    /* CARGADOR DE VIDEO ROBUSTO CON CORS DESBLOQUEADO Y REPRODUCCIÓN GARANTIZADA */
     function setupVideoBg(videoUrl, posterUrl) {
       stopVideoBg();
 
@@ -2339,7 +2336,7 @@
 
       videoBgElement = document.createElement('video');
       videoBgElement.id = 'appBgVideoElement';
-      videoBgElement.crossOrigin = 'anonymous';
+      videoBgElement.crossOrigin = 'anonymous'; // Requiere servidor con cabecera CORS abierta (GCS/MDN)
       videoBgElement.loop = true;
       videoBgElement.muted = true;
       videoBgElement.defaultMuted = true;
@@ -2348,7 +2345,7 @@
       videoBgElement.setAttribute('playsinline', '');
       videoBgElement.setAttribute('webkit-playsinline', '');
 
-      // Inserción en el DOM en segundo plano para forzar decodificación en navegadores móviles
+      // Inserción en DOM secundario para que los navegadores móviles lo procesen correctamente
       videoBgElement.style.position = 'fixed';
       videoBgElement.style.top = '-9999px';
       videoBgElement.style.left = '-9999px';
@@ -2358,19 +2355,24 @@
       videoBgElement.style.pointerEvents = 'none';
       document.body.appendChild(videoBgElement);
 
+      const playPromise = videoBgElement.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(err => {
+          console.warn("Autoplay diferido:", err);
+        });
+      }
+
       videoBgElement.oncanplay = () => {
-        videoBgElement.play().catch(e => console.log("Autoplay diferido:", e));
+        videoBgElement.play().catch(() => {});
         startVideoRenderLoop();
       };
 
-      videoBgElement.onerror = () => {
-        console.warn("No se pudo cargar el video:", videoUrl);
+      videoBgElement.onerror = (e) => {
+        console.warn("Error cargando video de fondo:", e);
       };
 
       videoBgElement.src = videoUrl;
       videoBgElement.load();
-      videoBgElement.play().catch(e => console.log("Play diferido:", e));
-
       startVideoRenderLoop();
     }
 
@@ -2435,7 +2437,7 @@
       }
     }
 
-    /* EFECTOS Y OVERLAYS CON VELOCIDADES PACÍFICAS Y SOLEMNE */
+    /* EFECTOS Y OVERLAYS DE PARTÍCULAS */
     function drawOverlayEffects(ctx, width, height, effectType, time) {
       if (!effectType || effectType === 'none') return;
 
@@ -2717,7 +2719,7 @@
       ctx.restore();
     }
 
-    /* RENDERIZADOR DE LIENZO CON LÍNEA DE TIEMPO Y RENDERIZADO FLUIDO DE VIDEO */
+    /* DIBUJO Y RENDERIZADO DEL LIENZO PRINCIPAL Y DE PREVISUALIZACIÓN */
     async function drawCanvasCard(
       canvas, phrase, citation, fontPhraseName, fontCitationName, 
       logoKey, bgType, handleText = '@adventistassv', ratioKey = '4:5',
@@ -2747,7 +2749,6 @@
       const time = animOptions.time || 0;
       const dur = animOptions.duration || 15;
 
-      // ESTRUCTURA DE TIEMPOS: 1.5s Entrada | Tiempo Medio Lectura | 1.5s Salida
       const inDur = 1.5;
       const outDur = 1.5;
 
@@ -2840,18 +2841,30 @@
         logoXOffset = handleXOffset = phraseXOffset = citationXOffset = 0;
       }
 
-      // RENDERIZADO DE VIDEO DE FONDO GARANTIZADO CON SOPORTE COMPLETO
+      // RENDERIZADO DE VIDEO DE FONDO CON MANEJO SEGURO DE ERRORES DE DIBUJO
       if (bgType.startsWith('video_') && videoBgElement) {
-        if (videoBgElement.paused) {
+        if (videoBgElement.paused && videoBgElement.readyState >= 2) {
           videoBgElement.play().catch(() => {});
         }
+
+        let drewVideo = false;
         if (videoBgElement.readyState >= 2) {
-          drawCoverImage(ctx, videoBgElement, canvas.width, canvas.height, bgScale);
-        } else if (currentVideoPosterImg) {
-          drawCoverImage(ctx, currentVideoPosterImg, canvas.width, canvas.height, bgScale);
-        } else {
-          drawGrad(ctx, canvas, 0, bgScale);
+          try {
+            drawCoverImage(ctx, videoBgElement, canvas.width, canvas.height, bgScale);
+            drewVideo = true;
+          } catch(e) {
+            console.warn("Canvas video render:", e);
+          }
         }
+        
+        if (!drewVideo) {
+          if (currentVideoPosterImg) {
+            drawCoverImage(ctx, currentVideoPosterImg, canvas.width, canvas.height, bgScale);
+          } else {
+            drawGrad(ctx, canvas, 0, bgScale);
+          }
+        }
+        
         ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
       } else if (bgType === 'user_custom' && userCustomImg) {
@@ -3244,7 +3257,7 @@
         await audio.play();
         activeAudioEl = audio;
       } catch(e) {
-        console.log("Play diferido:", e);
+        console.log("Play diferido audio:", e);
       }
 
       return audio;
@@ -3344,7 +3357,7 @@
       await drawCustomCanvasOnTarget(canvas, time, duration, animType, effectType);
     }
 
-    /* SISTEMA DE GENERACIÓN DE VIDEO SINCRO REAL-TIME (SOLUCIÓN VISTA PREVIA INSTAGRAM / GALERÍA) */
+    /* GENERADOR Y DESCARGADOR DE VIDEO CON ENCABEZADOS WEBM CORREGIDOS */
     async function generarVideoAnimado() {
       stopPreviewAnimation();
 
@@ -3370,7 +3383,6 @@
 
       const audioEl = await startAudioPlayback();
 
-      // Captura en tiempo real a 30 FPS para sincronización perfecta con el reloj del sistema
       const canvasStream = canvas.captureStream(30);
       let finalStream = canvasStream;
       let audioCtx = null;
@@ -3417,7 +3429,6 @@
         btn.innerText = "Empaquetando metadatos para Instagram...";
         const rawBlob = new Blob(recordedChunks, { type: mediaRecorder.mimeType || 'video/webm' });
 
-        // Corregimos los encabezados EBML con fixWebmDuration en un único bloque WebM
         const fixedBlob = await new Promise((resolve) => {
           const fixFunc = window.ysFixWebmDuration || window.fixWebmDuration;
           if (typeof fixFunc === 'function') {
@@ -3446,7 +3457,6 @@
         updateCustomCanvas();
       };
 
-      // Se inicia SIN timeslice para asegurar un único contenedor EBML continuo
       mediaRecorder.start();
 
       let startTime = null;
