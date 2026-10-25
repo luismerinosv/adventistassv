@@ -1148,11 +1148,18 @@
     let videoRenderLoopId = null;
     let currentVideoBlobUrl = null;
 
-    // CATÁLOGO DE VIDEOS DE STOCK Y FONDOS DE VIDEO PROCEDURALES (100% GARANTIZADOS POR CÓDIGO)
+    // CATÁLOGO DE 10 VIDEOS DE FONDO ANIMADOS POR CÓDIGO (PROCEDURALES) Y STOCK MP4
     const ALL_STOCK_VIDEOS = [
-      { id: 'proc_aurora', title: 'Aurora Celestial (Código Canvas)', isProcedural: true, poster: 'https://images.unsplash.com/photo-1518640467707-6811f4a6ab73?auto=format&fit=crop&w=300&q=80' },
-      { id: 'proc_clouds', title: 'Nubes Místicas y Sol (Código Canvas)', isProcedural: true, poster: 'https://images.unsplash.com/photo-1513002749550-c59d786b8e6c?auto=format&fit=crop&w=300&q=80' },
-      { id: 'proc_stars', title: 'Lluvia de Luz y Estrellas (Código Canvas)', isProcedural: true, poster: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=300&q=80' },
+      { id: 'proc_aurora', title: '1. Aurora Celestial (Código Canvas)', isProcedural: true, poster: 'https://images.unsplash.com/photo-1518640467707-6811f4a6ab73?auto=format&fit=crop&w=300&q=80' },
+      { id: 'proc_clouds', title: '2. Nubes Místicas y Sol (Código Canvas)', isProcedural: true, poster: 'https://images.unsplash.com/photo-1513002749550-c59d786b8e6c?auto=format&fit=crop&w=300&q=80' },
+      { id: 'proc_stars', title: '3. Lluvia de Luz y Estrellas (Código Canvas)', isProcedural: true, poster: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=300&q=80' },
+      { id: 'proc_fireflies', title: '4. Luciérnagas de Esperanza (Código Canvas)', isProcedural: true, poster: 'https://images.unsplash.com/photo-1508615039623-a25605d2b022?auto=format&fit=crop&w=300&q=80' },
+      { id: 'proc_cross_glow', title: '5. Resplandor Divino / Luz (Código Canvas)', isProcedural: true, poster: 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&w=300&q=80' },
+      { id: 'proc_waves', title: '6. Océano de Paz (Código Canvas)', isProcedural: true, poster: 'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&w=300&q=80' },
+      { id: 'proc_nebula', title: '7. Nebulosa Espiritual (Código Canvas)', isProcedural: true, poster: 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=300&q=80' },
+      { id: 'proc_sunbeams', title: '8. Rayos del Amanecer (Código Canvas)', isProcedural: true, poster: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=300&q=80' },
+      { id: 'proc_bokeh', title: '9. Esferas Bokeh Celestiales (Código Canvas)', isProcedural: true, poster: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&w=300&q=80' },
+      { id: 'proc_golden_dust', title: '10. Polvo de Oro Celestial (Código Canvas)', isProcedural: true, poster: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=300&q=80' },
       { id: 'v_flower', title: 'Flor en la Naturaleza MP4', poster: 'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&w=300&q=80', url: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4' },
       { id: 'v_friday', title: 'Cielo y Horizonte MP4', poster: 'https://images.unsplash.com/photo-1513002749550-c59d786b8e6c?auto=format&fit=crop&w=300&q=80', url: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/friday.mp4' }
     ];
@@ -2475,10 +2482,11 @@
       }
     }
 
-    /* RENDERIZADOR DE FONDOS PROCEDURALES ANIMADOS (CÓDIGO CANVAS 100% GARANTIZADO) */
+    /* RENDERIZADOR COMPLETO DE 10 FONDOS PROCEDURALES ANIMADOS POR CÓDIGO CANVAS */
     function drawProceduralVideoBg(ctx, width, height, type, time) {
       ctx.save();
 
+      // 1. Aurora Celestial
       if (type === 'video_proc_aurora') {
         const grad = ctx.createLinearGradient(0, 0, 0, height);
         grad.addColorStop(0, '#0f172a');
@@ -2505,7 +2513,9 @@
           ctx.fillStyle = waveGrad;
           ctx.fill();
         }
-      } else if (type === 'video_proc_clouds') {
+      } 
+      // 2. Nubes Místicas y Sol
+      else if (type === 'video_proc_clouds') {
         const grad = ctx.createLinearGradient(0, 0, 0, height);
         grad.addColorStop(0, '#1e1b4b');
         grad.addColorStop(0.5, '#312e81');
@@ -2528,7 +2538,9 @@
           ctx.arc(cx, cy, radius, 0, Math.PI * 2);
           ctx.fill();
         }
-      } else if (type === 'video_proc_stars') {
+      } 
+      // 3. Lluvia de Luz y Estrellas
+      else if (type === 'video_proc_stars') {
         ctx.fillStyle = '#090d16';
         ctx.fillRect(0, 0, width, height);
 
@@ -2544,6 +2556,211 @@
           ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
           ctx.shadowColor = '#ffffff';
           ctx.shadowBlur = 8;
+          ctx.fill();
+        }
+      }
+      // 4. Luciérnagas de Esperanza
+      else if (type === 'video_proc_fireflies') {
+        const grad = ctx.createLinearGradient(0, 0, 0, height);
+        grad.addColorStop(0, '#0f172a');
+        grad.addColorStop(1, '#1e1b4b');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, width, height);
+
+        for (let i = 0; i < 35; i++) {
+          const x = (i * 157.3 + Math.sin(time * 0.8 + i) * 40) % width;
+          const y = (height - ((time * (12 + (i % 5) * 8) + i * 80) % (height + 100)));
+          const opacity = 0.2 + 0.8 * Math.abs(Math.sin(time * 1.5 + i));
+          const radius = 6 + (i % 4) * 4;
+
+          const fireflyGrad = ctx.createRadialGradient(x, y, 0, x, y, radius * 2);
+          fireflyGrad.addColorStop(0, `rgba(250, 204, 21, ${opacity})`);
+          fireflyGrad.addColorStop(0.4, `rgba(234, 179, 8, ${opacity * 0.4})`);
+          fireflyGrad.addColorStop(1, 'rgba(0,0,0,0)');
+
+          ctx.fillStyle = fireflyGrad;
+          ctx.beginPath();
+          ctx.arc(x, y, radius * 2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+      // 5. Resplandor Divino / Luz
+      else if (type === 'video_proc_cross_glow') {
+        const grad = ctx.createRadialGradient(width/2, height/2, 50, width/2, height/2, height * 0.8);
+        grad.addColorStop(0, '#1e293b');
+        grad.addColorStop(1, '#020617');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, width, height);
+
+        const cx = width / 2;
+        const cy = height / 2;
+        const pulse = 1 + Math.sin(time * 1.2) * 0.15;
+
+        const aura = ctx.createRadialGradient(cx, cy, 10, cx, cy, 300 * pulse);
+        aura.addColorStop(0, 'rgba(56, 189, 248, 0.35)');
+        aura.addColorStop(0.5, 'rgba(14, 165, 233, 0.12)');
+        aura.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = aura;
+        ctx.beginPath();
+        ctx.arc(cx, cy, 300 * pulse, 0, Math.PI * 2);
+        ctx.fill();
+
+        for (let i = 0; i < 8; i++) {
+          const angle = (i * Math.PI / 4) + time * 0.1;
+          ctx.save();
+          ctx.translate(cx, cy);
+          ctx.rotate(angle);
+          const beamGrad = ctx.createLinearGradient(0, 0, 0, height);
+          beamGrad.addColorStop(0, 'rgba(255, 255, 255, 0.15)');
+          beamGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+          ctx.fillStyle = beamGrad;
+          ctx.beginPath();
+          ctx.moveTo(-15, 0);
+          ctx.lineTo(15, 0);
+          ctx.lineTo(60, height);
+          ctx.lineTo(-60, height);
+          ctx.closePath();
+          ctx.fill();
+          ctx.restore();
+        }
+      }
+      // 6. Océano de Paz (Waves)
+      else if (type === 'video_proc_waves') {
+        const grad = ctx.createLinearGradient(0, 0, 0, height);
+        grad.addColorStop(0, '#0c4a6e');
+        grad.addColorStop(0.5, '#075985');
+        grad.addColorStop(1, '#0369a1');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, width, height);
+
+        for (let i = 0; i < 5; i++) {
+          ctx.beginPath();
+          const baseHeight = height * 0.4 + i * 80;
+          ctx.moveTo(0, baseHeight);
+          for (let x = 0; x <= width; x += 15) {
+            const y = baseHeight + Math.sin(x * 0.004 + time * (1 + i * 0.2) + i) * 35;
+            ctx.lineTo(x, y);
+          }
+          ctx.lineTo(width, height);
+          ctx.lineTo(0, height);
+          ctx.closePath();
+
+          const waveGrad = ctx.createLinearGradient(0, baseHeight - 40, 0, height);
+          waveGrad.addColorStop(0, `rgba(56, 189, 248, ${0.15 + i * 0.04})`);
+          waveGrad.addColorStop(1, 'rgba(3, 105, 161, 0.8)');
+          ctx.fillStyle = waveGrad;
+          ctx.fill();
+        }
+      }
+      // 7. Nebulosa Espiritual
+      else if (type === 'video_proc_nebula') {
+        ctx.fillStyle = '#090514';
+        ctx.fillRect(0, 0, width, height);
+
+        const centers = [
+          { x: width * 0.3 + Math.sin(time * 0.4) * 60, y: height * 0.35 + Math.cos(time * 0.3) * 50, color1: 'rgba(168, 85, 247, 0.25)', color2: 'rgba(126, 34, 206, 0)' },
+          { x: width * 0.7 + Math.cos(time * 0.5) * 60, y: height * 0.65 + Math.sin(time * 0.4) * 50, color1: 'rgba(236, 72, 153, 0.22)', color2: 'rgba(190, 24, 93, 0)' },
+          { x: width * 0.5 + Math.sin(time * 0.3) * 40, y: height * 0.5 + Math.sin(time * 0.6) * 40, color1: 'rgba(59, 130, 246, 0.20)', color2: 'rgba(29, 78, 216, 0)' }
+        ];
+
+        centers.forEach(c => {
+          const nebGrad = ctx.createRadialGradient(c.x, c.y, 20, c.x, c.y, width * 0.65);
+          nebGrad.addColorStop(0, c.color1);
+          nebGrad.addColorStop(1, c.color2);
+          ctx.fillStyle = nebGrad;
+          ctx.beginPath();
+          ctx.arc(c.x, c.y, width * 0.65, 0, Math.PI * 2);
+          ctx.fill();
+        });
+      }
+      // 8. Rayos del Amanecer
+      else if (type === 'video_proc_sunbeams') {
+        const grad = ctx.createLinearGradient(0, 0, 0, height);
+        grad.addColorStop(0, '#451a03');
+        grad.addColorStop(0.4, '#78350f');
+        grad.addColorStop(1, '#1e1b4b');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, width, height);
+
+        const sunX = width / 2;
+        const sunY = height * 0.15;
+
+        const sunGrad = ctx.createRadialGradient(sunX, sunY, 10, sunX, sunY, 250);
+        sunGrad.addColorStop(0, 'rgba(254, 240, 138, 0.6)');
+        sunGrad.addColorStop(0.3, 'rgba(251, 146, 60, 0.25)');
+        sunGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        ctx.fillStyle = sunGrad;
+        ctx.beginPath();
+        ctx.arc(sunX, sunY, 250, 0, Math.PI * 2);
+        ctx.fill();
+
+        const rayCount = 12;
+        for (let i = 0; i < rayCount; i++) {
+          const angle = (i * Math.PI / (rayCount - 1)) + Math.sin(time * 0.2 + i) * 0.05;
+          ctx.save();
+          ctx.translate(sunX, sunY);
+          ctx.rotate(angle - Math.PI / 2);
+          const rGrad = ctx.createLinearGradient(0, 0, 0, height);
+          rGrad.addColorStop(0, 'rgba(254, 240, 138, 0.18)');
+          rGrad.addColorStop(1, 'rgba(254, 240, 138, 0)');
+          ctx.fillStyle = rGrad;
+          ctx.beginPath();
+          ctx.moveTo(-20, 0);
+          ctx.lineTo(20, 0);
+          ctx.lineTo(120, height);
+          ctx.lineTo(-120, height);
+          ctx.closePath();
+          ctx.fill();
+          ctx.restore();
+        }
+      }
+      // 9. Esferas Bokeh Celestiales
+      else if (type === 'video_proc_bokeh') {
+        const grad = ctx.createLinearGradient(0, 0, 0, height);
+        grad.addColorStop(0, '#111827');
+        grad.addColorStop(1, '#1f2937');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, width, height);
+
+        for (let i = 0; i < 28; i++) {
+          const radius = 30 + (i % 6) * 20;
+          const speed = 15 + (i % 4) * 10;
+          const x = (i * 187.3 + Math.sin(time * 0.5 + i) * 30) % width;
+          const y = height - ((time * speed + i * 110) % (height + 150));
+          const opacity = 0.08 + (i % 5) * 0.04;
+
+          const bGrad = ctx.createRadialGradient(x, y, 0, x, y, radius);
+          bGrad.addColorStop(0, `rgba(56, 189, 248, ${opacity * 1.5})`);
+          bGrad.addColorStop(0.7, `rgba(168, 85, 247, ${opacity})`);
+          bGrad.addColorStop(1, 'rgba(0,0,0,0)');
+
+          ctx.fillStyle = bGrad;
+          ctx.beginPath();
+          ctx.arc(x, y, radius, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+      // 10. Polvo de Oro Celestial
+      else if (type === 'video_proc_golden_dust') {
+        const grad = ctx.createLinearGradient(0, 0, 0, height);
+        grad.addColorStop(0, '#1c1917');
+        grad.addColorStop(0.5, '#292524');
+        grad.addColorStop(1, '#0c0a09');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, width, height);
+
+        for (let i = 0; i < 50; i++) {
+          const x = (i * 131.7 + Math.sin(time * 0.9 + i) * 25) % width;
+          const speed = 18 + (i % 5) * 12;
+          const y = (time * speed + i * 95) % (height + 40) - 20;
+          const pulse = 0.3 + 0.7 * Math.abs(Math.sin(time * 2.2 + i));
+          const size = (2 + (i % 4) * 2) * pulse;
+
+          ctx.beginPath();
+          ctx.arc(x, y, size, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(253, 224, 71, ${pulse * 0.85})`;
+          ctx.shadowColor = '#fde047';
+          ctx.shadowBlur = 10;
           ctx.fill();
         }
       }
