@@ -53,7 +53,7 @@
       width: 100%;
     }
 
-    /* ENCABEZADO NORMAL (SE OCULTA AL SCROLL) */
+    /* ENCABEZADO SUPERIOR */
     header {
       text-align: center;
       padding: 16px 15px 8px;
@@ -79,7 +79,7 @@
 
     header p { color: var(--text-muted); font-size: 0.82rem; }
 
-    /* BARRAS DE NAVEGACIÓN FIJA Y PERMANENTE EN LA PARTE SUPERIOR */
+    /* NAVEGACIÓN FIJA AL SCROLL (STICKY) */
     .sticky-nav-wrapper {
       position: -webkit-sticky;
       position: sticky;
@@ -233,7 +233,7 @@
       flex-shrink: 0;
     }
 
-    /* VISTA DE EDICIÓN: PREVISUALIZACIÓN ARRIBA Y CONTROLES ABAJO */
+    /* VISTA DE EDICIÓN */
     .editor-layout {
       display: flex;
       flex-direction: column;
@@ -445,7 +445,7 @@
 </head>
 <body>
 
-  <!-- ENCABEZADO SUPERIOR CON LOGO (SE OCULTA AL DESPLAZAR) -->
+  <!-- ENCABEZADO SUPERIOR CON LOGO -->
   <header>
     <div class="header-logo-container">
       <img id="mainLogoHeader" src="logo.png" alt="Adventistas SV" class="header-logo" onload="processHeaderLogo(this)">
@@ -453,7 +453,7 @@
     <p>Frases e inspiración diaria • @adventistassv</p>
   </header>
 
-  <!-- BARRAS DE NAVEGACIÓN FIJA AL SCROLL -->
+  <!-- NAVEGACIÓN FIJA AL SCROLL -->
   <nav class="sticky-nav-wrapper">
     <div class="nav-tabs">
       <button id="tabBtnGallery" class="tab-btn active" onclick="switchTab('gallery')">Frases del Día</button>
@@ -463,13 +463,23 @@
   </nav>
 
   <div class="container">
-    <!-- GALERÍA DIARIA CON SELECTOR DE FECHAS Y BOTÓN GENERAR NUEVAS -->
+    <!-- GALERÍA DIARIA CON SELECTOR DE CATEGORÍA Y FECHA -->
     <div id="gallerySection">
       <div class="section-header">
         <h2 class="section-title" id="galleryTitle">Frases del Día</h2>
         <div class="date-selector-group">
+          
+          <!-- FILTRO DE CATEGORÍAS SOLICITADO -->
+          <label for="selectQuoteCategory" style="font-size: 0.82rem; color: var(--text-muted);">Ver:</label>
+          <select id="selectQuoteCategory" class="form-control" style="width: auto; min-height: 36px; padding: 4px 8px; font-size:0.82rem;" onchange="generateNewQuotesSet()">
+            <option value="todas" selected>✨ Todas las Frases</option>
+            <option value="biblia">📖 Solo Biblia</option>
+            <option value="escritos">✍️ Solo Escritos (E.G. White)</option>
+            <option value="himnos">🎵 Solo Himnos Adventistas</option>
+          </select>
+
           <label for="historyDate" style="font-size: 0.82rem; color: var(--text-muted);">Fecha:</label>
-          <input type="date" id="historyDate" class="form-control" style="width: auto; min-height: 36px; padding: 4px 10px;" onchange="loadQuotesForSelectedDate(this.value)">
+          <input type="date" id="historyDate" class="form-control" style="width: auto; min-height: 36px; padding: 4px 8px;" onchange="loadQuotesForSelectedDate(this.value)">
           <button class="btn btn-secondary" style="min-height: 36px; padding: 4px 10px;" onclick="resetToTodayDate()">Hoy</button>
           <button class="btn btn-secondary" style="min-height: 36px; padding: 4px 10px;" onclick="generateNewQuotesSet()">🔄 Generar Nuevas</button>
         </div>
@@ -483,7 +493,7 @@
       
       <div class="editor-layout">
         
-        <!-- 1. PREVISUALIZACIÓN Y ACCIONES (ARRIBA) -->
+        <!-- PREVISUALIZACIÓN Y ACCIONES -->
         <div class="editor-preview">
           <div id="previewBox" class="canvas-container" style="max-width: 420px; border-radius: 10px; overflow: hidden;" onclick="openCanvasModal(document.getElementById('customCanvas'))">
             <canvas id="customCanvas"></canvas>
@@ -502,7 +512,7 @@
           </div>
         </div>
 
-        <!-- 2. PANEL DE PARÁMETROS Y CONTROLES (ABAJO) -->
+        <!-- CONTROLES DEL EDITOR -->
         <div class="editor-controls">
           <div class="form-group">
             <label>Texto de la Frase:</label>
@@ -528,7 +538,6 @@
             </select>
           </div>
 
-          <!-- CASILLA DE VERIFICACIÓN PARA ACTIVAR / DESACTIVAR LOGO -->
           <div class="form-group" style="margin-top: 4px;">
             <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 600; color: #fff;">
               <input type="checkbox" id="chkShowLogo" checked onchange="updateCustomCanvas()" style="width: 18px; height: 18px; accent-color: var(--accent);">
@@ -536,7 +545,6 @@
             </label>
           </div>
 
-          <!-- SELECTOR PARA PERSONALIZAR EL LOGO -->
           <div class="form-group">
             <label>Personalizar el Logo:</label>
             <select id="selectLogo" class="form-control" onchange="handleLogoChange()">
@@ -655,7 +663,7 @@
             <input type="file" id="inputCustomBg" class="form-control" accept="image/*" onchange="handleUserBgUpload(event)">
           </div>
 
-          <!-- BUSCADOR DE FONDOS POR PALABRAS Y REFRESCADOR -->
+          <!-- BUSCADOR Y SELECCIÓN DE FONDOS -->
           <div class="form-group">
             <div class="bg-grid-header">
               <label>Selecciona o Busca un Fondo:</label>
@@ -676,13 +684,12 @@
     </div>
   </div>
 
-  <!-- MODAL DE VISUALIZACIÓN -->
+  <!-- MODALES Y DIÁLOGOS -->
   <div id="imageModal" class="modal" onclick="closeModal()">
     <button class="modal-close" onclick="closeModal()">✕</button>
     <img id="modalImg" class="modal-content" src="" alt="Vista Previa" onclick="event.stopPropagation()">
   </div>
 
-  <!-- RESPALDO DE COMPARTIR -->
   <div id="shareModal" class="modal" onclick="closeShareModal()">
     <div class="minimal-menu-card" onclick="event.stopPropagation()">
       <div class="minimal-menu-title">Compartir contenido</div>
@@ -693,7 +700,6 @@
     </div>
   </div>
 
-  <!-- SELECCIÓN DE TAMAÑO Y FORMATO PARA DESCARGAR -->
   <div id="downloadModal" class="modal" onclick="closeDownloadModal()">
     <div class="minimal-menu-card" onclick="event.stopPropagation()">
       <div class="minimal-menu-title">Opciones de Descarga</div>
@@ -725,7 +731,6 @@
     const loadedLogos = {};
     const imageCache = {};
 
-    /* FUENTES CURSIVAS O CALIGRÁFICAS QUE USAN MAYÚSCULAS SOLO AL INICIO O TRAS PUNTO */
     const SCRIPT_FONTS = [
       'Pacifico', 'Satisfy', 'Caveat', 'Dancing Script', 'Great Vibes',
       'Alex Brush', 'Sacramento', 'Italianno', 'Courgette', 'Abril Fatface'
@@ -775,7 +780,7 @@
       'Quicksand': { main: '700 48px "Quicksand", sans-serif', cita: 'italic 34px "Quicksand", sans-serif', lineH: 66 }
     };
 
-    /* BANCO MASIVO DE FRASES */
+    /* BANCO CLASIFICADO DE FRASES */
     const RAW_BIBLIA = [
       { frase: "JEHOVÁ ES MI PASTOR; NADA ME FALTARÁ.", cita: "Salmos 23:1" },
       { frase: "EN LUGARES DE DELICADOS PASTOS ME HARÁ DESCANSAR; JUNTO A AGUAS DE REPOSO ME PASTOREARÁ.", cita: "Salmos 23:2" },
@@ -791,7 +796,7 @@
       { frase: "NADA PODRÁ SEPARARNOS DEL AMOR DE DIOS QUE ES EN CRISTO JESÚS.", cita: "Romanos 8:39" },
       { frase: "CLAMA A MÍ, Y YO TE RESPONDERÉ, Y TE ENSEÑARÉ COSAS GRANDES Y OCULTAS.", cita: "Jeremías 33:3" },
       { frase: "PORQUE YO SÉ LOS PENSAMIENTOS QUE TENGO ACERCA DE VOSOTROS, PENSAMIENTOS DE PAZ.", cita: "Jeremías 29:11" },
-      { frase: "DIOS ES NUESTRO AMPARO Y FORTALEZA, NUESTRO PRONTO AUXILIO EN LAS TRIBUNACIONES.", cita: "Salmos 46:1" },
+      { frase: "DIOS ES NUESTRO AMPARO Y FORTALEZA, NUESTRO PRONTO AUXILIO EN LAS TRIBULACIONES.", cita: "Salmos 46:1" },
       { frase: "ESTAD QUIETOS, Y CONOCED QUE YO SOY DIOS.", cita: "Salmos 46:10" },
       { frase: "EL AMOR ES SUFRIDO, ES BENIGNO; EL AMOR NO TIENE ENVIDIA, NO ES JACTANCIOSO.", cita: "1 Corintios 13:4" },
       { frase: "MIRA QUE TE MANDO QUE TE ESFUERZES Y SEAS VALIENTE; NO TEMAS NI DESMAYES.", cita: "Josué 1:9" },
@@ -814,9 +819,9 @@
 
     const RAW_HIMNOS = [
       { frase: "CUAN GRANDE ES ÉL, CUAN GRANDE ES ÉL, MI CORAZÓN REBOSA DE SU AMOR.", cita: "Himno Adventista #77" },
-      { frase: "DULCE ORACIÓN, DULCE ORACIÓN, QUE AL TRONO DE MIPADRE Y DIOS ME ELEVAS.", cita: "Himno Adventista #378" },
+      { frase: "DULCE ORACIÓN, DULCE ORACIÓN, QUE AL TRONO DE MI PADRE Y DIOS ME ELEVAS.", cita: "Himno Adventista #378" },
       { frase: "CANTARÉ LA BELLA HISTORIA DE MI SALVADOR JESÚS.", cita: "Himno Adventista #162" },
-      { frase: "roca de la eternidad, fuiste abierta para mí.", cita: "Himno Adventista #334" },
+      { frase: "ROCA DE LA ETERNIDAD, FUISTE ABIERTA PARA MÍ.", cita: "Himno Adventista #334" },
       { frase: "FIRMES Y ADELANTE, HUESTES DE LA FE, SIN TEMOR ALGUNO QUE JESÚS NOS VE.", cita: "Himno Adventista #505" },
       { frase: "COMPRADO CON SANGRE POR CRISTO, CON GOZO AL CIELO YO VOY.", cita: "Himno Adventista #240" },
       { frase: "PAZ, PAZ, CUÁN DULCE PAZ, LA QUE DA EL PADRE CELESTIAL.", cita: "Himno Adventista #382" },
@@ -825,39 +830,9 @@
       { frase: "PRONTO VENDRÁ EL SEÑOR Y SU GLORIA VEREMOS REINAR.", cita: "Himno Adventista #170" }
     ];
 
-    function buildExpandedQuoteBank() {
-      let bank = [...RAW_BIBLIA, ...RAW_ESCRITOS, ...RAW_HIMNOS];
-      const bibliaPromesas = [
-        "EN CRISTO HAY SIEMPRE ESPERANZA Y NUEVA VIDA.",
-        "NADA ES IMPOSIBLE PARA EL QUE TIENE FE EN DIOS.",
-        "LA GRACIA DE DIOS ES MÁS QUE SUFICIENTE PARA TI.",
-        "CONFÍA EN EL SEÑOR DE TODO CORAZÓN Y ÉL GUIARÁ TUS PASOS.",
-        "SU AMOR ES ETERNO Y SU FIDELIDAD NUNCA FALLA.",
-        "CADA DÍA TIENE SU PROPIO AFÁN, PERO DIOS TIENE EL CONTROL.",
-        "EL SEÑOR GUARDA TU SALIDA Y TU ENTRADA DESDE AHORA Y PARA SIEMPRE.",
-        "PERSEVERA EN LA ORACIÓN Y MANTÉN VIVA LA FE.",
-        "DIOS ES TU REFUGIO SEGURO EN LOS DÍAS DIFÍCILES.",
-        "CAMINA POR FE, NO POR LO QUE VES A TU ALREDEDOR."
-      ];
+    const QUOTES_BANK = [...RAW_BIBLIA, ...RAW_ESCRITOS, ...RAW_HIMNOS];
 
-      const citasBiblicas = [
-        "Proverbios 3:5-6", "Salmos 91:1-2", "Isaías 41:10", "Mateo 11:28", 
-        "Romanos 12:12", "Salmos 121:1-2", "1 Pedro 5:7", "Salmos 34:8", 
-        "2 Corintios 5:7", "Filipenses 4:19", "Salmos 103:1-3", "Deuteronomio 31:6"
-      ];
-
-      for (let p of bibliaPromesas) {
-        for (let c of citasBiblicas) {
-          bank.push({ frase: p, cita: c });
-        }
-      }
-
-      return bank;
-    }
-
-    const QUOTES_BANK = buildExpandedQuoteBank();
-
-    /* BANCO GARANTIZADO DE FOTOGRAFÍAS DE ALTA RESOLUCIÓN CON CATEGORÍAS */
+    /* 📸 BANCO DE 50 FOTOGRAFÍAS DE ALTA RESOLUCIÓN */
     const ALL_STOCK_PHOTOS = [
       { url: 'https://images.unsplash.com/photo-1513002749550-c59d786b8e6c?auto=format&fit=crop&w=800&q=80', tags: 'cielo nubes azul sol luz sky' },
       { url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80', tags: 'mar playa sol agua orilla ocean' },
@@ -883,10 +858,35 @@
       { url: 'https://images.unsplash.com/photo-1511497584788-876761c119ef?auto=format&fit=crop&w=800&q=80', tags: 'bosque verde arboles naturaleza' },
       { url: 'https://images.unsplash.com/photo-1532274402911-5a369e4c4bb5?auto=format&fit=crop&w=800&q=80', tags: 'puente lago madera serenidad' },
       { url: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=800&q=80', tags: 'cruz fe luz cielo esperanza' },
-      { url: 'https://images.unsplash.com/photo-1508739773434-c26b3d09e071?auto=format&fit=crop&w=800&q=80', tags: 'cielo purpura noche estrellas paz' }
+      { url: 'https://images.unsplash.com/photo-1508739773434-c26b3d09e071?auto=format&fit=crop&w=800&q=80', tags: 'cielo purpura noche estrellas paz' },
+      { url: 'https://images.unsplash.com/photo-1510784722466-f2aa9c52fff6?auto=format&fit=crop&w=800&q=80', tags: 'atardecer cielo rosa nube sol' },
+      { url: 'https://images.unsplash.com/photo-1506765515384-028b60a970df?auto=format&fit=crop&w=800&q=80', tags: 'cruz fe luz atardecer silueta' },
+      { url: 'https://images.unsplash.com/photo-1490730141103-6cac27aaab94?auto=format&fit=crop&w=800&q=80', tags: 'pajaro libertad cielo sol amanecer' },
+      { url: 'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?auto=format&fit=crop&w=800&q=80', tags: 'flores campo primavera naturaleza' },
+      { url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80', tags: 'costa playa mar azul horizonte' },
+      { url: 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?auto=format&fit=crop&w=800&q=80', tags: 'luz solar sol arbol hojas verde' },
+      { url: 'https://images.unsplash.com/photo-1418065460487-3e41a6c84dc5?auto=format&fit=crop&w=800&q=80', tags: 'bosque verde musgo paz sendero' },
+      { url: 'https://images.unsplash.com/photo-1473448912268-2022ce9509d8?auto=format&fit=crop&w=800&q=80', tags: 'bosque otono hojas doradas arboles' },
+      { url: 'https://images.unsplash.com/photo-1502134249126-9f3755a50d78?auto=format&fit=crop&w=800&q=80', tags: 'universo estrellas nebulosa noche cosmos' },
+      { url: 'https://images.unsplash.com/photo-1519817650390-64a93db51149?auto=format&fit=crop&w=800&q=80', tags: 'cruz altar iglesia fe luz' },
+      { url: 'https://images.unsplash.com/photo-1438786657495-640937046d18?auto=format&fit=crop&w=800&q=80', tags: 'faro mar noche luz guia esperanza' },
+      { url: 'https://images.unsplash.com/photo-1498855926480-d98e83099315?auto=format&fit=crop&w=800&q=80', tags: 'montaña nieve frio cumbre azul' },
+      { url: 'https://images.unsplash.com/photo-1504608524841-42fe6f032b4b?auto=format&fit=crop&w=800&q=80', tags: 'tormenta nubes rayos esperanza luz' },
+      { url: 'https://images.unsplash.com/photo-1492571350019-22de08371fd3?auto=format&fit=crop&w=800&q=80', tags: 'jardin flores calma paz meditar' },
+      { url: 'https://images.unsplash.com/photo-1501854140801-50d01698950b?auto=format&fit=crop&w=800&q=80', tags: 'paisaje verde colinas libertad' },
+      { url: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=800&q=80', tags: 'espacio universo noche azul estrellas' },
+      { url: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=800&q=80', tags: 'senderismo montaña libertad sol caminata' },
+      { url: 'https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?auto=format&fit=crop&w=800&q=80', tags: 'bosque puente madera arboles camino' },
+      { url: 'https://images.unsplash.com/photo-1476820865390-c52aeea957d7?auto=format&fit=crop&w=800&q=80', tags: 'otono camino hojas doradas paz' },
+      { url: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=800&q=80', tags: 'silueta fe oracion atardecer meditar' },
+      { url: 'https://images.unsplash.com/photo-1518098268026-4e89f1a2cd8b?auto=format&fit=crop&w=800&q=80', tags: 'cielo nubes doradas amanecer sol' },
+      { url: 'https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?auto=format&fit=crop&w=800&q=80', tags: 'atardecer mar sol fuego oro' },
+      { url: 'https://images.unsplash.com/photo-1517824806704-9040b037703b?auto=format&fit=crop&w=800&q=80', tags: 'bosque niebla mistico paz arboles' },
+      { url: 'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&w=800&q=80', tags: 'mar azul infinito tranquilidad orilla' },
+      { url: 'https://images.unsplash.com/photo-1500964757637-c85e8a162699?auto=format&fit=crop&w=800&q=80', tags: 'colinas prado verde cielo nubes' }
     ];
 
-    /* PATRONES Y TEXTURAS */
+    /* 🎨 BANCO DE 50 PATRONES Y TEXTURAS */
     const ALL_PATTERNS = [
       'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80',
@@ -897,21 +897,64 @@
       'https://images.unsplash.com/photo-1508615039623-a25605d2b022?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&w=800&q=80'
+      'https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1528459801416-a9e53bbf4e17?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1550684847-75bdda21cc95?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1533158307587-828f0a76ef46?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1579546929662-711aa81148cf?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1557683316-973673baf926?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1557683311-eac922347aa1?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1557682250-33bd709cbe85?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1604076913837-52ab5629fba9?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1518640467707-6811f4a6ab73?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1508615039623-a25605d2b022?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1528459801416-a9e53bbf4e17?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1550684847-75bdda21cc95?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1533158307587-828f0a76ef46?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1579546929662-711aa81148cf?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1604076913837-52ab5629fba9?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1518640467707-6811f4a6ab73?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1508615039623-a25605d2b022?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1528459801416-a9e53bbf4e17?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1550684847-75bdda21cc95?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1533158307587-828f0a76ef46?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1579546929662-711aa81148cf?auto=format&fit=crop&w=800&q=80'
     ];
 
-    /* DEGRADADOS */
+    /* 🌈 BANCO DE 50 DEGRADADOS ELEGANTES */
     const ALL_GRADIENTS = [
-      ['#0f172a', '#1e3a8a'],
-      ['#2d124d', '#1e1b4b'],
-      ['#134e4a', '#064e3b'],
-      ['#7c2d12', '#451a03'],
-      ['#312e81', '#4c1d95'],
-      ['#0f2027', '#203a43'],
-      ['#1a2a6c', '#b21f1f'],
-      ['#232526', '#414345'],
-      ['#1e130c', '#9a8478'],
-      ['#000428', '#004e92']
+      ['#0f172a', '#1e3a8a'], ['#2d124d', '#1e1b4b'], ['#134e4a', '#064e3b'], ['#7c2d12', '#451a03'],
+      ['#312e81', '#4c1d95'], ['#0f2027', '#203a43'], ['#1a2a6c', '#b21f1f'], ['#232526', '#414345'],
+      ['#1e130c', '#9a8478'], ['#000428', '#004e92'], ['#2c3e50', '#000000'], ['#3a1c71', '#d76d77'],
+      ['#0f0c29', '#24243e'], ['#141e30', '#243b55'], ['#42275a', '#734b6d'], ['#101010', '#2c2c2c'],
+      ['#16222a', '#3a6073'], ['#1f1c2c', '#928dab'], ['#23074d', '#cc5333'], ['#11998e', '#38ef7d'],
+      ['#00b4db', '#0083b0'], ['#40e0d0', '#ff8c00'], ['#3e5151', '#decba4'], ['#121212', '#383838'],
+      ['#1a1c20', '#30343f'], ['#0d1117', '#161b22'], ['#181925', '#24273a'], ['#281e22', '#39282f'],
+      ['#102a43', '#243b53'], ['#0a2540', '#205493'], ['#1e2022', '#686d76'], ['#1b2a4a', '#3b5998'],
+      ['#132238', '#214068'], ['#191825', '#865d36'], ['#1b1a17', '#a370f0'], ['#000000', '#434343'],
+      ['#161616', '#363636'], ['#1c1c1c', '#444444'], ['#020205', '#191923'], ['#0b0c10', '#1f2833'],
+      ['#031b33', '#003366'], ['#120078', '#9d0191'], ['#1e0338', '#4b0082'], ['#220033', '#660066'],
+      ['#002020', '#004040'], ['#2b0000', '#550000'], ['#002200', '#005500'], ['#1a0033', '#330066'],
+      ['#26001b', '#510038'], ['#001a26', '#003652']
     ];
 
     let activePhotos = [];
@@ -927,12 +970,10 @@
     let previewAnimId = null;
     let isPreviewPlaying = false;
 
-    /* OBTENER URL LIMPIA SIN PARÁMETROS DE RASTREO (?fbclid=..., etc.) */
     function getCleanBaseUrl() {
       return window.location.origin + window.location.pathname;
     }
 
-    /* GENERADOR DE ENLACES CORTOS */
     async function getShortUrl(longUrl) {
       const targetUrl = longUrl || getCleanBaseUrl();
       try {
@@ -948,7 +989,6 @@
       return getCleanBaseUrl();
     }
 
-    /* FORMATO INTELIGENTE DE TEXTO SEGÚN TIPOGRAFÍA */
     function formatPhraseText(text, fontName) {
       if (!text) return '';
       if (SCRIPT_FONTS.includes(fontName)) {
@@ -975,21 +1015,34 @@
       return shuffled.slice(0, count);
     }
 
+    /* FILTRAR BANCO POR CATEGORÍA SELECCIONADA */
+    function getQuotesByCategory(category) {
+      if (category === 'biblia') return RAW_BIBLIA;
+      if (category === 'escritos') return RAW_ESCRITOS;
+      if (category === 'himnos') return RAW_HIMNOS;
+      return QUOTES_BANK;
+    }
+
     function getQuotesForDate(dateStr, count = 10) {
+      const category = document.getElementById('selectQuoteCategory')?.value || 'todas';
+      const pool = getQuotesByCategory(category);
       const baseSeed = getDateSeed(dateStr);
       const quotes = [];
-      const totalAvailable = QUOTES_BANK.length;
+      const totalAvailable = pool.length;
 
       for (let i = 0; i < count; i++) {
         const index = Math.floor(seededRandom(baseSeed + i) * totalAvailable);
-        quotes.push(QUOTES_BANK[index % totalAvailable]);
+        quotes.push(pool[index % totalAvailable]);
       }
       return quotes;
     }
 
+    /* GENERAR NUEVAS FRASES CON FONDOS FRESCOS */
     async function generateNewQuotesSet() {
       refreshAllBackgrounds();
-      const shuffledQuotes = [...QUOTES_BANK].sort(() => 0.5 - Math.random()).slice(0, 10);
+      const category = document.getElementById('selectQuoteCategory')?.value || 'todas';
+      const pool = getQuotesByCategory(category);
+      const shuffledQuotes = [...pool].sort(() => 0.5 - Math.random()).slice(0, 10);
       renderDailyGrid(shuffledQuotes);
     }
 
@@ -1179,19 +1232,18 @@
       }
     }
 
-    /* OBTENER IMÁGENES GARANTIZADAS SIN ERRORES */
+    /* REFRESCAR CON NUEVAS IMÁGENES ALEATORIAS DEL BANCO DE 50 */
     function refreshAllBackgrounds() {
       const searchInput = document.getElementById('inputBgSearch');
       if (searchInput) searchInput.value = '';
 
-      activePhotos = getRandomItems(ALL_STOCK_PHOTOS, 16).map(item => item.url);
-      activePatterns = getRandomItems(ALL_PATTERNS, 8);
-      activeGradients = getRandomItems(ALL_GRADIENTS, 8);
+      activePhotos = getRandomItems(ALL_STOCK_PHOTOS, 20).map(item => item.url);
+      activePatterns = getRandomItems(ALL_PATTERNS, 16);
+      activeGradients = getRandomItems(ALL_GRADIENTS, 16);
       renderBgThumbnails(true);
       updateCustomCanvas();
     }
 
-    /* BÚSQUEDA ROBUSTA DE IMÁGENES POR PALABRAS CLAVE CON FALLBACK GARANTIZADO */
     function searchBackgrounds() {
       const term = document.getElementById('inputBgSearch').value.trim().toLowerCase();
       if (!term) {
@@ -1199,21 +1251,18 @@
         return;
       }
 
-      // Filtrar imágenes que coincidan con la búsqueda
       const matched = ALL_STOCK_PHOTOS.filter(item => item.tags.toLowerCase().includes(term)).map(item => item.url);
 
       if (matched.length > 0) {
         activePhotos = matched;
       } else {
-        // Si no hay coincidencia exacta, mostrar selección aleatoria sin romper la pantalla
-        activePhotos = getRandomItems(ALL_STOCK_PHOTOS, 12).map(item => item.url);
+        activePhotos = getRandomItems(ALL_STOCK_PHOTOS, 16).map(item => item.url);
       }
 
       renderBgThumbnails(true);
       updateCustomCanvas();
     }
 
-    /* CAMBIO Y PERSISTENCIA DE PESTAÑAS (GUARDA ESTADO EN LOCALSTORAGE Y HASH) */
     function switchTab(tab, updateHistory = true) {
       stopPreviewAnimation();
       const gSec = document.getElementById('gallerySection');
@@ -1260,7 +1309,6 @@
         img.src = url;
         img.className = `bg-thumb ${selectedBg === 'photo_' + i ? 'active' : ''}`;
         
-        // Manejo automático de errores de carga de imágenes para evitar íconos rotos
         img.onerror = function() {
           this.onerror = null;
           const fallback = ALL_STOCK_PHOTOS[i % ALL_STOCK_PHOTOS.length].url;
@@ -1280,7 +1328,7 @@
       container.appendChild(secPhotos);
 
       const secPatterns = document.createElement('div');
-      secPatterns.innerHTML = `<div class="bg-section-title">🎨 Patrones y Texturas</div>`;
+      secPatterns.innerHTML = `<div class="bg-section-title">🎨 Patrones y Texturas (${activePatterns.length})</div>`;
       const gridPatterns = document.createElement('div');
       gridPatterns.className = 'bg-grid';
 
@@ -1304,7 +1352,7 @@
       container.appendChild(secPatterns);
 
       const secGrads = document.createElement('div');
-      secGrads.innerHTML = `<div class="bg-section-title">🌈 Degradados Elegantes</div>`;
+      secGrads.innerHTML = `<div class="bg-section-title">🌈 Degradados Elegantes (${activeGradients.length})</div>`;
       const gridGrads = document.createElement('div');
       gridGrads.className = 'bg-grid';
 
@@ -1353,7 +1401,6 @@
       }
     }
 
-    /* EFECTOS VISUALES EN MOVIMIENTO / PARTÍCULAS OVERLAY COMPLETO */
     function drawOverlayEffects(ctx, width, height, effectType, time) {
       if (!effectType || effectType === 'none') return;
 
@@ -1620,7 +1667,6 @@
       let citationAlpha = 1.0, citationYOffset = 0, citationXOffset = 0;
       let handleAlpha = 1.0, handleYOffset = 0, handleXOffset = 0;
 
-      /* APLICAR FORMATO INTELIGENTE AL TEXTO DE LA FRASE SEGÚN LA TIPOGRAFÍA */
       const formattedPhrase = formatPhraseText(phrase, fontPhraseName);
       let typewriterChars = formattedPhrase.length;
 
@@ -1690,7 +1736,7 @@
         logoAlpha = phraseAlpha = citationAlpha = handleAlpha = a;
       }
 
-      /* FONDO */
+      /* DIBUJAR FONDO */
       if (bgType === 'user_custom' && userCustomImg) {
         drawCoverImage(ctx, userCustomImg, canvas.width, canvas.height, bgScale);
         ctx.fillStyle = 'rgba(0, 0, 0, 0.48)';
@@ -1720,7 +1766,7 @@
         drawGrad(ctx, canvas, gIndex, bgScale);
       }
 
-      /* DEGRADADOS VIGNEADO */
+      /* OSCURECIMIENTO GRADUAL EN BORDES */
       const topGradHeight = (ratioKey === '9:16') ? 320 : 260;
       const topGrad = ctx.createLinearGradient(0, 0, 0, topGradHeight);
       topGrad.addColorStop(0, 'rgba(0, 0, 0, 0.70)');
@@ -1735,10 +1781,8 @@
       ctx.fillStyle = botGrad;
       ctx.fillRect(0, canvas.height - botGradHeight, canvas.width, botGradHeight);
 
-      /* DIBUJAR EFECTOS EN MOVIMIENTO DE PARTÍCULAS */
       drawOverlayEffects(ctx, canvas.width, canvas.height, effectType, time);
 
-      /* TRANSFORMACIÓN GENERAL DEL CONTENIDO */
       ctx.save();
       if (contentScale !== 1.0 || contentRotate !== 0) {
         ctx.translate(canvas.width / 2, canvas.height / 2);
@@ -1780,7 +1824,7 @@
         ctx.restore();
       }
 
-      /* DIBUJAR TEXTO DE LA FRASE */
+      /* TEXTO DE LA FRASE */
       const displayPhrase = (animType === 'typewriter') ? formattedPhrase.substring(0, typewriterChars) : formattedPhrase;
       const words = displayPhrase.split(' ');
       let lines = [];
@@ -1825,7 +1869,7 @@
         ctx.restore();
       }
 
-      /* CITA BÍBLICA */
+      /* CITA BÍBLICA O REFERENCIA */
       let citationY = startY + (lines.length * phraseFontCfg.lineH) + 45 + citationYOffset;
       if (citationAlpha > 0.01) {
         ctx.save();
@@ -1842,7 +1886,7 @@
         ctx.restore();
       }
 
-      /* PIE DE IMAGEN (@HANDLE / USUARIO) */
+      /* USUARIO / PIE DE PÁGINA */
       let footerY = canvas.height - 90;
       if (ratioKey === '9:16') footerY = canvas.height - 140;
       if (ratioKey === '1:1') footerY = canvas.height - 90;
@@ -2006,7 +2050,6 @@
       });
     }
 
-    /* CONTROL DE REPRODUCCIÓN DE AUDIO */
     function stopAudioPlayback() {
       if (activeAudioEl) {
         activeAudioEl.pause();
@@ -2044,8 +2087,6 @@
 
       return audio;
     }
-
-    /* PREVISUALIZACIÓN Y CONTROL DE ANIMACIÓN */
 
     function stopPreviewAnimation() {
       if (previewAnimId) {
@@ -2121,7 +2162,6 @@
       );
     }
 
-    /* GENERADOR DE VIDEO CON AUDIO Y HASTA 30 SEGUNDOS PARA DESCARGAR */
     async function generarVideoAnimado() {
       stopPreviewAnimation();
 
@@ -2141,7 +2181,6 @@
       btn.innerText = "⏳ Grabando video (0%)...";
       btn.disabled = true;
 
-      /* INICIAR AUDIO Y CAPTURAR STREAM CON AUDIO MIXED */
       const audioEl = await startAudioPlayback();
 
       const fps = 30;
@@ -2271,10 +2310,15 @@
 
       for (let i = 0; i < quotesList.length; i++) {
         const item = quotesList[i];
-        const fontPhraseName = fontKeys[i % fontKeys.length];
-        const fontCitationName = fontKeys[(i + 3) % fontKeys.length];
+        const fontPhraseName = fontKeys[Math.floor(Math.random() * fontKeys.length)];
+        const fontCitationName = fontKeys[Math.floor(Math.random() * fontKeys.length)];
         const logoKey = logoRotation[i % logoRotation.length];
-        const bgType = (i % 2 === 0) ? `photo_${i % activePhotos.length}` : `grad_${i % activeGradients.length}`;
+        
+        // Selección variada entre fotos, patrones y degradados
+        const bgChoice = Math.floor(Math.random() * 3);
+        let bgType = `photo_${Math.floor(Math.random() * activePhotos.length)}`;
+        if (bgChoice === 1) bgType = `pattern_${Math.floor(Math.random() * activePatterns.length)}`;
+        if (bgChoice === 2) bgType = `grad_${Math.floor(Math.random() * activeGradients.length)}`;
 
         const card = document.createElement('div');
         card.className = 'card';
@@ -2352,7 +2396,6 @@
       refreshAllBackgrounds();
       resetToTodayDate();
 
-      // Detectar y mantener la pestaña activa al recargar la página (Editor o Galería)
       const currentTab = window.location.hash === '#editor' || localStorage.getItem('activeTab') === 'editor' ? 'editor' : 'gallery';
       switchTab(currentTab, false);
     }
