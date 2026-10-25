@@ -904,7 +904,7 @@
             </div>
             
             <div style="display: flex; gap: 6px; margin-top: 4px; margin-bottom: 8px;">
-              <input type="text" id="inputBgSearch" class="form-control" placeholder="Buscar (ej: cielo, montaña, mar, luz, cruz, bosque)..." onkeyup="if(event.key==='Enter') searchBackgrounds()">
+              <input type="text" id="inputBgSearch" class="form-control" placeholder="Buscar en la web (ej: cielo, montaña, mar, cruz, luz)..." onkeyup="if(event.key==='Enter') searchBackgrounds()">
               <button class="btn" style="min-height: 38px; padding: 4px 12px; flex-shrink: 0;" onclick="searchBackgrounds()">🔍 Buscar</button>
             </div>
 
@@ -1035,7 +1035,7 @@
       'Lora', 'Merriweather', 'Quicksand', 'Montserrat', 'Poppins', 'Outfit'
     ];
 
-    /* BASE DE DATOS LOCAL DE NAVEGADOR EN WEBP (INDEXEDDB) PARA PERSISTENCIA DÍA A DÍA */
+    /* BASE DE DATOS LOCAL EN WEBP (INDEXEDDB) PARA PERSISTIR DÍA A DÍA */
     const DB_NAME = 'AdventistasSV_DB';
     const CARDS_STORE = 'generated_cards_webp';
     const TRACKS_STORE = 'cached_tracks';
@@ -1268,40 +1268,6 @@
 
     const QUOTES_BANK = [...RAW_BIBLIA, ...RAW_ESCRITOS, ...RAW_HIMNOS];
 
-    /* BASE DE DATOS DE FOTOGRAFÍAS ÚNICAS Y DIFERENTES PARA EVITAR DUPLICADOS */
-    const ALL_STOCK_PHOTOS = [
-      { url: 'https://images.unsplash.com/photo-1513002749550-c59d786b8e6c?auto=format&fit=crop&w=800&q=80', tags: 'cielo nubes azul sol luz sky' },
-      { url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80', tags: 'mar playa sol agua orilla ocean' },
-      { url: 'https://images.unsplash.com/photo-1470240731273-7821a6eeb6bd?auto=format&fit=crop&w=800&q=80', tags: 'montaña bosque verde naturaleza' },
-      { url: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=800&q=80', tags: 'estrellas noche galaxia cielo star' },
-      { url: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80', tags: 'lago agua montaña reflejo azul' },
-      { url: 'https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=800&q=80', tags: 'bosque verde pino arboles naturaleza' },
-      { url: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=800&q=80', tags: 'camino desierto libertad fe viaje' },
-      { url: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=800&q=80', tags: 'paisaje lago paz calma azul' },
-      { url: 'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&w=800&q=80', tags: 'campo prado sol verde luz' },
-      { url: 'https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?auto=format&fit=crop&w=800&q=80', tags: 'cascada agua rio rocas vida' },
-      { url: 'https://images.unsplash.com/photo-1518837695005-2083093ee35b?auto=format&fit=crop&w=800&q=80', tags: 'mar azul ola agua orilla' },
-      { url: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=800&q=80', tags: 'niebla montaña verde paz manana' },
-      { url: 'https://images.unsplash.com/photo-1426604966848-d7adac402bff?auto=format&fit=crop&w=800&q=80', tags: 'valle verde montaña cielo rocas' },
-      { url: 'https://images.unsplash.com/photo-1475924156734-496f6cac6ec1?auto=format&fit=crop&w=800&q=80', tags: 'atardecer sol amanecer dorado fuego sunset' },
-      { url: 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=800&q=80', tags: 'arbol hoja verde naturaleza vida' },
-      { url: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=800&q=80', tags: 'montaña cumbre nieve alto cima' },
-      { url: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80', tags: 'campo prado sol luz dorada' },
-      { url: 'https://images.unsplash.com/photo-1499209974431-9dddcece7f88?auto=format&fit=crop&w=800&q=80', tags: 'fe biblia oracion manos paz' },
-      { url: 'https://images.unsplash.com/photo-1497436072909-60f360e1d4b1?auto=format&fit=crop&w=800&q=80', tags: 'agua rio cristalina naturaleza' },
-      { url: 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=800&q=80', tags: 'pino nieve frio invierno paz' },
-      { url: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=800&q=80', tags: 'bosque sol rayos luz arboles' },
-      { url: 'https://images.unsplash.com/photo-1511497584788-876761c119ef?auto=format&fit=crop&w=800&q=80', tags: 'bosque verde arboles naturaleza' },
-      { url: 'https://images.unsplash.com/photo-1532274402911-5a369e4c4bb5?auto=format&fit=crop&w=800&q=80', tags: 'puente lago madera serenidad' },
-      { url: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=800&q=80', tags: 'cruz fe luz cielo esperanza' },
-      { url: 'https://images.unsplash.com/photo-1508739773434-c26b3d09e071?auto=format&fit=crop&w=800&q=80', tags: 'cielo purpura noche estrellas paz' },
-      { url: 'https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?auto=format&fit=crop&w=800&q=80', tags: 'atardecer dorado horizonte nubes' },
-      { url: 'https://images.unsplash.com/photo-1509023464722-18d996393ca8?auto=format&fit=crop&w=800&q=80', tags: 'bosque pino amanecer neblina' },
-      { url: 'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?auto=format&fit=crop&w=800&q=80', tags: 'flores campo primavera naturaleza' },
-      { url: 'https://images.unsplash.com/photo-1476820865390-c52aeea957d7?auto=format&fit=crop&w=800&q=80', tags: 'noche estrellas firmamento infinito' },
-      { url: 'https://images.unsplash.com/photo-1500964757637-c85e8a162699?auto=format&fit=crop&w=800&q=80', tags: 'montañas cordillera cumbre aire fresco' }
-    ];
-
     const ALL_PATTERNS = [
       'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80',
@@ -1419,6 +1385,106 @@
       const shuffled = seededShuffle(rotatedPool, rng);
 
       return shuffled.slice(0, count);
+    }
+
+    /* MOTOR DE BÚSQUEDA Y CONEXIÓN EN TIEMPO REAL A SITIOS DE IMÁGENES EXTERNOS */
+    async function fetchImagesFromWeb(searchTerm) {
+      const foundUrls = [];
+
+      // 1. Wikimedia Commons API Libre (Petición directa sin bloqueo CORS)
+      try {
+        const q = searchTerm ? encodeURIComponent(searchTerm + ' nature landscape') : 'nature%20landscape';
+        const wikiUrl = `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${q}&gsrnamespace=6&gsrlimit=20&format=json&origin=*&prop=imageinfo&iiprop=url`;
+        const res = await fetch(wikiUrl);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.query && data.query.pages) {
+            const pages = Object.values(data.query.pages);
+            pages.forEach(p => {
+              if (p.imageinfo && p.imageinfo[0] && p.imageinfo[0].url) {
+                const u = p.imageinfo[0].url;
+                if (u.match(/\.(jpg|jpeg|png|webp)$/i) && !u.includes('logo') && !u.includes('icon') && !u.includes('Flag')) {
+                  foundUrls.push(u);
+                }
+              }
+            });
+          }
+        }
+      } catch(e) {
+        console.warn("Wikimedia API fetch error:", e);
+      }
+
+      // 2. Picsum High-Res Photography Engine (Variedad garantizada)
+      try {
+        const randomPage = Math.floor(Math.random() * 25) + 1;
+        const picsumRes = await fetch(`https://picsum.photos/v2/list?page=${randomPage}&limit=15`);
+        if (picsumRes.ok) {
+          const picsumData = await picsumRes.json();
+          picsumData.forEach(item => {
+            foundUrls.push(`https://picsum.photos/id/${item.id}/800/1000`);
+          });
+        }
+      } catch(e) {
+        console.warn("Picsum API fetch error:", e);
+      }
+
+      return foundUrls;
+    }
+
+    async function refreshAllBackgrounds() {
+      const searchInput = document.getElementById('inputBgSearch');
+      if (searchInput) searchInput.value = '';
+
+      manualGenOffset += 1;
+      const topics = ['sky', 'mountains', 'sunset', 'ocean', 'forest', 'clouds', 'stars', 'cross', 'landscape', 'waterfall'];
+      const currentTopic = topics[manualGenOffset % topics.length];
+
+      const webImages = await fetchImagesFromWeb(currentTopic);
+
+      if (webImages && webImages.length > 0) {
+        const rng = createPRNG(Date.now() + manualGenOffset);
+        activePhotos = seededShuffle(webImages, rng);
+      } else {
+        activePhotos = [
+          'https://picsum.photos/id/1015/800/1000',
+          'https://picsum.photos/id/1018/800/1000',
+          'https://picsum.photos/id/1028/800/1000',
+          'https://picsum.photos/id/1036/800/1000',
+          'https://picsum.photos/id/1043/800/1000',
+          'https://picsum.photos/id/1050/800/1000'
+        ];
+      }
+
+      const rng = createPRNG(Date.now() + manualGenOffset);
+      activePatterns = seededShuffle(ALL_PATTERNS, rng);
+      activeGradients = seededShuffle(ALL_GRADIENTS, rng);
+
+      selectedBg = 'photo_0';
+      renderBgThumbnails(true);
+      updateCustomCanvas();
+    }
+
+    async function searchBackgrounds() {
+      const term = document.getElementById('inputBgSearch').value.trim();
+      if (!term) {
+        await refreshAllBackgrounds();
+        return;
+      }
+
+      const container = document.getElementById('bgThumbnailGridContainer');
+      container.innerHTML = `<div style="text-align:center; padding:30px 20px; color:var(--text-muted); font-size:0.86rem;">🔍 Buscando imágenes de "${term}" en la web...</div>`;
+
+      const results = await fetchImagesFromWeb(term);
+
+      if (results && results.length > 0) {
+        activePhotos = results;
+        selectedBg = 'photo_0';
+        renderBgThumbnails(true);
+        updateCustomCanvas();
+      } else {
+        container.innerHTML = `<div style="text-align:center; padding:30px 20px; color:#f87171; font-size:0.86rem;">No se encontraron resultados para "${term}". Mostrando imágenes destacadas.</div>`;
+        setTimeout(() => refreshAllBackgrounds(), 1500);
+      }
     }
 
     async function generateNewQuotesSet() {
@@ -1984,83 +2050,6 @@
       }
     }
 
-    /* BÚSQUEDA Y REFRESCO DE FONDOS REALES EN TIEMPO REAL VÍA UNSPLASH API */
-    async function refreshAllBackgrounds() {
-      const searchInput = document.getElementById('inputBgSearch');
-      if (searchInput) searchInput.value = '';
-
-      manualGenOffset += 1;
-      const topics = ['sky', 'nature', 'mountains', 'sunset', 'ocean', 'forest', 'clouds', 'stars', 'cross', 'landscape'];
-      const topic = topics[manualGenOffset % topics.length];
-      const page = (manualGenOffset % 5) + 1;
-
-      try {
-        const res = await fetch(`https://unsplash.com/napi/search/photos?query=${encodeURIComponent(topic)}&per_page=20&page=${page}`);
-        if (res.ok) {
-          const data = await res.json();
-          if (data.results && data.results.length > 0) {
-            activePhotos = data.results.map(item => `${item.urls.raw}&auto=format&fit=crop&w=800&q=80`);
-            const rng = createPRNG(Date.now());
-            activePatterns = seededShuffle(ALL_PATTERNS, rng);
-            activeGradients = seededShuffle(ALL_GRADIENTS, rng);
-
-            selectedBg = 'photo_0';
-            renderBgThumbnails(true);
-            updateCustomCanvas();
-            return;
-          }
-        }
-      } catch (e) {
-        console.warn("Error en la conexión con Unsplash:", e);
-      }
-
-      // De respaldo si falla la API: Barajar fotografias locales totalmente únicas
-      const rng = createPRNG(Date.now() + manualGenOffset);
-      activePhotos = seededShuffle(ALL_STOCK_PHOTOS.map(p => p.url), rng);
-      activePatterns = seededShuffle(ALL_PATTERNS, rng);
-      activeGradients = seededShuffle(ALL_GRADIENTS, rng);
-
-      selectedBg = 'photo_0';
-      renderBgThumbnails(true);
-      updateCustomCanvas();
-    }
-
-    async function searchBackgrounds() {
-      const term = document.getElementById('inputBgSearch').value.trim();
-      if (!term) {
-        refreshAllBackgrounds();
-        return;
-      }
-
-      const container = document.getElementById('bgThumbnailGridContainer');
-      container.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-muted); font-size:0.86rem;">🔍 Buscando imágenes de "${term}" en Unsplash...</div>`;
-
-      try {
-        const res = await fetch(`https://unsplash.com/napi/search/photos?query=${encodeURIComponent(term)}&per_page=20`);
-        if (res.ok) {
-          const data = await res.json();
-          if (data.results && data.results.length > 0) {
-            activePhotos = data.results.map(item => `${item.urls.raw}&auto=format&fit=crop&w=800&q=80`);
-            selectedBg = 'photo_0';
-            renderBgThumbnails(true);
-            updateCustomCanvas();
-            return;
-          }
-        }
-      } catch(e) {
-        console.warn("Unsplash search error:", e);
-      }
-
-      // Filtro local si no hay internet
-      let matched = ALL_STOCK_PHOTOS.filter(item => item.tags.toLowerCase().includes(term.toLowerCase())).map(item => item.url);
-      if (matched.length === 0) matched = ALL_STOCK_PHOTOS.map(p => p.url);
-
-      activePhotos = matched;
-      selectedBg = 'photo_0';
-      renderBgThumbnails(true);
-      updateCustomCanvas();
-    }
-
     function switchTab(tab, updateHistory = true) {
       stopPreviewAnimation();
       stopTestModalAnim();
@@ -2110,9 +2099,7 @@
         
         img.onerror = function() {
           this.onerror = null;
-          const fallback = ALL_STOCK_PHOTOS[i % ALL_STOCK_PHOTOS.length].url;
-          this.src = fallback;
-          activePhotos[i] = fallback;
+          this.src = 'https://picsum.photos/800/1000';
         };
 
         img.onclick = () => {
@@ -2660,7 +2647,7 @@
       } else if (bgType.startsWith('photo_')) {
         const pIndex = parseInt(bgType.split('_')[1]);
         try {
-          const bgImg = await loadImage(activePhotos[pIndex % activePhotos.length] || ALL_STOCK_PHOTOS[0].url);
+          const bgImg = await loadImage(activePhotos[pIndex % activePhotos.length] || 'https://picsum.photos/800/1000');
           drawCoverImage(ctx, bgImg, canvas.width, canvas.height, bgScale);
           ctx.fillStyle = 'rgba(0, 0, 0, 0.52)';
           ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -3507,7 +3494,7 @@
           { show: false, text: 'UNAVOZ27', sub: 'MISIÓN PARA TODOS' }
         );
 
-        /* GUARDADO EN WEBP DENTRO DE INDEXEDDB PARA EVITAR PÉRDIDAS AL RECARGAR */
+        /* GUARDADO PERSISTENTE EN WEBP (INDEXEDDB) POR CADA FRUTA/FECHA GENERADA */
         const webpDataUrl = canvas.toDataURL('image/webp', 0.85);
         const cardId = `card_${dateStr}_${i}_${manualGenOffset}`;
         saveWebpCardToDB({
