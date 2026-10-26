@@ -1254,69 +1254,91 @@
       }
     }
 
-    // CONTADOR DE VISITAS ÚNICAS EN TIEMPO REAL
-    async function initVisitCounter() {
-      const todayStr = new Date().toISOString().split('T')[0];
-      const todayKey = 'daily_' + todayStr.replace(/-/g, '_');
-      const namespace = 'adventistassv_sv_official';
-      
-      const lastVisitDate = localStorage.getItem('asv_last_visit_date');
-      const isNewVisitToday = (lastVisitDate !== todayStr);
+   // CONTADOR DE VISITAS ÚNICAS EN TIEMPO REAL
+async function initVisitCounter() {
+  const todayStr = new Date().toISOString().split('T')[0];
+  const todayKey = 'daily_' + todayStr.replace(/-/g, '_');
+  const namespace = 'adventistassv_sv_official';
+  
+  const lastVisitDate = localStorage.getItem('asv_last_visit_date');
+  const isNewVisitToday = (lastVisitDate !== todayStr);
 
-      if (isNewVisitToday) {
-        localStorage.setItem('asv_last_visit_date', todayStr);
-      }
+  let totalVal = null;
+  let dailyVal = null;
 
-      try {
-        const totalUrl = isNewVisitToday 
-          ? `https://api.counterapi.dev/v1/${namespace}/total/up` 
-          : `https://api.counterapi.dev/v1/${namespace}/total`;
-        
-        const dailyUrl = isNewVisitToday 
-          ? `https://api.counterapi.dev/v1/${namespace}/${todayKey}/up` 
-          : `https://api.counterapi.dev/v1/${namespace}/${todayKey}`;
+  // 1. Intentar obtener / actualizar los datos desde CounterAPI
+  try {
+    const totalUrl = isNewVisitToday 
+      ? `https://api.counterapi.dev/v1/${namespace}/total/up` 
+      : `https://api.counterapi.dev/v1/${namespace}/total`;
+    
+    const dailyUrl = isNewVisitToday 
+      ? `https://api.counterapi.dev/v1/${namespace}/${todayKey}/up` 
+      : `https://api.counterapi.dev/v1/${namespace}/${todayKey}`;
 
-        const [resTotal, resDaily] = await Promise.allSettled([
-          fetch(totalUrl).then(r => r.json()),
-          fetch(dailyUrl).then(r => r.json())
-        ]);
+    const [resTotal, resDaily] = await Promise.allSettled([
+      fetch(totalUrl).then(r => (r.ok ? r.json() : null)),
+      fetch(dailyUrl).then(r => (r.ok ? r.json() : null))
+    ]);
 
-        let totalVal = (resTotal.status === 'fulfilled' && resTotal.value && resTotal.value.count) ? resTotal.value.count : null;
-        let dailyVal = (resDaily.status === 'fulfilled' && resDaily.value && resDaily.value.count) ? resDaily.value.count : null;
-
-        if (!totalVal) {
-          let localTotal = parseInt(localStorage.getItem('asv_sim_total') || '1250', 10);
-          if (isNewVisitToday) localTotal++;
-          localStorage.setItem('asv_sim_total', localTotal);
-          totalVal = localTotal;
-        }
-        if (!dailyVal) {
-          let localDaily = parseInt(localStorage.getItem('asv_sim_' + todayKey) || '18', 10);
-          if (isNewVisitToday) localDaily++;
-          localStorage.setItem('asv_sim_' + todayKey, localDaily);
-          dailyVal = localDaily;
-        }
-
-        document.getElementById('statToday').innerText = dailyVal.toLocaleString();
-        document.getElementById('statTotal').innerText = totalVal.toLocaleString();
-      } catch (err) {
-        document.getElementById('statToday').innerText = '1';
-        document.getElementById('statTotal').innerText = '100+';
-      }
+    if (resTotal.status === 'fulfilled' && resTotal.value && resTotal.value.count !== undefined) {
+      totalVal = resTotal.value.count;
     }
+    if (resDaily.status === 'fulfilled' && resDaily.value && resDaily.value.count !== undefined) {
+      dailyVal = resDaily.value.count;
+    }
+  } catch (err) {
+    console.warn('Servidor del contador no disponible:', err);
+  }
 
-    let selectedAudioKey = 'piano';
-    let selectedTrackMeta = null;
-    let modalAudioPreview = null;
-    let playingPreviewId = null;
-    let searchDebounceTimer = null;
+  // 2. Si la API falló o no respondió, usar el respaldo local de forma persistente
+  if (totalVal === null) {
+    let localTotal = parseInt(localStorage.getItem('asv_sim_total') || '1250', 10);
+    if (isNewVisitToday) localTotal++;
+    localStorage.setItem('asv_sim_total', localTotal);
+    totalVal = localTotal;
+  }
 
-    let userCustomAudio = null;
-    let userCustomLogoImg = null;
-    let activeAudioEl = null;
+  if (dailyVal === null) {
+    let localDaily = parseInt(localStorage.getItem('asv_sim_' + todayKey) || '18', 10);
+    if (isNewVisitToday) localDaily++;
+    localStorage.setItem('asv_sim_' + todayKey, localDaily);
+    dailyVal = localDaily;
+  }
 
-    let testModalAnimId = null;
-    let manualGenOffset = 0;
+  // Registrar que ya contamos la visita del día de hoy
+  if (isNewVisitToday) {
+    localStorage.setItem('asv_last_visit_date', todayStr);
+  }
+
+  // 3. Renderizar los valores en el HTML de forma segura
+  const elToday = document.getElementById('statToday');
+  const elTotal = document.getElementById('statTotal');
+
+  if (elToday) elToday.innerText = dailyVal.toLocaleString();
+  if (elTotal) elTotal.innerText = totalVal.toLocaleString();
+}
+
+// Iniciar automáticamente el contador al cargar la página
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initVisitCounter);
+} else {
+  initVisitCounter();
+}
+
+// VARIABLES DEL REPRODUCTOR, LOGO Y ESTADOS DE LA WEB
+let selectedAudioKey = 'piano';
+let selectedTrackMeta = null;
+let modalAudioPreview = null;
+let playingPreviewId = null;
+let searchDebounceTimer = null;
+
+let userCustomAudio = null;
+let userCustomLogoImg = null;
+let activeAudioEl = null;
+
+let testModalAnimId = null;
+let manualGenOffset = 0;
 
     // CATÁLOGO DE 20 FONDOS ANIMADOS EXCLUSIVAMENTE POR CÓDIGO CANVAS (PROCEDURALES)
     const ALL_PROCEDURAL_VIDEOS = [
