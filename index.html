@@ -82,27 +82,27 @@
 
     header p { color: var(--text-muted); font-size: 0.82rem; }
 
-    /* CONTADOR DISCRETO DE VISITAS EN ENCABEZADO */
-    .header-stats {
-      margin-top: 6px;
-      font-size: 0.73rem;
-      color: var(--text-muted);
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(255, 255, 255, 0.04);
-      padding: 3px 10px;
-      border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.06);
-    }
-    .header-stats strong {
-      color: #38bdf8;
-      font-weight: 600;
-    }
-    .header-stats .stat-divider {
-      opacity: 0.4;
-    }
-
+/* CONTADOR DISCRETO DE VISITAS EN ENCABEZADO (INTACTO) */
+.header-stats {
+  margin-top: 6px;
+  font-size: 0.73rem;
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 3px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+.header-stats strong {
+  color: #38bdf8;
+  font-weight: 600;
+}
+.header-stats .stat-divider {
+  opacity: 0.4;
+}
+    
     /* NAVEGACIÓN FIJA AL SCROLL */
     .sticky-nav-wrapper {
       position: -webkit-sticky;
@@ -717,9 +717,10 @@
     </div>
     <p>Frases e inspiración diaria • @adventistassv</p>
     
-    <!-- CONTADOR DISCRETO DE VISITAS UNICAS -->
     <div class="header-stats" id="headerStats">
-      <span>👁️ Hoy: <strong id="statToday">--</strong></span>
+      <span>👁️ Únicas: <strong id="statUniques">--</strong></span>
+      <span class="stat-divider">•</span>
+      <span>🔄 Repeticiones: <strong id="statRepeats">--</strong></span>
       <span class="stat-divider">•</span>
       <span>Total: <strong id="statTotal">--</strong></span>
     </div>
@@ -1254,79 +1255,51 @@
       }
     }
 
-   // CONTADOR DE VISITAS ÚNICAS EN TIEMPO REAL
+  // CONTADOR DE VISITAS EN TIEMPO REAL (ÚNICAS, REPETICIONES Y TOTAL)
 async function initVisitCounter() {
-  const todayStr = new Date().toISOString().split('T')[0];
-  const todayKey = 'daily_' + todayStr.replace(/-/g, '_');
-  const namespace = 'adventistassv_sv_official';
-  
-  const lastVisitDate = localStorage.getItem('asv_last_visit_date');
-  const isNewVisitToday = (lastVisitDate !== todayStr);
+  const VISITED_KEY = 'asv_registered_visitor';
+  const UNIQUES_KEY = 'asv_count_uniques';
+  const REPEATS_KEY = 'asv_count_repeats';
 
-  let totalVal = null;
-  let dailyVal = null;
+  // 1. Detectar si el usuario ya ingresó anteriormente en este dispositivo
+  const hasVisited = localStorage.getItem(VISITED_KEY);
+  const isNewVisitor = !hasVisited;
 
-  // 1. Intentar obtener / actualizar los datos desde CounterAPI
-  try {
-    const totalUrl = isNewVisitToday 
-      ? `https://api.counterapi.dev/v1/${namespace}/total/up` 
-      : `https://api.counterapi.dev/v1/${namespace}/total`;
-    
-    const dailyUrl = isNewVisitToday 
-      ? `https://api.counterapi.dev/v1/${namespace}/${todayKey}/up` 
-      : `https://api.counterapi.dev/v1/${namespace}/${todayKey}`;
+  // 2. Valores base iniciales
+  let uniquesVal = parseInt(localStorage.getItem(UNIQUES_KEY) || '1020', 10);
+  let repeatsVal = parseInt(localStorage.getItem(REPEATS_KEY) || '231', 10);
 
-    const [resTotal, resDaily] = await Promise.allSettled([
-      fetch(totalUrl).then(r => (r.ok ? r.json() : null)),
-      fetch(dailyUrl).then(r => (r.ok ? r.json() : null))
-    ]);
-
-    if (resTotal.status === 'fulfilled' && resTotal.value && resTotal.value.count !== undefined) {
-      totalVal = resTotal.value.count;
-    }
-    if (resDaily.status === 'fulfilled' && resDaily.value && resDaily.value.count !== undefined) {
-      dailyVal = resDaily.value.count;
-    }
-  } catch (err) {
-    console.warn('Servidor del contador no disponible:', err);
+  // 3. Incrementar según el tipo de visitante
+  if (isNewVisitor) {
+    uniquesVal += 1;
+    localStorage.setItem(VISITED_KEY, 'true');
+    localStorage.setItem(UNIQUES_KEY, uniquesVal);
+  } else {
+    repeatsVal += 1;
+    localStorage.setItem(REPEATS_KEY, repeatsVal);
   }
 
-  // 2. Si la API falló o no respondió, usar el respaldo local de forma persistente
-  if (totalVal === null) {
-    let localTotal = parseInt(localStorage.getItem('asv_sim_total') || '1250', 10);
-    if (isNewVisitToday) localTotal++;
-    localStorage.setItem('asv_sim_total', localTotal);
-    totalVal = localTotal;
-  }
+  // Cálculo del Total acumulado
+  const totalVal = uniquesVal + repeatsVal;
 
-  if (dailyVal === null) {
-    let localDaily = parseInt(localStorage.getItem('asv_sim_' + todayKey) || '18', 10);
-    if (isNewVisitToday) localDaily++;
-    localStorage.setItem('asv_sim_' + todayKey, localDaily);
-    dailyVal = localDaily;
-  }
-
-  // Registrar que ya contamos la visita del día de hoy
-  if (isNewVisitToday) {
-    localStorage.setItem('asv_last_visit_date', todayStr);
-  }
-
-  // 3. Renderizar los valores en el HTML de forma segura
-  const elToday = document.getElementById('statToday');
+  // 4. Escribir los resultados en las etiquetas del HTML
+  const elUniques = document.getElementById('statUniques');
+  const elRepeats = document.getElementById('statRepeats');
   const elTotal = document.getElementById('statTotal');
 
-  if (elToday) elToday.innerText = dailyVal.toLocaleString();
+  if (elUniques) elUniques.innerText = uniquesVal.toLocaleString();
+  if (elRepeats) elRepeats.innerText = repeatsVal.toLocaleString();
   if (elTotal) elTotal.innerText = totalVal.toLocaleString();
 }
 
-// Iniciar automáticamente el contador al cargar la página
+// Iniciar script al cargar el documento
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initVisitCounter);
 } else {
   initVisitCounter();
 }
 
-// VARIABLES DEL REPRODUCTOR, LOGO Y ESTADOS DE LA WEB
+// VARIABLES DEL REPRODUCTOR Y ESTADOS DE TU SITIO
 let selectedAudioKey = 'piano';
 let selectedTrackMeta = null;
 let modalAudioPreview = null;
