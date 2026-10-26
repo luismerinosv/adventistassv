@@ -591,22 +591,22 @@
       display: flex; align-items: center; justify-content: center;
     }
 
+    /* MENÚ MODAL COMPARTIR (ESTILO UNSPLASH) */
     .minimal-menu-card {
       background: #1e293b;
       color: #f8fafc;
-      border-radius: 12px;
-      padding: 12px 0;
+      border-radius: 16px;
+      padding: 10px 0;
       width: 320px;
       max-width: 90vw;
       border: 1px solid var(--border);
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
       display: flex;
       flex-direction: column;
     }
 
     .minimal-menu-title {
-      padding: 6px 18px 12px;
-      border-bottom: 1px solid var(--border);
+      padding: 8px 18px 10px;
       font-weight: 600;
       font-size: 0.88rem;
       color: #94a3b8;
@@ -615,9 +615,9 @@
     .minimal-menu-item {
       display: flex;
       align-items: center;
-      padding: 12px 18px;
+      padding: 11px 18px;
       color: #f8fafc;
-      font-size: 0.88rem;
+      font-size: 0.90rem;
       font-weight: 500;
       cursor: pointer;
       transition: background 0.15s ease;
@@ -627,13 +627,20 @@
       text-align: left;
     }
     .minimal-menu-item:hover {
-      background: rgba(255, 255, 255, 0.06);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .minimal-menu-item svg {
+      width: 20px;
+      height: 20px;
+      margin-right: 14px;
+      flex-shrink: 0;
     }
 
     .minimal-divider {
       height: 1px;
       background: var(--border);
-      margin: 4px 0;
+      margin: 6px 0;
     }
 
     /* PIE DE PÁGINA (FOOTER) */
@@ -1131,22 +1138,70 @@
     </div>
   </div>
 
-  <!-- MODALES DE NAVEGACIÓN Y ACCIONES -->
+  <!-- MODAL VISTA PREVIA DE IMAGEN -->
   <div id="imageModal" class="modal" onclick="closeModal()">
     <button class="modal-close" onclick="closeModal()">✕</button>
     <img id="modalImg" class="modal-content" src="" alt="Vista Previa" onclick="event.stopPropagation()">
   </div>
 
+  <!-- MODAL COMPARTIR (ESTILO UNSPLASH CON OPCIONES SOLICITADAS) -->
   <div id="shareModal" class="modal" onclick="closeShareModal()">
     <div class="minimal-menu-card" onclick="event.stopPropagation()">
-      <div class="minimal-menu-title">Compartir contenido</div>
-      <button class="minimal-menu-item" onclick="shareToPlatform('whatsapp')">WhatsApp</button>
-      <button class="minimal-menu-item" onclick="shareToPlatform('facebook')">Facebook</button>
+      <div class="minimal-menu-title">Compartir imagen y frase</div>
+      
+      <button class="minimal-menu-item" onclick="shareToPlatform('facebook')">
+        <svg viewBox="0 0 24 24" fill="#1877F2">
+          <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+        </svg>
+        Facebook
+      </button>
+
+      <button class="minimal-menu-item" onclick="shareToPlatform('instagram')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#E1306C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+          <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+          <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+        </svg>
+        Instagram
+      </button>
+
+      <button class="minimal-menu-item" onclick="shareToPlatform('pinterest')">
+        <svg viewBox="0 0 24 24" fill="#E60023">
+          <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.162-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.688 0 1.029-.653 2.567-.992 3.992-.285 1.193.6 2.165 1.775 2.165 2.128 0 3.768-2.245 3.768-5.487 0-2.861-2.063-4.869-5.008-4.869-3.41 0-5.409 2.562-5.409 5.199 0 1.033.394 2.143.889 2.741.099.12.112.225.085.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.401.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.354-.629-2.758-1.379l-.749 2.848c-.269 1.045-1.004 2.352-1.498 3.146 1.123.345 2.306.535 3.55.535 6.607 0 11.985-5.365 11.985-11.987C23.97 5.39 18.592.026 11.985.026z"/>
+        </svg>
+        Pinterest
+      </button>
+
+      <button class="minimal-menu-item" onclick="shareToPlatform('email')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+          <polyline points="22,6 12,13 2,6"></polyline>
+        </svg>
+        Correo electrónico
+      </button>
+
       <div class="minimal-divider"></div>
-      <button class="minimal-menu-item" onclick="copyShareTextAndDownload()">Copiar Texto y Descargar WebP</button>
+
+      <button class="minimal-menu-item" onclick="shareNative()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#00838f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+          <polyline points="16 6 12 2 8 6"></polyline>
+          <line x1="12" y1="2" x2="12" y2="15"></line>
+        </svg>
+        Compartir a través de...
+      </button>
+
+      <button class="minimal-menu-item" onclick="copyShareTextAndDownload()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+          <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+        </svg>
+        Copiar enlace
+      </button>
     </div>
   </div>
 
+  <!-- MODAL OPCIONES DE DESCARGA -->
   <div id="downloadModal" class="modal" onclick="closeDownloadModal()">
     <div class="minimal-menu-card" onclick="event.stopPropagation()">
       <div class="minimal-menu-title">Opciones de Descarga</div>
@@ -1593,8 +1648,10 @@
 
     let selectedBg = 'video_proc_aurora';
     let userCustomImg = null;
-    let currentShareText = '';
+    
+    // VARIABLES PARA EL SISTEMA DE COMPARTIR
     let currentShareCanvas = null;
+    let currentShareText = '';
     let currentDownloadConfig = null;
 
     let previewAnimId = null;
@@ -1840,7 +1897,7 @@
       let n = bstr.length;
       const u8arr = new Uint8Array(n);
       while (n--) u8arr[n] = bstr.charCodeAt(n);
-      return File([u8arr], filename, { type: mime });
+      return new File([u8arr], filename, { type: mime });
     }
 
     async function preloadLogos() {
@@ -3645,50 +3702,89 @@
       document.getElementById('imageModal').classList.remove('active');
     }
 
-    async function shareCanvasCard(canvas, phrase, citation, handle = '@adventistassv') {
+    // LÓGICA REESTRUCTURADA DEL BOTÓN COMPARTIR CON MENÚ ESTILO UNSPLASH
+    function shareCanvasCard(canvas, phrase, citation, handle = '@adventistassv') {
+      currentShareCanvas = canvas;
+      const cleanUrl = getCleanBaseUrl();
+      currentShareText = `"${phrase}" — ${citation}\n\nVía ${handle}\n${cleanUrl}`;
+      
+      document.getElementById('shareModal').classList.add('active');
+    }
+
+    function downloadCanvasImageFile(canvas, filename = 'adventistassv-frase.webp') {
+      if (!canvas) return;
+      const link = document.createElement('a');
+      link.download = filename;
+      link.href = canvas.toDataURL('image/webp', 0.92);
+      link.click();
+    }
+
+    // OPCIÓN: COMPARTIR A TRAVÉS DE... (OPCIONES NATIVAS DEL DISPOSITIVO CON IMAGEN + TEXTO)
+    async function shareNative() {
+      closeShareModal();
+      if (!currentShareCanvas) return;
+
       const cleanUrl = getCleanBaseUrl();
       const shortUrl = await getShortUrl(cleanUrl);
-      const shareText = `"${phrase}" - ${citation}\n\nVía ${handle}\n${shortUrl}`;
-      const file = dataURLtoFile(canvas.toDataURL('image/webp', 0.90), 'adventistassv-frase.webp');
+      const shareText = currentShareText;
 
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        try {
+      try {
+        const dataUrl = currentShareCanvas.toDataURL('image/webp', 0.90);
+        const file = dataURLtoFile(dataUrl, 'adventistassv-frase.webp');
+
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
           await navigator.share({
             title: 'Adventistas SV',
             text: shareText,
             files: [file]
           });
           return;
-        } catch (err) {
-          if (err.name === 'AbortError') return;
+        } else if (navigator.share) {
+          await navigator.share({
+            title: 'Adventistas SV',
+            text: shareText,
+            url: shortUrl
+          });
+          return;
         }
+      } catch (err) {
+        if (err.name === 'AbortError') return;
       }
 
-      currentShareText = shareText;
-      currentShareCanvas = canvas;
-      document.getElementById('shareModal').classList.add('active');
+      // Respaldo
+      downloadCanvasImageFile(currentShareCanvas);
+      navigator.clipboard.writeText(shareText);
+      alert('¡Imagen descargada y texto con créditos copiado al portapapeles!');
     }
 
+    // OPCIONES ESPECÍFICAS DE REDES
     function shareToPlatform(platform) {
       const encodedText = encodeURIComponent(currentShareText);
+      const cleanUrl = encodeURIComponent(getCleanBaseUrl());
 
-      if (platform === 'whatsapp') {
-        window.open(`https://api.whatsapp.com/send?text=${encodedText}`, '_blank');
-      } else if (platform === 'facebook') {
-        const url = encodeURIComponent(getCleanBaseUrl());
-        window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${encodedText}`, '_blank');
+      if (platform === 'facebook') {
+        downloadCanvasImageFile(currentShareCanvas);
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${cleanUrl}&quote=${encodedText}`, '_blank');
+      } else if (platform === 'instagram') {
+        downloadCanvasImageFile(currentShareCanvas);
+        navigator.clipboard.writeText(currentShareText);
+        alert('¡Imagen descargada y texto copiado!\n\nAbre Instagram para publicar la imagen en tus Historias o Feed.');
+      } else if (platform === 'pinterest') {
+        downloadCanvasImageFile(currentShareCanvas);
+        window.open(`https://pinterest.com/pin/create/button/?url=${cleanUrl}&description=${encodedText}`, '_blank');
+      } else if (platform === 'email') {
+        downloadCanvasImageFile(currentShareCanvas);
+        window.open(`mailto:?subject=${encodeURIComponent("Frase de inspiración - Adventistas SV")}&body=${encodedText}`, '_blank');
       }
       closeShareModal();
     }
 
     function copyShareTextAndDownload() {
-      navigator.clipboard.writeText(currentShareText);
       if (currentShareCanvas) {
-        const link = document.createElement('a');
-        link.download = 'adventistassv-frase.webp';
-        link.href = currentShareCanvas.toDataURL('image/webp', 0.90);
-        link.click();
+        downloadCanvasImageFile(currentShareCanvas);
       }
+      navigator.clipboard.writeText(currentShareText);
+      alert('¡Enlace y texto copiados al portapapeles, e imagen descargada!');
       closeShareModal();
     }
 
