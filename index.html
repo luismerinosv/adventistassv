@@ -714,6 +714,21 @@
         </div>
 
         <div class="editor-controls">
+
+          <!-- BANCO DE FRASES EN EL CREADOR -->
+          <div class="form-group" style="background: rgba(0, 131, 143, 0.08); padding: 12px; border-radius: 10px; border: 1px solid rgba(0, 131, 143, 0.3);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <label style="font-weight: 600; color: #fff; font-size: 0.85rem; margin-bottom: 0;">Seleccionar del Banco de Frases:</label>
+              <span id="phraseBankCount" style="font-size: 0.75rem; color: #38bdf8; font-weight: 500;">15 frases disponibles</span>
+            </div>
+            <select id="selectPhraseBank" class="form-control" onchange="onSelectPhraseFromBank(this)">
+              <option value="" disabled selected>-- Elige una frase predefinida --</option>
+            </select>
+            <button type="button" class="btn btn-secondary" style="margin-top: 8px; width: 100%; min-height: 34px; font-size: 0.80rem; border-color: var(--accent); color: #fff;" onclick="loadMorePhrasesToBank()">
+              ➕ Mostrar 15 frases más
+            </button>
+          </div>
+
           <div class="form-group">
             <label>Texto de la Frase:</label>
             <textarea id="inputPhrase" class="form-control" oninput="updateCustomCanvas()">DE LA MANO DE DIOS PUEDES CON TODO ¡NO TE RINDAS!</textarea>
@@ -1320,6 +1335,55 @@
     ];
 
     const QUOTES_BANK = [...RAW_BIBLIA, ...RAW_ESCRITOS, ...RAW_HIMNOS];
+
+    // LÓGICA DEL SELECTOR DEL BANCO DE FRASES EN EL CREADOR
+    let currentPhraseBankCount = 0;
+    const PHRASES_PAGE_SIZE = 15;
+
+    function initPhraseBankSelector() {
+      currentPhraseBankCount = 0;
+      loadMorePhrasesToBank();
+    }
+
+    function loadMorePhrasesToBank() {
+      const select = document.getElementById('selectPhraseBank');
+      const countLabel = document.getElementById('phraseBankCount');
+      if (!select) return;
+
+      const totalAvailable = QUOTES_BANK.length;
+      if (currentPhraseBankCount >= totalAvailable) {
+        currentPhraseBankCount = Math.min(PHRASES_PAGE_SIZE, totalAvailable);
+      } else {
+        currentPhraseBankCount = Math.min(currentPhraseBankCount + PHRASES_PAGE_SIZE, totalAvailable);
+      }
+
+      select.innerHTML = '<option value="" disabled selected>-- Elige una frase predefinida --</option>';
+
+      for (let i = 0; i < currentPhraseBankCount; i++) {
+        const item = QUOTES_BANK[i];
+        const option = document.createElement('option');
+        option.value = i;
+        const shortFrase = item.frase.length > 52 ? item.frase.substring(0, 49) + '...' : item.frase;
+        option.textContent = `${i + 1}. "${shortFrase}" — ${item.cita}`;
+        select.appendChild(option);
+      }
+
+      if (countLabel) {
+        countLabel.innerText = `${currentPhraseBankCount} de ${totalAvailable} frases`;
+      }
+    }
+
+    function onSelectPhraseFromBank(selectEl) {
+      const val = selectEl.value;
+      if (val === "" || val === null) return;
+      const index = parseInt(val, 10);
+      if (!isNaN(index) && QUOTES_BANK[index]) {
+        const quote = QUOTES_BANK[index];
+        document.getElementById('inputPhrase').value = quote.frase;
+        document.getElementById('inputCitation').value = quote.cita;
+        updateCustomCanvas();
+      }
+    }
 
     // EXACTAMENTE 15 FOTOGRAFÍAS DE FONDO
     const ALL_PHOTOS = [
@@ -2113,6 +2177,11 @@
         eSec.classList.remove('hidden');
         if (btnG) btnG.classList.remove('active');
         if (btnE) btnE.classList.add('active');
+        
+        if (document.getElementById('selectPhraseBank') && document.getElementById('selectPhraseBank').options.length <= 1) {
+          initPhraseBankSelector();
+        }
+
         renderBgThumbnails();
         updateCustomCanvas();
         if (updateHistory) {
@@ -4047,6 +4116,7 @@
         processHeaderLogo(imgHeader);
       }
 
+      initPhraseBankSelector();
       await refreshAllBackgrounds();
       resetToTodayDate();
 
