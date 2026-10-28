@@ -272,28 +272,21 @@
       flex-shrink: 0;
     }
 
+    /* Layout Editor (Nuevas reglas para Desktop/Tablet) */
     .editor-layout {
       display: flex;
       flex-direction: column;
-      gap: 24px;
-      align-items: center;
       width: 100%;
     }
 
-    .editor-preview {
-      width: 100%;
-      background: var(--card-bg);
-      padding: 20px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
+    .editor-layout-top {
       display: flex;
       flex-direction: column;
-      align-items: center;
-      gap: 15px;
+      gap: 24px;
+      width: 100%;
     }
 
-    .editor-controls {
-      width: 100%;
+    .editor-controls-box {
       background: var(--card-bg);
       padding: 20px;
       border-radius: 12px;
@@ -301,6 +294,34 @@
       display: flex;
       flex-direction: column;
       gap: 14px;
+    }
+
+    .editor-preview {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+    }
+
+    @media (min-width: 769px) {
+      .editor-layout-top {
+        flex-direction: row;
+        align-items: flex-start;
+      }
+      .editor-preview {
+        flex: 1 1 400px;
+        position: sticky;
+        top: 80px;
+      }
+      .editor-controls-right {
+        flex: 1 1 450px;
+      }
+    }
+
+    .editor-controls-bottom {
+      width: 100%;
+      margin-top: 24px;
     }
 
     .form-group {
@@ -550,15 +571,25 @@
       z-index: 10000;
       justify-content: center;
       align-items: center;
+      flex-direction: column;
       padding: 16px;
       backdrop-filter: blur(4px);
     }
     .modal.active { display: flex; }
     .modal-content {
       max-width: 95vw;
-      max-height: 85vh;
+      max-height: 75vh;
       border-radius: 12px;
       object-fit: contain;
+    }
+    .modal-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+      justify-content: center;
+      width: 100%;
+      max-width: 500px;
+      flex-wrap: wrap;
     }
     .modal-close {
       position: absolute;
@@ -674,10 +705,6 @@
     .hidden { display: none !important; }
 
     @media (max-width: 768px) {
-      .editor-preview, .editor-controls {
-        width: 100%;
-        padding: 16px;
-      }
       .grid-daily {
         grid-template-columns: 1fr;
       }
@@ -751,98 +778,137 @@
       
       <div class="editor-layout">
         
-        <div class="editor-preview">
-          <div id="previewBox" class="canvas-container" style="max-width: 420px; border-radius: 10px; overflow: hidden;" onclick="openCanvasModal(document.getElementById('customCanvas'))">
-            <canvas id="customCanvas"></canvas>
+        <div class="editor-layout-top">
+          <!-- VISTA PREVIA (IZQUIERDA EN DESKTOP) -->
+          <div class="editor-controls-box editor-preview">
+            <div id="previewBox" class="canvas-container" style="max-width: 420px; border-radius: 10px; overflow: hidden;" onclick="openCanvasModal(document.getElementById('customCanvas'))">
+              <canvas id="customCanvas"></canvas>
+            </div>
+            <div style="display: flex; flex-wrap: wrap; gap: 8px; width: 100%; max-width: 420px;">
+              <button class="btn btn-secondary" style="flex: 1;" onclick="openCanvasModal(document.getElementById('customCanvas'))">Ver</button>
+              <button class="btn btn-secondary" style="flex: 1;" onclick="shareCanvasCard(document.getElementById('customCanvas'), document.getElementById('inputPhrase').value, document.getElementById('inputCitation').value, document.getElementById('inputHandle').value)">Compartir</button>
+              <button class="btn" style="flex: 1;" onclick="downloadCustomImage()">Descargar WebP / PNG</button>
+              
+              <button id="btnPlayPreview" class="btn btn-secondary" style="width: 100%; margin-top: 4px;" onclick="previewAnimation()">
+                Previsualizar Animación Completa
+              </button>
+              <button id="btnDescargarVideo" class="btn" style="width: 100%; background: #00838f; font-weight: 600;" onclick="generarVideoAnimado()">
+                Descargar Video (Reel/Story/WhatsApp)
+              </button>
+            </div>
           </div>
-          <div style="display: flex; flex-wrap: wrap; gap: 8px; width: 100%; max-width: 420px;">
-            <button class="btn btn-secondary" style="flex: 1;" onclick="openCanvasModal(document.getElementById('customCanvas'))">Ver</button>
-            <button class="btn btn-secondary" style="flex: 1;" onclick="shareCanvasCard(document.getElementById('customCanvas'), document.getElementById('inputPhrase').value, document.getElementById('inputCitation').value, document.getElementById('inputHandle').value)">Compartir</button>
-            <button class="btn" style="flex: 1;" onclick="downloadCustomImage()">Descargar WebP / PNG</button>
+
+          <!-- CONTROLES PRINCIPALES (DERECHA EN DESKTOP) -->
+          <div class="editor-controls-box editor-controls-right">
+            <!-- BANCO DE FRASES EN EL CREADOR -->
+            <div class="form-group" style="background: rgba(0, 131, 143, 0.08); padding: 12px; border-radius: 10px; border: 1px solid rgba(0, 131, 143, 0.3);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <label style="font-weight: 600; color: #fff; font-size: 0.85rem; margin-bottom: 0;">Seleccionar del Banco de Frases:</label>
+                <span id="phraseBankCount" style="font-size: 0.75rem; color: #38bdf8; font-weight: 500;">Mostrando 15 frases</span>
+              </div>
+              <select id="selectPhraseBank" class="form-control" onchange="onSelectPhraseFromBank(this)">
+                <option value="" disabled selected>-- Elige una frase predefinida --</option>
+              </select>
+              <button type="button" class="btn btn-secondary" style="margin-top: 8px; width: 100%; min-height: 34px; font-size: 0.80rem; border-color: var(--accent); color: #fff;" onclick="loadMorePhrasesToBank()">
+                🔄 Mostrar 15 frases diferentes
+              </button>
+            </div>
+
+            <div class="form-group">
+              <label>Texto de la Frase:</label>
+              <textarea id="inputPhrase" class="form-control" oninput="updateCustomCanvas()">DE LA MANO DE DIOS PUEDES CON TODO ¡NO TE RINDAS!</textarea>
+            </div>
+
+            <div class="form-group">
+              <label>Cita / Referencia:</label>
+              <input type="text" id="inputCitation" class="form-control" value="Filipenses 4:13" oninput="updateCustomCanvas()">
+            </div>
+
+            <div class="form-group">
+              <label>Usuario / Pie de Imagen:</label>
+              <input type="text" id="inputHandle" class="form-control" value="@adventistassv" oninput="updateCustomCanvas()">
+            </div>
+
+            <div class="form-group">
+              <label>Formato / Tamaño de Publicación:</label>
+              <select id="selectRatio" class="form-control" onchange="updateCustomCanvas()">
+                <option value="4:5">4:5 (Post Feed Instagram/Facebook - 1080x1350)</option>
+                <option value="9:16">9:16 (Historias / Reels / TikTok - 1080x1920)</option>
+                <option value="1:1">1:1 (Cuadrado Tradicional - 1080x1080)</option>
+              </select>
+            </div>
+
+            <!-- SELLO / MARCA DE CAMPAÑA -->
+            <div class="form-group" style="margin-top: 4px; padding-top: 6px; border-top: 1px dashed var(--border);">
+              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 600; color: #fff;">
+                <input type="checkbox" id="chkShowStamp" onchange="toggleStampInputs(); updateCustomCanvas();" style="width: 18px; height: 18px; accent-color: var(--accent);">
+                Activar Sello / Marca de Campaña (ej. UNAVOZ27)
+              </label>
+            </div>
+
+            <div id="stampInputsContainer" class="form-group hidden" style="display: flex; flex-direction: column; gap: 6px;">
+              <label>Texto del Sello (Principal y Subtítulo):</label>
+              <div style="display: flex; gap: 8px;">
+                <input type="text" id="inputStampText" class="form-control" value="UNAVOZ27" placeholder="Texto Sello (ej. UNAVOZ27)" oninput="updateCustomCanvas()">
+                <input type="text" id="inputStampSub" class="form-control" value="MISIÓN PARA TODOS" placeholder="Subtítulo (ej. MISIÓN PARA TODOS)" oninput="updateCustomCanvas()">
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 4px;">
+              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 600; color: #fff;">
+                <input type="checkbox" id="chkShowLogo" checked onchange="updateCustomCanvas()" style="width: 18px; height: 18px; accent-color: var(--accent);">
+                Mostrar Logo en la imagen / video
+              </label>
+            </div>
+
+            <div class="form-group">
+              <label>Personalizar el Logo:</label>
+              <select id="selectLogo" class="form-control" onchange="handleLogoChange()">
+                <option value="blanco" selected>Texto Blanco (Para fondos oscuros)</option>
+                <option value="negro">Texto Negro (Para fondos muy claros)</option>
+                <option value="turquesa">Texto Turquesa (Estilo Marca)</option>
+                <option value="custom">Subir mi propio logo (PNG/JPG)</option>
+              </select>
+              <input type="file" id="inputCustomLogo" class="form-control hidden" accept="image/*" style="margin-top: 6px;" onchange="handleUserLogoUpload(event)">
+            </div>
             
-            <button id="btnPlayPreview" class="btn btn-secondary" style="width: 100%; margin-top: 4px;" onclick="previewAnimation()">
-              Previsualizar Animación Completa
-            </button>
-            <button id="btnDescargarVideo" class="btn" style="width: 100%; background: #00838f; font-weight: 600;" onclick="generarVideoAnimado()">
-              Descargar Video (Reel/Story/WhatsApp)
-            </button>
+            <div class="form-group">
+              <label>Fuente de la Frase (Texto Principal):</label>
+              <select id="selectFontPhrase" class="form-control" onchange="updateCustomCanvas()">
+                <option value="Montserrat">Montserrat (Moderna y con fuerza)</option>
+                <option value="Bebas Neue">Bebas Neue (Titular alto e impactante)</option>
+                <option value="Playfair Display">Playfair Display (Elegante editorial)</option>
+                <option value="Cinzel Decorative">Cinzel Decorative (Monumental y Solemne)</option>
+                <option value="Pacifico">Pacifico (Cursiva cálida y alegre)</option>
+                <option value="Oswald">Oswald (Condensada y enfática)</option>
+                <option value="Cinzel">Cinzel (Clásica imperial)</option>
+                <option value="Satisfy">Satisfy (Caligrafía dinámica)</option>
+                <option value="Abril Fatface">Abril Fatface (Serif gruesa)</option>
+                <option value="Anton">Anton (Sólida y audaz)</option>
+                <option value="Caveat">Caveat (Manuscrita cercana)</option>
+                <option value="Outfit">Outfit (Geométrica pulida)</option>
+                <option value="Righteous">Righteous (Titular moderno y único)</option>
+                <option value="Cormorant Garamond">Cormorant Garamond (Serif de lujo)</option>
+                <option value="Poppins">Poppins (Minimalista limpia)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Fuente de la Cita / Referencia (Limpias y Legibles):</label>
+              <select id="selectFontCitation" class="form-control" onchange="updateCustomCanvas()">
+                <option value="Lora" selected>Lora (Serif suave e ideal para citas)</option>
+                <option value="Merriweather">Merriweather (Alta legibilidad)</option>
+                <option value="Quicksand">Quicksand (Redondeada y moderna)</option>
+                <option value="Montserrat">Montserrat (Limpia y delgada)</option>
+                <option value="Poppins">Poppins (Minimalista y clara)</option>
+                <option value="Outfit">Outfit (Geométrica elegante)</option>
+              </select>
+            </div>
           </div>
         </div>
 
-        <div class="editor-controls">
-
-          <!-- BANCO DE FRASES EN EL CREADOR -->
-          <div class="form-group" style="background: rgba(0, 131, 143, 0.08); padding: 12px; border-radius: 10px; border: 1px solid rgba(0, 131, 143, 0.3);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-              <label style="font-weight: 600; color: #fff; font-size: 0.85rem; margin-bottom: 0;">Seleccionar del Banco de Frases:</label>
-              <span id="phraseBankCount" style="font-size: 0.75rem; color: #38bdf8; font-weight: 500;">15 frases disponibles</span>
-            </div>
-            <select id="selectPhraseBank" class="form-control" onchange="onSelectPhraseFromBank(this)">
-              <option value="" disabled selected>-- Elige una frase predefinida --</option>
-            </select>
-            <button type="button" class="btn btn-secondary" style="margin-top: 8px; width: 100%; min-height: 34px; font-size: 0.80rem; border-color: var(--accent); color: #fff;" onclick="loadMorePhrasesToBank()">
-              ➕ Mostrar 15 frases más
-            </button>
-          </div>
-
-          <div class="form-group">
-            <label>Texto de la Frase:</label>
-            <textarea id="inputPhrase" class="form-control" oninput="updateCustomCanvas()">DE LA MANO DE DIOS PUEDES CON TODO ¡NO TE RINDAS!</textarea>
-          </div>
-
-          <div class="form-group">
-            <label>Cita / Referencia:</label>
-            <input type="text" id="inputCitation" class="form-control" value="Filipenses 4:13" oninput="updateCustomCanvas()">
-          </div>
-
-          <div class="form-group">
-            <label>Usuario / Pie de Imagen:</label>
-            <input type="text" id="inputHandle" class="form-control" value="@adventistassv" oninput="updateCustomCanvas()">
-          </div>
-
-          <!-- SELLO / MARCA DE CAMPAÑA -->
-          <div class="form-group" style="margin-top: 4px; padding-top: 6px; border-top: 1px dashed var(--border);">
-            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 600; color: #fff;">
-              <input type="checkbox" id="chkShowStamp" onchange="toggleStampInputs(); updateCustomCanvas();" style="width: 18px; height: 18px; accent-color: var(--accent);">
-              Activar Sello / Marca de Campaña (ej. UNAVOZ27)
-            </label>
-          </div>
-
-          <div id="stampInputsContainer" class="form-group hidden" style="display: flex; flex-direction: column; gap: 6px;">
-            <label>Texto del Sello (Principal y Subtítulo):</label>
-            <div style="display: flex; gap: 8px;">
-              <input type="text" id="inputStampText" class="form-control" value="UNAVOZ27" placeholder="Texto Sello (ej. UNAVOZ27)" oninput="updateCustomCanvas()">
-              <input type="text" id="inputStampSub" class="form-control" value="MISIÓN PARA TODOS" placeholder="Subtítulo (ej. MISIÓN PARA TODOS)" oninput="updateCustomCanvas()">
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label>Formato / Tamaño de Publicación:</label>
-            <select id="selectRatio" class="form-control" onchange="updateCustomCanvas()">
-              <option value="4:5">4:5 (Post Feed Instagram/Facebook - 1080x1350)</option>
-              <option value="9:16">9:16 (Historias / Reels / TikTok - 1080x1920)</option>
-              <option value="1:1">1:1 (Cuadrado Tradicional - 1080x1080)</option>
-            </select>
-          </div>
-
-          <div class="form-group" style="margin-top: 4px;">
-            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 600; color: #fff;">
-              <input type="checkbox" id="chkShowLogo" checked onchange="updateCustomCanvas()" style="width: 18px; height: 18px; accent-color: var(--accent);">
-              Mostrar Logo en la imagen / video
-            </label>
-          </div>
-
-          <div class="form-group">
-            <label>Personalizar el Logo:</label>
-            <select id="selectLogo" class="form-control" onchange="handleLogoChange()">
-              <option value="blanco" selected>Texto Blanco (Para fondos oscuros)</option>
-              <option value="negro">Texto Negro (Para fondos muy claros)</option>
-              <option value="turquesa">Texto Turquesa (Estilo Marca)</option>
-              <option value="custom">Subir mi propio logo (PNG/JPG)</option>
-            </select>
-            <input type="file" id="inputCustomLogo" class="form-control hidden" accept="image/*" style="margin-top: 6px;" onchange="handleUserLogoUpload(event)">
-          </div>
-
+        <!-- CONTROLES SECUNDARIOS (FONDO COMPLETO ABAJO EN DESKTOP) -->
+        <div class="editor-controls-box editor-controls-bottom">
           <div class="form-group">
             <label>Transición / Animación de Texto:</label>
             <div class="ig-music-trigger-card" onclick="openAnimModal()">
@@ -936,39 +1002,6 @@
             </select>
           </div>
 
-          <div class="form-group">
-            <label>Fuente de la Frase (Texto Principal):</label>
-            <select id="selectFontPhrase" class="form-control" onchange="updateCustomCanvas()">
-              <option value="Montserrat">Montserrat (Moderna y con fuerza)</option>
-              <option value="Bebas Neue">Bebas Neue (Titular alto e impactante)</option>
-              <option value="Playfair Display">Playfair Display (Elegante editorial)</option>
-              <option value="Cinzel Decorative">Cinzel Decorative (Monumental y Solemne)</option>
-              <option value="Pacifico">Pacifico (Cursiva cálida y alegre)</option>
-              <option value="Oswald">Oswald (Condensada y enfática)</option>
-              <option value="Cinzel">Cinzel (Clásica imperial)</option>
-              <option value="Satisfy">Satisfy (Caligrafía dinámica)</option>
-              <option value="Abril Fatface">Abril Fatface (Serif gruesa)</option>
-              <option value="Anton">Anton (Sólida y audaz)</option>
-              <option value="Caveat">Caveat (Manuscrita cercana)</option>
-              <option value="Outfit">Outfit (Geométrica pulida)</option>
-              <option value="Righteous">Righteous (Titular moderno y único)</option>
-              <option value="Cormorant Garamond">Cormorant Garamond (Serif de lujo)</option>
-              <option value="Poppins">Poppins (Minimalista limpia)</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label>Fuente de la Cita / Referencia (Limpias y Legibles):</label>
-            <select id="selectFontCitation" class="form-control" onchange="updateCustomCanvas()">
-              <option value="Lora" selected>Lora (Serif suave e ideal para citas)</option>
-              <option value="Merriweather">Merriweather (Alta legibilidad)</option>
-              <option value="Quicksand">Quicksand (Redondeada y moderna)</option>
-              <option value="Montserrat">Montserrat (Limpia y delgada)</option>
-              <option value="Poppins">Poppins (Minimalista y clara)</option>
-              <option value="Outfit">Outfit (Geométrica elegante)</option>
-            </select>
-          </div>
-
           <!-- BÚSQUEDA DE IMÁGENES EXTERNAS DESDE OTROS SERVIDORES -->
           <div class="form-group" style="margin-top: 4px; padding-top: 10px; border-top: 1px dashed var(--border);">
             <label>Buscar Imágenes en Tiempo Real (Servidor Externo):</label>
@@ -985,7 +1018,7 @@
 
           <div class="form-group">
             <div class="bg-grid-header">
-              <label>Selecciona un Fondo (20 Animados por Código, 15 Fotos, 10 Texturas, 15 Degradados):</label>
+              <label>Selecciona un Fondo (20 Animados por Código, 10 Fotos, 10 Texturas Puras, 15 Degradados):</label>
               <button class="btn btn-secondary" style="min-height: 28px; padding: 2px 8px; font-size: 0.75rem; width: auto; flex: 0 0 auto;" onclick="searchExternalImages()">Recargar Fotos</button>
             </div>
             
@@ -1000,7 +1033,7 @@
 
   <!-- PIE DE PÁGINA (FOOTER) CON CRÉDITOS -->
   <footer class="site-footer">
-    <p>Desarrollado con ❤️ por <a href="https://instagram.com/luismerinosv" target="_blank" rel="noopener" class="credit-link">@luismerinosv</a></p>
+    <p>Desarrollado por <a href="https://instagram.com/luismerinosv" target="_blank" rel="noopener" class="credit-link">@luismerinosv</a></p>
     <div class="footer-socials">
       <a href="https://facebook.com/luismerinosv" target="_blank" rel="noopener" class="footer-social-btn" title="Facebook @luismerinosv">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1106,6 +1139,8 @@
   <div id="imageModal" class="modal" onclick="closeModal()">
     <button class="modal-close" onclick="closeModal()">✕</button>
     <img id="modalImg" class="modal-content" src="" alt="Vista Previa" onclick="event.stopPropagation()">
+    <!-- Aquí se inyectan los botones dinámicamente -->
+    <div id="modalActions" class="modal-actions" onclick="event.stopPropagation()"></div>
   </div>
 
   <!-- MODAL OPCIONES DE DESCARGA -->
@@ -1226,7 +1261,6 @@
       }
     }
 
-    // VARIABLES DEL REPRODUCTOR Y ESTADOS DE TU SITIO
     let selectedAudioKey = 'piano';
     let selectedTrackMeta = null;
     let modalAudioPreview = null;
@@ -1240,7 +1274,6 @@
     let testModalAnimId = null;
     let manualGenOffset = 0;
 
-    // CATÁLOGO DE 20 FONDOS ANIMADOS EXCLUSIVAMENTE POR CÓDIGO CANVAS (PROCEDURALES)
     const ALL_PROCEDURAL_VIDEOS = [
       { id: 'proc_aurora', title: '1. Aurora Celestial', poster: 'https://images.unsplash.com/photo-1518640467707-6811f4a6ab73?auto=format&fit=crop&w=300&q=80' },
       { id: 'proc_clouds', title: '2. Nubes Místicas y Sol', poster: 'https://images.unsplash.com/photo-1513002749550-c59d786b8e6c?auto=format&fit=crop&w=300&q=80' },
@@ -1408,12 +1441,12 @@
 
     const QUOTES_BANK = [...RAW_BIBLIA, ...RAW_ESCRITOS, ...RAW_HIMNOS];
 
-    // LÓGICA DEL SELECTOR DEL BANCO DE FRASES EN EL CREADOR
-    let currentPhraseBankCount = 0;
+    // LÓGICA DEL SELECTOR DEL BANCO DE FRASES (PAGINACIÓN CONTINUA)
+    let currentPhraseBankPage = 0;
     const PHRASES_PAGE_SIZE = 15;
 
     function initPhraseBankSelector() {
-      currentPhraseBankCount = 0;
+      currentPhraseBankPage = 0;
       loadMorePhrasesToBank();
     }
 
@@ -1423,26 +1456,29 @@
       if (!select) return;
 
       const totalAvailable = QUOTES_BANK.length;
-      if (currentPhraseBankCount >= totalAvailable) {
-        currentPhraseBankCount = Math.min(PHRASES_PAGE_SIZE, totalAvailable);
-      } else {
-        currentPhraseBankCount = Math.min(currentPhraseBankCount + PHRASES_PAGE_SIZE, totalAvailable);
+      const startIndex = (currentPhraseBankPage * PHRASES_PAGE_SIZE) % totalAvailable;
+      
+      let quotesToShow = [];
+      for (let i = 0; i < PHRASES_PAGE_SIZE; i++) {
+        const realIndex = (startIndex + i) % totalAvailable;
+        quotesToShow.push({ quote: QUOTES_BANK[realIndex], index: realIndex });
       }
 
       select.innerHTML = '<option value="" disabled selected>-- Elige una frase predefinida --</option>';
 
-      for (let i = 0; i < currentPhraseBankCount; i++) {
-        const item = QUOTES_BANK[i];
+      for (let i = 0; i < quotesToShow.length; i++) {
+        const item = quotesToShow[i].quote;
         const option = document.createElement('option');
-        option.value = i;
+        option.value = quotesToShow[i].index;
         const shortFrase = item.frase.length > 52 ? item.frase.substring(0, 49) + '...' : item.frase;
         option.textContent = `${i + 1}. "${shortFrase}" — ${item.cita}`;
         select.appendChild(option);
       }
 
       if (countLabel) {
-        countLabel.innerText = `${currentPhraseBankCount} de ${totalAvailable} frases`;
+        countLabel.innerText = `Mostrando 15 diferentes (Lote ${currentPhraseBankPage + 1})`;
       }
+      currentPhraseBankPage++;
     }
 
     function onSelectPhraseFromBank(selectEl) {
@@ -1457,8 +1493,7 @@
       }
     }
 
-    // GENERADOR DINÁMICO DE IMÁGENES DE FONDO EN TIEMPO REAL DESDE SERVIDORES GRATUITOS
-    function generateDynamicPhotos(query = 'fe,cielo,naturaleza,esperanza,paz', count = 15) {
+    function generateDynamicPhotos(query = 'fe,cielo,naturaleza,esperanza,paz', count = 10) {
       const terms = query.split(',').map(s => s.trim()).filter(Boolean);
       const photos = [];
       const timeStamp = Date.now();
@@ -1469,23 +1504,22 @@
       return photos;
     }
 
-    const ALL_PHOTOS = generateDynamicPhotos();
+    const ALL_PHOTOS = generateDynamicPhotos('fe,cielo,naturaleza,esperanza,paz', 10);
 
-    // 10 PATRONES Y TEXTURAS
+    // 10 PATRONES GENERADOS EN SVG PURO
     const ALL_PATTERNS = [
-      'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1604076913837-52ab5629fba9?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1518640467707-6811f4a6ab73?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1508615039623-a25605d2b022?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&w=800&q=80'
+      "data:image/svg+xml,%3Csvg width='40' height='40' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='40' height='40' fill='%231e293b'/%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40' fill='%23334155' fill-opacity='0.4'/%3E%3C/svg%3E",
+      "data:image/svg+xml,%3Csvg width='20' height='20' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='20' height='20' fill='%230f172a'/%3E%3Ccircle cx='3' cy='3' r='3' fill='%231e293b'/%3E%3C/svg%3E",
+      "data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='60' height='60' fill='%23000000'/%3E%3Cpath d='M54.627 0l.83.83-54.627 54.627-.83-.83L54.627 0zM29.172 0l.828.828-29.172 29.172-.828-.828L29.172 0z' fill='%23222222'/%3E%3C/svg%3E",
+      "data:image/svg+xml,%3Csvg width='10' height='10' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='10' height='10' fill='%230f172a'/%3E%3Cpath d='M-1 1 l2 -2 M0 10 l10 -10 M9 11 l2 -2' stroke='%231e293b' stroke-width='2'/%3E%3C/svg%3E",
+      "data:image/svg+xml,%3Csvg width='40' height='40' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='40' height='40' fill='%231e293b'/%3E%3Cpath d='M20 0L0 20l20 20 20-20L20 0zm0 10l10 10-10 10-10-10 10-10z' fill='%230f172a'/%3E%3C/svg%3E",
+      "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect width='100' height='100' fill='%23050505'/%3E%3Cpath d='M0 100V50h50v50H0zm50-50V0h50v50H50z' fill='%23111111'/%3E%3C/svg%3E",
+      "data:image/svg+xml,%3Csvg width='20' height='20' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='20' height='20' fill='%231e293b'/%3E%3Ccircle cx='10' cy='10' r='8' fill='%230f172a'/%3E%3C/svg%3E",
+      "data:image/svg+xml,%3Csvg width='30' height='30' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='30' height='30' fill='%23000000'/%3E%3Cpath d='M0 15h30v1H0v-1zM15 0v30h-1V0h1z' fill='%23333333'/%3E%3C/svg%3E",
+      "data:image/svg+xml,%3Csvg width='40' height='40' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='40' height='40' fill='%230f172a'/%3E%3Cpath d='M0 0h20v20H0V0zm20 20h20v20H20V20z' fill='%231e293b'/%3E%3C/svg%3E",
+      "data:image/svg+xml,%3Csvg width='50' height='50' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='50' height='50' fill='%231e293b'/%3E%3Cpath d='M25 0v50M0 25h50' stroke='%230f172a' stroke-width='5'/%3E%3C/svg%3E"
     ];
 
-    // 15 DEGRADADOS ELEGANTES
     const ALL_GRADIENTS = [
       ['#0f172a', '#1e3a8a'], ['#2d124d', '#1e1b4b'], ['#134e4a', '#064e3b'], ['#7c2d12', '#451a03'],
       ['#312e81', '#4c1d95'], ['#0f2027', '#203a43'], ['#1a2a6c', '#b21f1f'], ['#232526', '#414345'],
@@ -1500,11 +1534,10 @@
 
     let selectedBg = 'video_proc_aurora';
     let userCustomImg = null;
-    
-    // VARIABLES PARA EL SISTEMA DE DESCARGA Y ANIMACIÓN
     let currentDownloadConfig = null;
     let previewAnimId = null;
     let isPreviewPlaying = false;
+    let currentModalItemObj = null;
 
     function getCleanBaseUrl() {
       return window.location.origin + window.location.pathname;
@@ -1525,16 +1558,14 @@
       return getCleanBaseUrl();
     }
 
-    // BÚSQUEDA Y RECARGA DE IMÁGENES EXTERNAS EN TIEMPO REAL
     async function searchExternalImages() {
       const queryInput = document.getElementById('inputImageSearch');
       const query = (queryInput && queryInput.value.trim()) ? queryInput.value.trim() : 'cielo,fe,naturaleza,esperanza,paz';
-
       const searchBtn = document.getElementById('btnSearchImages');
       if (searchBtn) searchBtn.innerText = 'Buscando...';
 
       try {
-        activePhotos = generateDynamicPhotos(query, 15);
+        activePhotos = generateDynamicPhotos(query, 10);
         renderBgThumbnails(true);
       } catch (e) {
         console.warn("Error cargando imágenes externas:", e);
@@ -1596,7 +1627,7 @@
 
       if (totalAvailable <= count) {
         const rng = createPRNG(getDateSeed(dateStr) + manualGenOffset);
-        return seededShuffle(pool, rng).slice(0, 10);
+        return seededShuffle(pool, rng).slice(0, count);
       }
 
       const dayEpoch = getDaysEpoch(dateStr) + manualGenOffset;
@@ -1604,16 +1635,14 @@
       const rotatedPool = [...pool.slice(shiftOffset), ...pool.slice(0, shiftOffset)];
 
       const rng = createPRNG(getDateSeed(dateStr) + 777 + manualGenOffset);
-      return seededShuffle(rotatedPool, rng).slice(0, 10);
+      return seededShuffle(rotatedPool, rng).slice(0, count);
     }
 
     async function refreshAllBackgrounds() {
-      manualGenOffset += 1;
-      activePhotos = generateDynamicPhotos('fe,cielo,naturaleza,oracion,amanecer,esperanza', 15);
+      activePhotos = generateDynamicPhotos('fe,cielo,naturaleza,oracion,amanecer,esperanza', 10);
       activePatterns = ALL_PATTERNS;
       activeGradients = ALL_GRADIENTS;
       activeVideos = ALL_PROCEDURAL_VIDEOS;
-
       renderBgThumbnails(true);
       updateCustomCanvas();
     }
@@ -1656,26 +1685,13 @@
       }
     }
 
-    // COMPARTIR SITIO WEB (FUNCIÓN NATIVA CON RESPALDO DESKTOP)
     async function shareWebsite() {
       const cleanUrl = getCleanBaseUrl();
       const shortUrl = await getShortUrl(cleanUrl);
-
-      const shareData = {
-        title: 'Adventistas SV - Frases e Imágenes',
-        text: 'Frases e inspiración diaria en Adventistas SV',
-        url: shortUrl
-      };
-
+      const shareData = { title: 'Adventistas SV - Frases e Imágenes', text: 'Frases e inspiración diaria', url: shortUrl };
       if (navigator.share) {
-        try {
-          await navigator.share(shareData);
-          return;
-        } catch (e) {
-          if (e.name === 'AbortError') return;
-        }
+        try { await navigator.share(shareData); return; } catch (e) { if (e.name === 'AbortError') return; }
       }
-
       navigator.clipboard.writeText(shortUrl);
       alert(`¡Enlace copiado al portapapeles!\n${shortUrl}`);
     }
@@ -1688,38 +1704,25 @@
         const w = img.naturalWidth || img.width;
         const h = img.naturalHeight || img.height;
         if (!w || !h) return;
-
-        canvas.width = w;
-        canvas.height = h;
-        ctx.drawImage(img, 0, 0);
-
+        canvas.width = w; canvas.height = h; ctx.drawImage(img, 0, 0);
         const imageData = ctx.getImageData(0, 0, w, h);
         const data = imageData.data;
         let minX = w, minY = h, maxX = 0, maxY = 0;
-
         for (let y = 0; y < h; y++) {
           for (let x = 0; x < w; x++) {
-            const alpha = data[(y * w + x) * 4 + 3];
-            if (alpha > 10) {
-              if (x < minX) minX = x;
-              if (x > maxX) maxX = x;
-              if (y < minY) minY = y;
-              if (y > maxY) maxY = y;
+            if (data[(y * w + x) * 4 + 3] > 10) {
+              if (x < minX) minX = x; if (x > maxX) maxX = x;
+              if (y < minY) minY = y; if (y > maxY) maxY = y;
             }
           }
         }
-
         if (maxX > minX && maxY > minY) {
-          const cropW = maxX - minX + 1;
-          const cropH = maxY - minY + 1;
+          const cropW = maxX - minX + 1; const cropH = maxY - minY + 1;
           const croppedCanvas = document.createElement('canvas');
-          croppedCanvas.width = cropW;
-          croppedCanvas.height = cropH;
+          croppedCanvas.width = cropW; croppedCanvas.height = cropH;
           const croppedCtx = croppedCanvas.getContext('2d');
           croppedCtx.drawImage(canvas, minX, minY, cropW, cropH, 0, 0, cropW, cropH);
-
-          img.dataset.processed = "true";
-          img.src = croppedCanvas.toDataURL();
+          img.dataset.processed = "true"; img.src = croppedCanvas.toDataURL();
         }
       } catch (e) {}
     }
@@ -1738,17 +1741,13 @@
     function dataURLtoFile(dataurl, filename) {
       const arr = dataurl.split(',');
       const mime = arr[0].match(/:(.*?);/)[1];
-      const bstr = atob(arr[1]);
-      let n = bstr.length;
-      const u8arr = new Uint8Array(n);
+      const bstr = atob(arr[1]); let n = bstr.length; const u8arr = new Uint8Array(n);
       while (n--) u8arr[n] = bstr.charCodeAt(n);
       return new File([u8arr], filename, { type: mime });
     }
 
     async function preloadLogos() {
-      for (const key in LOGOS) {
-        try { loadedLogos[key] = await loadImage(LOGOS[key]); } catch (e) {}
-      }
+      for (const key in LOGOS) { try { loadedLogos[key] = await loadImage(LOGOS[key]); } catch (e) {} }
     }
 
     function handleLogoChange() {
@@ -1772,50 +1771,34 @@
       }
     }
 
-    function stopTestModalAnim() {
-      if (testModalAnimId) {
-        cancelAnimationFrame(testModalAnimId);
-        testModalAnimId = null;
-      }
-    }
+    function stopTestModalAnim() { if (testModalAnimId) { cancelAnimationFrame(testModalAnimId); testModalAnimId = null; } }
 
     function openVideoModalWithSelection(vid) {
-      stopPreviewAnimation();
-      stopTestModalAnim();
+      stopPreviewAnimation(); stopTestModalAnim();
       selectedBg = 'video_' + vid.id;
-      
       renderVideoModalList();
       document.getElementById('videoModal').classList.add('active');
       testVideoPreview(null, vid);
     }
 
     function openVideoModal() {
-      stopPreviewAnimation();
-      stopTestModalAnim();
-      renderVideoModalList();
-      document.getElementById('videoModal').classList.add('active');
-
-      if (ALL_PROCEDURAL_VIDEOS.length > 0) {
-        testVideoPreview(null, ALL_PROCEDURAL_VIDEOS[0]);
-      }
+      stopPreviewAnimation(); stopTestModalAnim();
+      renderVideoModalList(); document.getElementById('videoModal').classList.add('active');
+      if (ALL_PROCEDURAL_VIDEOS.length > 0) testVideoPreview(null, ALL_PROCEDURAL_VIDEOS[0]);
     }
 
     function closeVideoModal() {
-      stopTestModalAnim();
-      document.getElementById('videoModal').classList.remove('active');
-      updateCustomCanvas();
+      stopTestModalAnim(); document.getElementById('videoModal').classList.remove('active'); updateCustomCanvas();
     }
 
     function renderVideoModalList() {
       const container = document.getElementById('videoListContainer');
       container.innerHTML = '';
-
       ALL_PROCEDURAL_VIDEOS.forEach(vid => {
         const vidKey = 'video_' + vid.id;
         const isSelected = (selectedBg === vidKey);
         const itemEl = document.createElement('div');
         itemEl.className = `music-track-item ${isSelected ? 'selected' : ''}`;
-
         itemEl.innerHTML = `
           <div style="display:flex; align-items:center; gap:12px; overflow:hidden;">
             <div style="width:40px; height:48px; border-radius:6px; background-image:url('${vid.poster}'); background-size:cover; background-position:center; flex-shrink:0;"></div>
@@ -1835,62 +1818,38 @@
 
     function testVideoPreview(e, vidObj) {
       if (e) e.stopPropagation();
-      stopTestModalAnim();
-
-      selectedBg = 'video_' + vidObj.id;
-
-      let startTime = null;
-      const testDur = 6;
+      stopTestModalAnim(); selectedBg = 'video_' + vidObj.id;
+      let startTime = null; const testDur = 6;
       const currentAnim = document.getElementById('selectAnimation').value;
       const currentEffect = document.getElementById('selectEffect').value;
       const modalCanvas = document.getElementById('videoModalCanvas');
-
       function loop(ts) {
-        if (!startTime) startTime = ts;
-        let elapsed = (ts - startTime) / 1000;
-        if (elapsed > testDur) {
-          startTime = ts;
-          elapsed = 0;
-        }
-
+        if (!startTime) startTime = ts; let elapsed = (ts - startTime) / 1000;
+        if (elapsed > testDur) { startTime = ts; elapsed = 0; }
         drawCustomCanvasOnTarget(modalCanvas, elapsed, testDur, currentAnim, currentEffect);
         testModalAnimId = requestAnimationFrame(loop);
       }
       testModalAnimId = requestAnimationFrame(loop);
     }
 
-    function applyVideoChoice(vidObj) {
-      stopTestModalAnim();
-      selectedBg = 'video_' + vidObj.id;
-      closeVideoModal();
-    }
+    function applyVideoChoice(vidObj) { stopTestModalAnim(); selectedBg = 'video_' + vidObj.id; closeVideoModal(); }
 
     function openAnimModal() {
-      stopPreviewAnimation();
-      stopTestModalAnim();
-      renderAnimModalList();
-      document.getElementById('animModal').classList.add('active');
-      
-      const currentAnim = document.getElementById('selectAnimation').value;
-      testAnimPreview(null, currentAnim);
+      stopPreviewAnimation(); stopTestModalAnim();
+      renderAnimModalList(); document.getElementById('animModal').classList.add('active');
+      testAnimPreview(null, document.getElementById('selectAnimation').value);
     }
 
-    function closeAnimModal() {
-      stopTestModalAnim();
-      document.getElementById('animModal').classList.remove('active');
-      updateCustomCanvas();
-    }
+    function closeAnimModal() { stopTestModalAnim(); document.getElementById('animModal').classList.remove('active'); updateCustomCanvas(); }
 
     function renderAnimModalList() {
       const container = document.getElementById('animListContainer');
       const currentVal = document.getElementById('selectAnimation').value;
       container.innerHTML = '';
-
       ANIMATIONS_DATA.forEach(anim => {
         const isSelected = anim.id === currentVal;
         const itemEl = document.createElement('div');
         itemEl.className = `music-track-item ${isSelected ? 'selected' : ''}`;
-
         itemEl.innerHTML = `
           <div style="display:flex; align-items:center; gap:12px; overflow:hidden;">
             <div style="overflow:hidden;">
@@ -1908,22 +1867,13 @@
     }
 
     function testAnimPreview(e, animId) {
-      if (e) e.stopPropagation();
-      stopTestModalAnim();
-
-      let startTime = null;
-      const testDur = 6;
+      if (e) e.stopPropagation(); stopTestModalAnim();
+      let startTime = null; const testDur = 6;
       const currentEffect = document.getElementById('selectEffect').value;
       const modalCanvas = document.getElementById('animModalCanvas');
-
       function loop(ts) {
-        if (!startTime) startTime = ts;
-        let elapsed = (ts - startTime) / 1000;
-        if (elapsed > testDur) {
-          startTime = ts;
-          elapsed = 0;
-        }
-        
+        if (!startTime) startTime = ts; let elapsed = (ts - startTime) / 1000;
+        if (elapsed > testDur) { startTime = ts; elapsed = 0; }
         drawCustomCanvasOnTarget(modalCanvas, elapsed, testDur, animId, currentEffect);
         testModalAnimId = requestAnimationFrame(loop);
       }
@@ -1931,38 +1881,26 @@
     }
 
     function applyAnimChoice(animId, title) {
-      stopTestModalAnim();
-      document.getElementById('selectAnimation').value = animId;
-      document.getElementById('animTriggerTitle').innerText = title;
-      closeAnimModal();
+      stopTestModalAnim(); document.getElementById('selectAnimation').value = animId;
+      document.getElementById('animTriggerTitle').innerText = title; closeAnimModal();
     }
 
     function openEffectModal() {
-      stopPreviewAnimation();
-      stopTestModalAnim();
-      renderEffectModalList();
-      document.getElementById('effectModal').classList.add('active');
-
-      const currentEffect = document.getElementById('selectEffect').value;
-      testEffectPreview(null, currentEffect);
+      stopPreviewAnimation(); stopTestModalAnim();
+      renderEffectModalList(); document.getElementById('effectModal').classList.add('active');
+      testEffectPreview(null, document.getElementById('selectEffect').value);
     }
 
-    function closeEffectModal() {
-      stopTestModalAnim();
-      document.getElementById('effectModal').classList.remove('active');
-      updateCustomCanvas();
-    }
+    function closeEffectModal() { stopTestModalAnim(); document.getElementById('effectModal').classList.remove('active'); updateCustomCanvas(); }
 
     function renderEffectModalList() {
       const container = document.getElementById('effectListContainer');
       const currentVal = document.getElementById('selectEffect').value;
       container.innerHTML = '';
-
       EFFECTS_DATA.forEach(eff => {
         const isSelected = eff.id === currentVal;
         const itemEl = document.createElement('div');
         itemEl.className = `music-track-item ${isSelected ? 'selected' : ''}`;
-
         itemEl.innerHTML = `
           <div style="display:flex; align-items:center; gap:12px; overflow:hidden;">
             <div style="overflow:hidden;">
@@ -1980,22 +1918,13 @@
     }
 
     function testEffectPreview(e, effectId) {
-      if (e) e.stopPropagation();
-      stopTestModalAnim();
-
-      let startTime = null;
-      const testDur = 6;
+      if (e) e.stopPropagation(); stopTestModalAnim();
+      let startTime = null; const testDur = 6;
       const currentAnim = document.getElementById('selectAnimation').value;
       const modalCanvas = document.getElementById('effectModalCanvas');
-
       function loop(ts) {
-        if (!startTime) startTime = ts;
-        let elapsed = (ts - startTime) / 1000;
-        if (elapsed > testDur) {
-          startTime = ts;
-          elapsed = 0;
-        }
-        
+        if (!startTime) startTime = ts; let elapsed = (ts - startTime) / 1000;
+        if (elapsed > testDur) { startTime = ts; elapsed = 0; }
         drawCustomCanvasOnTarget(modalCanvas, elapsed, testDur, currentAnim, effectId);
         testModalAnimId = requestAnimationFrame(loop);
       }
@@ -2003,28 +1932,18 @@
     }
 
     function applyEffectChoice(effectId, title) {
-      stopTestModalAnim();
-      document.getElementById('selectEffect').value = effectId;
-      document.getElementById('effectTriggerTitle').innerText = title;
-      closeEffectModal();
+      stopTestModalAnim(); document.getElementById('selectEffect').value = effectId;
+      document.getElementById('effectTriggerTitle').innerText = title; closeEffectModal();
     }
 
     function openMusicModal() {
-      stopModalPreview();
-      document.getElementById('musicSearchInput').value = '';
-      
+      stopModalPreview(); document.getElementById('musicSearchInput').value = '';
       const tabs = document.querySelectorAll('.music-tab-pill');
-      tabs.forEach(t => t.classList.remove('active'));
-      if(tabs[0]) tabs[0].classList.add('active');
-
-      searchRealTimeMusic('alabanza cristiana');
-      document.getElementById('musicModal').classList.add('active');
+      tabs.forEach(t => t.classList.remove('active')); if(tabs[0]) tabs[0].classList.add('active');
+      searchRealTimeMusic('alabanza cristiana'); document.getElementById('musicModal').classList.add('active');
     }
 
-    function closeMusicModal() {
-      stopModalPreview();
-      document.getElementById('musicModal').classList.remove('active');
-    }
+    function closeMusicModal() { stopModalPreview(); document.getElementById('musicModal').classList.remove('active'); }
 
     function setMusicCategory(cat, btnEl, searchQuery) {
       document.querySelectorAll('.music-tab-pill').forEach(b => b.classList.remove('active'));
@@ -2036,160 +1955,86 @@
     function onMusicSearchInput() {
       clearTimeout(searchDebounceTimer);
       const query = document.getElementById('musicSearchInput').value.trim();
-      searchDebounceTimer = setTimeout(() => {
-        searchRealTimeMusic(query || 'alabanza');
-      }, 400);
+      searchDebounceTimer = setTimeout(() => searchRealTimeMusic(query || 'alabanza'), 400);
     }
 
     async function searchRealTimeMusic(term) {
       const container = document.getElementById('musicListContainer');
       container.innerHTML = `<div style="text-align:center; padding:35px 20px; color:var(--text-muted); font-size:0.86rem;">Buscando música en tiempo real...</div>`;
-
       try {
         const response = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(term)}&entity=song&limit=25`);
         const data = await response.json();
-
         if (data.results && data.results.length > 0) {
-          const tracks = data.results.map(item => ({
-            id: 'itunes_' + item.trackId,
-            title: item.trackName,
-            artist: item.artistName,
-            albumCover: item.artworkUrl100 || item.artworkUrl60,
-            url: item.previewUrl
-          }));
+          const tracks = data.results.map(item => ({ id: 'itunes_' + item.trackId, title: item.trackName, artist: item.artistName, albumCover: item.artworkUrl100 || item.artworkUrl60, url: item.previewUrl }));
           renderMusicSearchResults(tracks);
-        } else {
-          container.innerHTML = `<div style="text-align:center; padding:35px 20px; color:var(--text-muted); font-size:0.86rem;">No se encontraron canciones para "${term}". Intenta buscar otro término.</div>`;
-        }
-      } catch (err) {
-        container.innerHTML = `<div style="text-align:center; padding:35px 20px; color:#f87171; font-size:0.86rem;">Ocurrió un problema de conexión al buscar música. Revisa tu red.</div>`;
-      }
+        } else container.innerHTML = `<div style="text-align:center; padding:35px 20px; color:var(--text-muted); font-size:0.86rem;">No se encontraron canciones para "${term}". Intenta buscar otro término.</div>`;
+      } catch (err) { container.innerHTML = `<div style="text-align:center; padding:35px 20px; color:#f87171; font-size:0.86rem;">Ocurrió un problema de conexión al buscar música. Revisa tu red.</div>`; }
     }
 
     function stopModalPreview() {
-      if (modalAudioPreview) {
-        modalAudioPreview.pause();
-        modalAudioPreview.currentTime = 0;
-        modalAudioPreview = null;
-      }
+      if (modalAudioPreview) { modalAudioPreview.pause(); modalAudioPreview.currentTime = 0; modalAudioPreview = null; }
       playingPreviewId = null;
     }
 
     function togglePreviewAudio(e, trackId, trackUrl) {
       e.stopPropagation();
-
-      if (playingPreviewId === trackId) {
-        stopModalPreview();
-        updatePreviewBtnUI();
-        return;
-      }
-
-      stopModalPreview();
-
-      if (!trackUrl) return;
-
-      modalAudioPreview = new Audio();
-      modalAudioPreview.crossOrigin = "anonymous";
-      modalAudioPreview.src = trackUrl;
-      playingPreviewId = trackId;
-
-      modalAudioPreview.play().catch(e => console.log(e));
-      modalAudioPreview.onended = () => {
-        playingPreviewId = null;
-        updatePreviewBtnUI();
-      };
-
+      if (playingPreviewId === trackId) { stopModalPreview(); updatePreviewBtnUI(); return; }
+      stopModalPreview(); if (!trackUrl) return;
+      modalAudioPreview = new Audio(); modalAudioPreview.crossOrigin = "anonymous"; modalAudioPreview.src = trackUrl;
+      playingPreviewId = trackId; modalAudioPreview.play().catch(e => console.log(e));
+      modalAudioPreview.onended = () => { playingPreviewId = null; updatePreviewBtnUI(); };
       updatePreviewBtnUI();
     }
 
     function updatePreviewBtnUI() {
       document.querySelectorAll('.track-preview-btn').forEach(btn => {
         const id = btn.dataset.id;
-        if (id === playingPreviewId) {
-          btn.innerText = 'Parar';
-          btn.style.background = 'var(--accent)';
-        } else {
-          btn.innerText = 'Escuchar';
-          btn.style.background = 'rgba(255, 255, 255, 0.08)';
-        }
+        if (id === playingPreviewId) { btn.innerText = 'Parar'; btn.style.background = 'var(--accent)'; }
+        else { btn.innerText = 'Escuchar'; btn.style.background = 'rgba(255, 255, 255, 0.08)'; }
       });
     }
 
     async function selectMusicTrack(track) {
       stopModalPreview();
-
       const triggerTitle = document.getElementById('musicTriggerTitle');
       const triggerSub = document.getElementById('musicTriggerSub');
-
-      triggerTitle.innerText = 'Almacenando canción...';
-      triggerSub.innerText = track.title;
-
+      triggerTitle.innerText = 'Almacenando canción...'; triggerSub.innerText = track.title;
       closeMusicModal();
-
       try {
         if (track.url) {
-          let blobData = null;
-          const cached = await getTrackFromDB(track.id);
-          
-          if (cached && cached.blob) {
-            blobData = cached.blob;
-          } else {
-            const resp = await fetch(track.url);
-            blobData = await resp.blob();
-            await saveTrackToDB(track.id, blobData, track);
-          }
-
-          userCustomAudio = URL.createObjectURL(blobData);
-          selectedAudioKey = 'custom';
-          selectedTrackMeta = track;
-
-          triggerTitle.innerText = track.title;
-          triggerSub.innerText = `${track.artist} (Guardado en navegador)`;
+          let blobData = null; const cached = await getTrackFromDB(track.id);
+          if (cached && cached.blob) blobData = cached.blob;
+          else { const resp = await fetch(track.url); blobData = await resp.blob(); await saveTrackToDB(track.id, blobData, track); }
+          userCustomAudio = URL.createObjectURL(blobData); selectedAudioKey = 'custom'; selectedTrackMeta = track;
+          triggerTitle.innerText = track.title; triggerSub.innerText = `${track.artist} (Guardado)`;
         }
       } catch (e) {
-        userCustomAudio = track.url;
-        selectedAudioKey = 'custom';
-        selectedTrackMeta = track;
-
-        triggerTitle.innerText = track.title;
-        triggerSub.innerText = track.artist;
+        userCustomAudio = track.url; selectedAudioKey = 'custom'; selectedTrackMeta = track;
+        triggerTitle.innerText = track.title; triggerSub.innerText = track.artist;
       }
-
       if (isPreviewPlaying) previewAnimation();
     }
 
     function handleUserAudioUploadModal(event) {
       const file = event.target.files[0];
       if (file) {
-        userCustomAudio = URL.createObjectURL(file);
-        selectedAudioKey = 'custom';
-        
+        userCustomAudio = URL.createObjectURL(file); selectedAudioKey = 'custom';
         const trackName = file.name.replace(/\.[^/.]+$/, "");
         document.getElementById('musicTriggerTitle').innerText = trackName;
         document.getElementById('musicTriggerSub').innerText = 'Audio Local Subido';
-
-        closeMusicModal();
-        if (isPreviewPlaying) previewAnimation();
+        closeMusicModal(); if (isPreviewPlaying) previewAnimation();
       }
     }
 
     function renderMusicSearchResults(list) {
-      const container = document.getElementById('musicListContainer');
-      container.innerHTML = '';
-
+      const container = document.getElementById('musicListContainer'); container.innerHTML = '';
       list.forEach(track => {
         const itemEl = document.createElement('div');
         const isSelected = (selectedTrackMeta && selectedTrackMeta.id === track.id);
         const isPlaying = (playingPreviewId === track.id);
-
-        itemEl.className = `music-track-item ${isSelected ? 'selected' : ''}`;
-        itemEl.onclick = () => selectMusicTrack(track);
-
+        itemEl.className = `music-track-item ${isSelected ? 'selected' : ''}`; itemEl.onclick = () => selectMusicTrack(track);
         const playBtnText = isPlaying ? 'Parar' : 'Escuchar';
-        const coverHTML = track.albumCover ? 
-          `<img src="${track.albumCover}" style="width:40px; height:40px; border-radius:10px; object-fit:cover; flex-shrink:0;">` :
-          `<div style="width:40px; height:40px; border-radius:10px; background:rgba(255,255,255,0.06); display:flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0;">🎵</div>`;
-
+        const coverHTML = track.albumCover ? `<img src="${track.albumCover}" style="width:40px; height:40px; border-radius:10px; object-fit:cover; flex-shrink:0;">` : `<div style="width:40px; height:40px; border-radius:10px; background:rgba(255,255,255,0.06); display:flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0;">🎵</div>`;
         itemEl.innerHTML = `
           <div style="display:flex; align-items:center; gap:12px; overflow:hidden;">
             ${coverHTML}
@@ -2203,7 +2048,6 @@
             <button class="btn btn-secondary" style="min-height:32px; padding:2px 10px; font-size:0.76rem;">Agregar</button>
           </div>
         `;
-
         container.appendChild(itemEl);
       });
     }
@@ -2215,10 +2059,8 @@
         reader.onload = function(e) {
           const img = new Image();
           img.onload = function() {
-            userCustomImg = img;
-            selectedBg = 'user_custom';
-            document.querySelectorAll('.bg-thumb').forEach(t => t.classList.remove('active'));
-            updateCustomCanvas();
+            userCustomImg = img; selectedBg = 'user_custom';
+            document.querySelectorAll('.bg-thumb').forEach(t => t.classList.remove('active')); updateCustomCanvas();
           };
           img.src = e.target.result;
         };
@@ -2227,38 +2069,19 @@
     }
 
     function switchTab(tab, updateHistory = true) {
-      stopPreviewAnimation();
-      stopTestModalAnim();
-      const gSec = document.getElementById('gallerySection');
-      const eSec = document.getElementById('editorSection');
-      const btnG = document.getElementById('tabBtnGallery');
-      const btnE = document.getElementById('tabBtnEditor');
-
+      stopPreviewAnimation(); stopTestModalAnim();
+      const gSec = document.getElementById('gallerySection'); const eSec = document.getElementById('editorSection');
+      const btnG = document.getElementById('tabBtnGallery'); const btnE = document.getElementById('tabBtnEditor');
       if (tab === 'editor') {
-        gSec.classList.add('hidden');
-        eSec.classList.remove('hidden');
-        if (btnG) btnG.classList.remove('active');
-        if (btnE) btnE.classList.add('active');
-        
-        if (document.getElementById('selectPhraseBank') && document.getElementById('selectPhraseBank').options.length <= 1) {
-          initPhraseBankSelector();
-        }
-
-        renderBgThumbnails();
-        updateCustomCanvas();
-        if (updateHistory) {
-          localStorage.setItem('activeTab', 'editor');
-          history.replaceState(null, null, '#editor');
-        }
+        gSec.classList.add('hidden'); eSec.classList.remove('hidden');
+        if (btnG) btnG.classList.remove('active'); if (btnE) btnE.classList.add('active');
+        if (document.getElementById('selectPhraseBank') && document.getElementById('selectPhraseBank').options.length <= 1) initPhraseBankSelector();
+        renderBgThumbnails(); updateCustomCanvas();
+        if (updateHistory) { localStorage.setItem('activeTab', 'editor'); history.replaceState(null, null, '#editor'); }
       } else {
-        gSec.classList.remove('hidden');
-        eSec.classList.add('hidden');
-        if (btnG) btnG.classList.add('active');
-        if (btnE) btnE.classList.remove('active');
-        if (updateHistory) {
-          localStorage.setItem('activeTab', 'gallery');
-          history.replaceState(null, null, '#gallery');
-        }
+        gSec.classList.remove('hidden'); eSec.classList.add('hidden');
+        if (btnG) btnG.classList.add('active'); if (btnE) btnE.classList.remove('active');
+        if (updateHistory) { localStorage.setItem('activeTab', 'gallery'); history.replaceState(null, null, '#gallery'); }
       }
     }
 
@@ -2270,952 +2093,337 @@
       // 1. 20 FONDOS ANIMADOS POR CÓDIGO
       const secVideos = document.createElement('div');
       secVideos.innerHTML = `<div class="bg-section-title">20 Fondos Animados por Código Canvas</div>`;
-      const gridVideos = document.createElement('div');
-      gridVideos.className = 'bg-grid';
-
+      const gridVideos = document.createElement('div'); gridVideos.className = 'bg-grid';
       activeVideos.forEach((vid) => {
         const div = document.createElement('div');
         const vidKey = 'video_' + vid.id;
         div.className = `bg-thumb ${selectedBg === vidKey ? 'active' : ''}`;
-        div.style.backgroundImage = `url('${vid.poster}')`;
-        div.style.backgroundSize = 'cover';
-        div.style.backgroundPosition = 'center';
-
-        const tag = document.createElement('span');
-        tag.className = 'bg-thumb-video-tag';
-        tag.innerText = 'CÓDIGO';
-        div.appendChild(tag);
-
-        div.onclick = () => {
-          document.querySelectorAll('.bg-thumb').forEach(t => t.classList.remove('active'));
-          div.classList.add('active');
-          openVideoModalWithSelection(vid);
-        };
+        div.style.backgroundImage = `url('${vid.poster}')`; div.style.backgroundSize = 'cover'; div.style.backgroundPosition = 'center';
+        const tag = document.createElement('span'); tag.className = 'bg-thumb-video-tag'; tag.innerText = 'CÓDIGO'; div.appendChild(tag);
+        div.onclick = () => { document.querySelectorAll('.bg-thumb').forEach(t => t.classList.remove('active')); div.classList.add('active'); openVideoModalWithSelection(vid); };
         gridVideos.appendChild(div);
       });
-      secVideos.appendChild(gridVideos);
-      container.appendChild(secVideos);
+      secVideos.appendChild(gridVideos); container.appendChild(secVideos);
 
-      // 2. 15 FOTOGRAFÍAS
+      // 2. 10 FOTOGRAFÍAS
       const secPhotos = document.createElement('div');
-      secPhotos.innerHTML = `<div class="bg-section-title">15 Fotografías Seleccionadas</div>`;
-      const gridPhotos = document.createElement('div');
-      gridPhotos.className = 'bg-grid';
-
+      secPhotos.innerHTML = `<div class="bg-section-title">10 Fotografías Seleccionadas</div>`;
+      const gridPhotos = document.createElement('div'); gridPhotos.className = 'bg-grid';
       activePhotos.forEach((url, i) => {
-        const img = document.createElement('img');
-        img.src = url;
-        img.className = `bg-thumb ${selectedBg === 'photo_' + i ? 'active' : ''}`;
-        
-        img.onerror = function() {
-          this.onerror = null;
-          this.src = 'https://picsum.photos/800/1000';
-        };
-
-        img.onclick = () => {
-          document.querySelectorAll('.bg-thumb').forEach(t => t.classList.remove('active'));
-          img.classList.add('active');
-          selectedBg = 'photo_' + i;
-          updateCustomCanvas();
-        };
+        const img = document.createElement('img'); img.src = url; img.className = `bg-thumb ${selectedBg === 'photo_' + i ? 'active' : ''}`;
+        img.onerror = function() { this.onerror = null; this.src = 'https://picsum.photos/800/1000'; };
+        img.onclick = () => { document.querySelectorAll('.bg-thumb').forEach(t => t.classList.remove('active')); img.classList.add('active'); selectedBg = 'photo_' + i; updateCustomCanvas(); };
         gridPhotos.appendChild(img);
       });
-      secPhotos.appendChild(gridPhotos);
-      container.appendChild(secPhotos);
+      secPhotos.appendChild(gridPhotos); container.appendChild(secPhotos);
 
-      // 3. 10 PATRONES Y TEXTURAS
+      // 3. 10 PATRONES Y TEXTURAS (SVG data URIs puros)
       const secPatterns = document.createElement('div');
-      secPatterns.innerHTML = `<div class="bg-section-title">10 Patrones y Texturas</div>`;
-      const gridPatterns = document.createElement('div');
-      gridPatterns.className = 'bg-grid';
-
+      secPatterns.innerHTML = `<div class="bg-section-title">10 Patrones Puros Generados</div>`;
+      const gridPatterns = document.createElement('div'); gridPatterns.className = 'bg-grid';
       activePatterns.forEach((url, i) => {
-        const img = document.createElement('img');
-        img.src = url;
-        img.className = `bg-thumb ${selectedBg === 'pattern_' + i ? 'active' : ''}`;
-        img.onerror = function() {
-          this.onerror = null;
-          this.src = ALL_PATTERNS[0];
-        };
-        img.onclick = () => {
-          document.querySelectorAll('.bg-thumb').forEach(t => t.classList.remove('active'));
-          img.classList.add('active');
-          selectedBg = 'pattern_' + i;
-          updateCustomCanvas();
-        };
+        const img = document.createElement('img'); img.src = url; img.className = `bg-thumb ${selectedBg === 'pattern_' + i ? 'active' : ''}`;
+        img.onclick = () => { document.querySelectorAll('.bg-thumb').forEach(t => t.classList.remove('active')); img.classList.add('active'); selectedBg = 'pattern_' + i; updateCustomCanvas(); };
         gridPatterns.appendChild(img);
       });
-      secPatterns.appendChild(gridPatterns);
-      container.appendChild(secPatterns);
+      secPatterns.appendChild(gridPatterns); container.appendChild(secPatterns);
 
       // 4. 15 DEGRADADOS
       const secGrads = document.createElement('div');
       secGrads.innerHTML = `<div class="bg-section-title">15 Degradados Elegantes</div>`;
-      const gridGrads = document.createElement('div');
-      gridGrads.className = 'bg-grid';
-
+      const gridGrads = document.createElement('div'); gridGrads.className = 'bg-grid';
       activeGradients.forEach((grad, i) => {
-        const div = document.createElement('div');
-        div.className = `bg-thumb ${selectedBg === 'grad_' + i ? 'active' : ''}`;
+        const div = document.createElement('div'); div.className = `bg-thumb ${selectedBg === 'grad_' + i ? 'active' : ''}`;
         div.style.background = `linear-gradient(135deg, ${grad[0]}, ${grad[1]})`;
-        div.onclick = () => {
-          document.querySelectorAll('.bg-thumb').forEach(t => t.classList.remove('active'));
-          div.classList.add('active');
-          selectedBg = 'grad_' + i;
-          updateCustomCanvas();
-        };
+        div.onclick = () => { document.querySelectorAll('.bg-thumb').forEach(t => t.classList.remove('active')); div.classList.add('active'); selectedBg = 'grad_' + i; updateCustomCanvas(); };
         gridGrads.appendChild(div);
       });
-      secGrads.appendChild(gridGrads);
-      container.appendChild(secGrads);
+      secGrads.appendChild(gridGrads); container.appendChild(secGrads);
     }
 
-    function onDurationChange() {
-      if (isPreviewPlaying) previewAnimation();
-      else updateCustomCanvas();
-    }
+    function onDurationChange() { if (isPreviewPlaying) previewAnimation(); else updateCustomCanvas(); }
 
     function drawCoverImage(ctx, img, targetW, targetH, scale = 1.0) {
-      const w = img.naturalWidth || img.width;
-      const h = img.naturalHeight || img.height;
+      const w = img.naturalWidth || img.width; const h = img.naturalHeight || img.height;
       if (!w || !h) return;
-
-      const imgRatio = w / h;
-      const targetRatio = targetW / targetH;
+      const imgRatio = w / h; const targetRatio = targetW / targetH;
       let renderW, renderH, offsetX, offsetY;
-
-      if (imgRatio > targetRatio) {
-        renderH = targetH;
-        renderW = targetH * imgRatio;
-        offsetX = (targetW - renderW) / 2;
-        offsetY = 0;
-      } else {
-        renderW = targetW;
-        renderH = targetW / imgRatio;
-        offsetX = 0;
-        offsetY = (targetH - renderH) / 2;
-      }
-
+      if (imgRatio > targetRatio) { renderH = targetH; renderW = targetH * imgRatio; offsetX = (targetW - renderW) / 2; offsetY = 0; }
+      else { renderW = targetW; renderH = targetW / imgRatio; offsetX = 0; offsetY = (targetH - renderH) / 2; }
       if (scale !== 1.0) {
-        ctx.save();
-        ctx.translate(targetW / 2, targetH / 2);
-        ctx.scale(scale, scale);
-        ctx.translate(-targetW / 2, -targetH / 2);
-        ctx.drawImage(img, offsetX, offsetY, renderW, renderH);
-        ctx.restore();
-      } else {
-        ctx.drawImage(img, offsetX, offsetY, renderW, renderH);
-      }
+        ctx.save(); ctx.translate(targetW / 2, targetH / 2); ctx.scale(scale, scale); ctx.translate(-targetW / 2, -targetH / 2);
+        ctx.drawImage(img, offsetX, offsetY, renderW, renderH); ctx.restore();
+      } else ctx.drawImage(img, offsetX, offsetY, renderW, renderH);
     }
 
     /* RENDERIZADOR COMPLETO DE 20 FONDOS PROCEDURALES ANIMADOS POR CÓDIGO CANVAS */
     function drawProceduralVideoBg(ctx, width, height, type, time) {
       ctx.save();
-
-      // 1. Aurora Celestial
       if (type === 'video_proc_aurora') {
-        const grad = ctx.createLinearGradient(0, 0, 0, height);
-        grad.addColorStop(0, '#0f172a');
-        grad.addColorStop(0.5, '#064e3b');
-        grad.addColorStop(1, '#022c22');
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, width, height);
-
+        const grad = ctx.createLinearGradient(0, 0, 0, height); grad.addColorStop(0, '#0f172a'); grad.addColorStop(0.5, '#064e3b'); grad.addColorStop(1, '#022c22');
+        ctx.fillStyle = grad; ctx.fillRect(0, 0, width, height);
         for (let i = 0; i < 3; i++) {
-          ctx.beginPath();
-          ctx.moveTo(0, height * 0.2);
-          for (let x = 0; x <= width; x += 20) {
-            const y = (height * 0.3) + Math.sin(x * 0.005 + time * 1.2 + i) * 80 + Math.cos(time * 0.8 + i) * 40;
-            ctx.lineTo(x, y);
-          }
-          ctx.lineTo(width, height);
-          ctx.lineTo(0, height);
-          ctx.closePath();
-
+          ctx.beginPath(); ctx.moveTo(0, height * 0.2);
+          for (let x = 0; x <= width; x += 20) { const y = (height * 0.3) + Math.sin(x * 0.005 + time * 1.2 + i) * 80 + Math.cos(time * 0.8 + i) * 40; ctx.lineTo(x, y); }
+          ctx.lineTo(width, height); ctx.lineTo(0, height); ctx.closePath();
           const waveGrad = ctx.createLinearGradient(0, 0, width, height);
-          waveGrad.addColorStop(0, `rgba(16, 185, 129, ${0.15 + i * 0.05})`);
-          waveGrad.addColorStop(0.5, `rgba(6, 182, 212, ${0.20 + i * 0.05})`);
-          waveGrad.addColorStop(1, 'rgba(15, 23, 42, 0)');
-          ctx.fillStyle = waveGrad;
-          ctx.fill();
+          waveGrad.addColorStop(0, `rgba(16, 185, 129, ${0.15 + i * 0.05})`); waveGrad.addColorStop(0.5, `rgba(6, 182, 212, ${0.20 + i * 0.05})`); waveGrad.addColorStop(1, 'rgba(15, 23, 42, 0)');
+          ctx.fillStyle = waveGrad; ctx.fill();
         }
       } 
-      // 2. Nubes Místicas y Sol
       else if (type === 'video_proc_clouds') {
-        const grad = ctx.createLinearGradient(0, 0, 0, height);
-        grad.addColorStop(0, '#1e1b4b');
-        grad.addColorStop(0.5, '#312e81');
-        grad.addColorStop(1, '#0f172a');
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, width, height);
-
+        const grad = ctx.createLinearGradient(0, 0, 0, height); grad.addColorStop(0, '#1e1b4b'); grad.addColorStop(0.5, '#312e81'); grad.addColorStop(1, '#0f172a');
+        ctx.fillStyle = grad; ctx.fillRect(0, 0, width, height);
         for (let i = 0; i < 5; i++) {
           const cx = (width * 0.2) + ((time * (15 + i * 8) + i * 200) % (width + 400)) - 200;
           const cy = (height * 0.25) + Math.sin(time * 0.5 + i) * 30 + (i * 80);
           const radius = 180 + i * 40;
-
           const cloudGrad = ctx.createRadialGradient(cx, cy, 10, cx, cy, radius);
-          cloudGrad.addColorStop(0, 'rgba(255, 255, 255, 0.18)');
-          cloudGrad.addColorStop(0.6, 'rgba(199, 210, 254, 0.06)');
-          cloudGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-
-          ctx.fillStyle = cloudGrad;
-          ctx.beginPath();
-          ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-          ctx.fill();
+          cloudGrad.addColorStop(0, 'rgba(255, 255, 255, 0.18)'); cloudGrad.addColorStop(0.6, 'rgba(199, 210, 254, 0.06)'); cloudGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+          ctx.fillStyle = cloudGrad; ctx.beginPath(); ctx.arc(cx, cy, radius, 0, Math.PI * 2); ctx.fill();
         }
       } 
-      // 3. Lluvia de Luz y Estrellas
       else if (type === 'video_proc_stars') {
-        ctx.fillStyle = '#090d16';
-        ctx.fillRect(0, 0, width, height);
-
+        ctx.fillStyle = '#090d16'; ctx.fillRect(0, 0, width, height);
         for (let i = 0; i < 60; i++) {
-          const x = (i * 137.5) % width;
-          const speed = 20 + (i % 6) * 15;
-          const y = (time * speed + i * 70) % (height + 50) - 20;
-          const opacity = 0.3 + 0.7 * Math.abs(Math.sin(time * 2.0 + i));
-          const size = 1.5 + (i % 4) * 1.2;
-
-          ctx.beginPath();
-          ctx.arc(x, y, size, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
-          ctx.shadowColor = '#ffffff';
-          ctx.shadowBlur = 8;
-          ctx.fill();
+          const x = (i * 137.5) % width; const speed = 20 + (i % 6) * 15; const y = (time * speed + i * 70) % (height + 50) - 20;
+          const opacity = 0.3 + 0.7 * Math.abs(Math.sin(time * 2.0 + i)); const size = 1.5 + (i % 4) * 1.2;
+          ctx.beginPath(); ctx.arc(x, y, size, 0, Math.PI * 2); ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`; ctx.shadowColor = '#ffffff'; ctx.shadowBlur = 8; ctx.fill();
         }
       }
-      // 4. Luciérnagas de Esperanza
       else if (type === 'video_proc_fireflies') {
-        const grad = ctx.createLinearGradient(0, 0, 0, height);
-        grad.addColorStop(0, '#0f172a');
-        grad.addColorStop(1, '#1e1b4b');
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, width, height);
-
+        const grad = ctx.createLinearGradient(0, 0, 0, height); grad.addColorStop(0, '#0f172a'); grad.addColorStop(1, '#1e1b4b');
+        ctx.fillStyle = grad; ctx.fillRect(0, 0, width, height);
         for (let i = 0; i < 35; i++) {
-          const x = (i * 157.3 + Math.sin(time * 0.8 + i) * 40) % width;
-          const y = (height - ((time * (12 + (i % 5) * 8) + i * 80) % (height + 100)));
-          const opacity = 0.2 + 0.8 * Math.abs(Math.sin(time * 1.5 + i));
-          const radius = 6 + (i % 4) * 4;
-
+          const x = (i * 157.3 + Math.sin(time * 0.8 + i) * 40) % width; const y = (height - ((time * (12 + (i % 5) * 8) + i * 80) % (height + 100)));
+          const opacity = 0.2 + 0.8 * Math.abs(Math.sin(time * 1.5 + i)); const radius = 6 + (i % 4) * 4;
           const fireflyGrad = ctx.createRadialGradient(x, y, 0, x, y, radius * 2);
-          fireflyGrad.addColorStop(0, `rgba(250, 204, 21, ${opacity})`);
-          fireflyGrad.addColorStop(0.4, `rgba(234, 179, 8, ${opacity * 0.4})`);
-          fireflyGrad.addColorStop(1, 'rgba(0,0,0,0)');
-
-          ctx.fillStyle = fireflyGrad;
-          ctx.beginPath();
-          ctx.arc(x, y, radius * 2, 0, Math.PI * 2);
-          ctx.fill();
+          fireflyGrad.addColorStop(0, `rgba(250, 204, 21, ${opacity})`); fireflyGrad.addColorStop(0.4, `rgba(234, 179, 8, ${opacity * 0.4})`); fireflyGrad.addColorStop(1, 'rgba(0,0,0,0)');
+          ctx.fillStyle = fireflyGrad; ctx.beginPath(); ctx.arc(x, y, radius * 2, 0, Math.PI * 2); ctx.fill();
         }
       }
-      // 5. Resplandor Divino / Luz
       else if (type === 'video_proc_cross_glow') {
-        const grad = ctx.createRadialGradient(width/2, height/2, 50, width/2, height/2, height * 0.8);
-        grad.addColorStop(0, '#1e293b');
-        grad.addColorStop(1, '#020617');
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, width, height);
-
-        const cx = width / 2;
-        const cy = height / 2;
-        const pulse = 1 + Math.sin(time * 1.2) * 0.15;
-
+        const grad = ctx.createRadialGradient(width/2, height/2, 50, width/2, height/2, height * 0.8); grad.addColorStop(0, '#1e293b'); grad.addColorStop(1, '#020617'); ctx.fillStyle = grad; ctx.fillRect(0, 0, width, height);
+        const cx = width / 2; const cy = height / 2; const pulse = 1 + Math.sin(time * 1.2) * 0.15;
         const aura = ctx.createRadialGradient(cx, cy, 10, cx, cy, 300 * pulse);
-        aura.addColorStop(0, 'rgba(56, 189, 248, 0.35)');
-        aura.addColorStop(0.5, 'rgba(14, 165, 233, 0.12)');
-        aura.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx.fillStyle = aura;
-        ctx.beginPath();
-        ctx.arc(cx, cy, 300 * pulse, 0, Math.PI * 2);
-        ctx.fill();
-
+        aura.addColorStop(0, 'rgba(56, 189, 248, 0.35)'); aura.addColorStop(0.5, 'rgba(14, 165, 233, 0.12)'); aura.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = aura; ctx.beginPath(); ctx.arc(cx, cy, 300 * pulse, 0, Math.PI * 2); ctx.fill();
         for (let i = 0; i < 8; i++) {
-          const angle = (i * Math.PI / 4) + time * 0.1;
-          ctx.save();
-          ctx.translate(cx, cy);
-          ctx.rotate(angle);
-          const beamGrad = ctx.createLinearGradient(0, 0, 0, height);
-          beamGrad.addColorStop(0, 'rgba(255, 255, 255, 0.15)');
-          beamGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
-          ctx.fillStyle = beamGrad;
-          ctx.beginPath();
-          ctx.moveTo(-15, 0);
-          ctx.lineTo(15, 0);
-          ctx.lineTo(60, height);
-          ctx.lineTo(-60, height);
-          ctx.closePath();
-          ctx.fill();
-          ctx.restore();
+          const angle = (i * Math.PI / 4) + time * 0.1; ctx.save(); ctx.translate(cx, cy); ctx.rotate(angle);
+          const beamGrad = ctx.createLinearGradient(0, 0, 0, height); beamGrad.addColorStop(0, 'rgba(255, 255, 255, 0.15)'); beamGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+          ctx.fillStyle = beamGrad; ctx.beginPath(); ctx.moveTo(-15, 0); ctx.lineTo(15, 0); ctx.lineTo(60, height); ctx.lineTo(-60, height); ctx.closePath(); ctx.fill(); ctx.restore();
         }
       }
-      // 6. Océano de Paz (Waves)
       else if (type === 'video_proc_waves') {
-        const grad = ctx.createLinearGradient(0, 0, 0, height);
-        grad.addColorStop(0, '#0c4a6e');
-        grad.addColorStop(0.5, '#075985');
-        grad.addColorStop(1, '#0369a1');
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, width, height);
-
+        const grad = ctx.createLinearGradient(0, 0, 0, height); grad.addColorStop(0, '#0c4a6e'); grad.addColorStop(0.5, '#075985'); grad.addColorStop(1, '#0369a1'); ctx.fillStyle = grad; ctx.fillRect(0, 0, width, height);
         for (let i = 0; i < 5; i++) {
-          ctx.beginPath();
-          const baseHeight = height * 0.4 + i * 80;
-          ctx.moveTo(0, baseHeight);
-          for (let x = 0; x <= width; x += 15) {
-            const y = baseHeight + Math.sin(x * 0.004 + time * (1 + i * 0.2) + i) * 35;
-            ctx.lineTo(x, y);
-          }
-          ctx.lineTo(width, height);
-          ctx.lineTo(0, height);
-          ctx.closePath();
-
-          const waveGrad = ctx.createLinearGradient(0, baseHeight - 40, 0, height);
-          waveGrad.addColorStop(0, `rgba(56, 189, 248, ${0.15 + i * 0.04})`);
-          waveGrad.addColorStop(1, 'rgba(3, 105, 161, 0.8)');
-          ctx.fillStyle = waveGrad;
-          ctx.fill();
+          ctx.beginPath(); const baseHeight = height * 0.4 + i * 80; ctx.moveTo(0, baseHeight);
+          for (let x = 0; x <= width; x += 15) { const y = baseHeight + Math.sin(x * 0.004 + time * (1 + i * 0.2) + i) * 35; ctx.lineTo(x, y); }
+          ctx.lineTo(width, height); ctx.lineTo(0, height); ctx.closePath();
+          const waveGrad = ctx.createLinearGradient(0, baseHeight - 40, 0, height); waveGrad.addColorStop(0, `rgba(56, 189, 248, ${0.15 + i * 0.04})`); waveGrad.addColorStop(1, 'rgba(3, 105, 161, 0.8)'); ctx.fillStyle = waveGrad; ctx.fill();
         }
       }
-      // 7. Nebulosa Espiritual
       else if (type === 'video_proc_nebula') {
-        ctx.fillStyle = '#090514';
-        ctx.fillRect(0, 0, width, height);
-
+        ctx.fillStyle = '#090514'; ctx.fillRect(0, 0, width, height);
         const centers = [
           { x: width * 0.3 + Math.sin(time * 0.4) * 60, y: height * 0.35 + Math.cos(time * 0.3) * 50, color1: 'rgba(168, 85, 247, 0.25)', color2: 'rgba(126, 34, 206, 0)' },
           { x: width * 0.7 + Math.cos(time * 0.5) * 60, y: height * 0.65 + Math.sin(time * 0.4) * 50, color1: 'rgba(236, 72, 153, 0.22)', color2: 'rgba(190, 24, 93, 0)' },
           { x: width * 0.5 + Math.sin(time * 0.3) * 40, y: height * 0.5 + Math.sin(time * 0.6) * 40, color1: 'rgba(59, 130, 246, 0.20)', color2: 'rgba(29, 78, 216, 0)' }
         ];
-
         centers.forEach(c => {
-          const nebGrad = ctx.createRadialGradient(c.x, c.y, 20, c.x, c.y, width * 0.65);
-          nebGrad.addColorStop(0, c.color1);
-          nebGrad.addColorStop(1, c.color2);
-          ctx.fillStyle = nebGrad;
-          ctx.beginPath();
-          ctx.arc(c.x, c.y, width * 0.65, 0, Math.PI * 2);
-          ctx.fill();
+          const nebGrad = ctx.createRadialGradient(c.x, c.y, 20, c.x, c.y, width * 0.65); nebGrad.addColorStop(0, c.color1); nebGrad.addColorStop(1, c.color2);
+          ctx.fillStyle = nebGrad; ctx.beginPath(); ctx.arc(c.x, c.y, width * 0.65, 0, Math.PI * 2); ctx.fill();
         });
       }
-      // 8. Rayos del Amanecer
       else if (type === 'video_proc_sunbeams') {
-        const grad = ctx.createLinearGradient(0, 0, 0, height);
-        grad.addColorStop(0, '#451a03');
-        grad.addColorStop(0.4, '#78350f');
-        grad.addColorStop(1, '#1e1b4b');
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, width, height);
-
-        const sunX = width / 2;
-        const sunY = height * 0.15;
-
-        const sunGrad = ctx.createRadialGradient(sunX, sunY, 10, sunX, sunY, 250);
-        sunGrad.addColorStop(0, 'rgba(254, 240, 138, 0.6)');
-        sunGrad.addColorStop(0.3, 'rgba(251, 146, 60, 0.25)');
-        sunGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-        ctx.fillStyle = sunGrad;
-        ctx.beginPath();
-        ctx.arc(sunX, sunY, 250, 0, Math.PI * 2);
-        ctx.fill();
-
+        const grad = ctx.createLinearGradient(0, 0, 0, height); grad.addColorStop(0, '#451a03'); grad.addColorStop(0.4, '#78350f'); grad.addColorStop(1, '#1e1b4b'); ctx.fillStyle = grad; ctx.fillRect(0, 0, width, height);
+        const sunX = width / 2; const sunY = height * 0.15;
+        const sunGrad = ctx.createRadialGradient(sunX, sunY, 10, sunX, sunY, 250); sunGrad.addColorStop(0, 'rgba(254, 240, 138, 0.6)'); sunGrad.addColorStop(0.3, 'rgba(251, 146, 60, 0.25)'); sunGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        ctx.fillStyle = sunGrad; ctx.beginPath(); ctx.arc(sunX, sunY, 250, 0, Math.PI * 2); ctx.fill();
         const rayCount = 12;
         for (let i = 0; i < rayCount; i++) {
           const angle = (i * Math.PI / (rayCount - 1)) + Math.sin(time * 0.2 + i) * 0.05;
-          ctx.save();
-          ctx.translate(sunX, sunY);
-          ctx.rotate(angle - Math.PI / 2);
-          const rGrad = ctx.createLinearGradient(0, 0, 0, height);
-          rGrad.addColorStop(0, 'rgba(254, 240, 138, 0.18)');
-          rGrad.addColorStop(1, 'rgba(254, 240, 138, 0)');
-          ctx.fillStyle = rGrad;
-          ctx.beginPath();
-          ctx.moveTo(-20, 0);
-          ctx.lineTo(20, 0);
-          ctx.lineTo(120, height);
-          ctx.lineTo(-120, height);
-          ctx.closePath();
-          ctx.fill();
-          ctx.restore();
+          ctx.save(); ctx.translate(sunX, sunY); ctx.rotate(angle - Math.PI / 2);
+          const rGrad = ctx.createLinearGradient(0, 0, 0, height); rGrad.addColorStop(0, 'rgba(254, 240, 138, 0.18)'); rGrad.addColorStop(1, 'rgba(254, 240, 138, 0)');
+          ctx.fillStyle = rGrad; ctx.beginPath(); ctx.moveTo(-20, 0); ctx.lineTo(20, 0); ctx.lineTo(120, height); ctx.lineTo(-120, height); ctx.closePath(); ctx.fill(); ctx.restore();
         }
       }
-      // 9. Esferas Bokeh Celestiales
       else if (type === 'video_proc_bokeh') {
-        const grad = ctx.createLinearGradient(0, 0, 0, height);
-        grad.addColorStop(0, '#111827');
-        grad.addColorStop(1, '#1f2937');
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, width, height);
-
+        const grad = ctx.createLinearGradient(0, 0, 0, height); grad.addColorStop(0, '#111827'); grad.addColorStop(1, '#1f2937'); ctx.fillStyle = grad; ctx.fillRect(0, 0, width, height);
         for (let i = 0; i < 28; i++) {
-          const radius = 30 + (i % 6) * 20;
-          const speed = 15 + (i % 4) * 10;
-          const x = (i * 187.3 + Math.sin(time * 0.5 + i) * 30) % width;
-          const y = height - ((time * speed + i * 110) % (height + 150));
-          const opacity = 0.08 + (i % 5) * 0.04;
-
-          const bGrad = ctx.createRadialGradient(x, y, 0, x, y, radius);
-          bGrad.addColorStop(0, `rgba(56, 189, 248, ${opacity * 1.5})`);
-          bGrad.addColorStop(0.7, `rgba(168, 85, 247, ${opacity})`);
-          bGrad.addColorStop(1, 'rgba(0,0,0,0)');
-
-          ctx.fillStyle = bGrad;
-          ctx.beginPath();
-          ctx.arc(x, y, radius, 0, Math.PI * 2);
-          ctx.fill();
+          const radius = 30 + (i % 6) * 20; const speed = 15 + (i % 4) * 10; const x = (i * 187.3 + Math.sin(time * 0.5 + i) * 30) % width; const y = height - ((time * speed + i * 110) % (height + 150)); const opacity = 0.08 + (i % 5) * 0.04;
+          const bGrad = ctx.createRadialGradient(x, y, 0, x, y, radius); bGrad.addColorStop(0, `rgba(56, 189, 248, ${opacity * 1.5})`); bGrad.addColorStop(0.7, `rgba(168, 85, 247, ${opacity})`); bGrad.addColorStop(1, 'rgba(0,0,0,0)');
+          ctx.fillStyle = bGrad; ctx.beginPath(); ctx.arc(x, y, radius, 0, Math.PI * 2); ctx.fill();
         }
       }
-      // 10. Polvo de Oro Celestial
       else if (type === 'video_proc_golden_dust') {
-        const grad = ctx.createLinearGradient(0, 0, 0, height);
-        grad.addColorStop(0, '#1c1917');
-        grad.addColorStop(0.5, '#292524');
-        grad.addColorStop(1, '#0c0a09');
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, width, height);
-
+        const grad = ctx.createLinearGradient(0, 0, 0, height); grad.addColorStop(0, '#1c1917'); grad.addColorStop(0.5, '#292524'); grad.addColorStop(1, '#0c0a09'); ctx.fillStyle = grad; ctx.fillRect(0, 0, width, height);
         for (let i = 0; i < 50; i++) {
-          const x = (i * 131.7 + Math.sin(time * 0.9 + i) * 25) % width;
-          const speed = 18 + (i % 5) * 12;
-          const y = (time * speed + i * 95) % (height + 40) - 20;
-          const pulse = 0.3 + 0.7 * Math.abs(Math.sin(time * 2.2 + i));
-          const size = (2 + (i % 4) * 2) * pulse;
-
-          ctx.beginPath();
-          ctx.arc(x, y, size, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(253, 224, 71, ${pulse * 0.85})`;
-          ctx.shadowColor = '#fde047';
-          ctx.shadowBlur = 10;
-          ctx.fill();
+          const x = (i * 131.7 + Math.sin(time * 0.9 + i) * 25) % width; const speed = 18 + (i % 5) * 12; const y = (time * speed + i * 95) % (height + 40) - 20; const pulse = 0.3 + 0.7 * Math.abs(Math.sin(time * 2.2 + i)); const size = (2 + (i % 4) * 2) * pulse;
+          ctx.beginPath(); ctx.arc(x, y, size, 0, Math.PI * 2); ctx.fillStyle = `rgba(253, 224, 71, ${pulse * 0.85})`; ctx.shadowColor = '#fde047'; ctx.shadowBlur = 10; ctx.fill();
         }
       }
-      // 11. Malla Geométrica Sagrada
       else if (type === 'video_proc_geometric') {
-        ctx.fillStyle = '#0f172a';
-        ctx.fillRect(0, 0, width, height);
-
-        const points = [];
-        const numPoints = 18;
-        for (let i = 0; i < numPoints; i++) {
-          const px = (i * 140 + Math.sin(time * 0.8 + i) * 60) % width;
-          const py = (i * 110 + Math.cos(time * 0.6 + i) * 60) % height;
-          points.push({ x: px, y: py });
-        }
-
-        ctx.strokeStyle = 'rgba(56, 189, 248, 0.15)';
-        ctx.lineWidth = 1;
-        for (let i = 0; i < points.length; i++) {
-          for (let j = i + 1; j < points.length; j++) {
-            const dist = Math.hypot(points[i].x - points[j].x, points[i].y - points[j].y);
-            if (dist < 280) {
-              ctx.beginPath();
-              ctx.moveTo(points[i].x, points[i].y);
-              ctx.lineTo(points[j].x, points[j].y);
-              ctx.stroke();
-            }
-          }
-        }
+        ctx.fillStyle = '#0f172a'; ctx.fillRect(0, 0, width, height);
+        const points = []; const numPoints = 18;
+        for (let i = 0; i < numPoints; i++) { const px = (i * 140 + Math.sin(time * 0.8 + i) * 60) % width; const py = (i * 110 + Math.cos(time * 0.6 + i) * 60) % height; points.push({ x: px, y: py }); }
+        ctx.strokeStyle = 'rgba(56, 189, 248, 0.15)'; ctx.lineWidth = 1;
+        for (let i = 0; i < points.length; i++) { for (let j = i + 1; j < points.length; j++) { const dist = Math.hypot(points[i].x - points[j].x, points[i].y - points[j].y); if (dist < 280) { ctx.beginPath(); ctx.moveTo(points[i].x, points[i].y); ctx.lineTo(points[j].x, points[j].y); ctx.stroke(); } } }
       }
-      // 12. Estrella Resplandeciente / Supernova
       else if (type === 'video_proc_supernova') {
-        const grad = ctx.createLinearGradient(0, 0, 0, height);
-        grad.addColorStop(0, '#111827');
-        grad.addColorStop(1, '#030712');
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, width, height);
-
-        const cx = width / 2;
-        const cy = height * 0.45;
-        const pulse = 1 + Math.sin(time * 2.0) * 0.2;
-
-        const starGrad = ctx.createRadialGradient(cx, cy, 5, cx, cy, 220 * pulse);
-        starGrad.addColorStop(0, 'rgba(254, 240, 138, 0.9)');
-        starGrad.addColorStop(0.3, 'rgba(245, 158, 11, 0.4)');
-        starGrad.addColorStop(1, 'rgba(0,0,0,0)');
-
-        ctx.fillStyle = starGrad;
-        ctx.beginPath();
-        ctx.arc(cx, cy, 220 * pulse, 0, Math.PI * 2);
-        ctx.fill();
+        const grad = ctx.createLinearGradient(0, 0, 0, height); grad.addColorStop(0, '#111827'); grad.addColorStop(1, '#030712'); ctx.fillStyle = grad; ctx.fillRect(0, 0, width, height);
+        const cx = width / 2; const cy = height * 0.45; const pulse = 1 + Math.sin(time * 2.0) * 0.2;
+        const starGrad = ctx.createRadialGradient(cx, cy, 5, cx, cy, 220 * pulse); starGrad.addColorStop(0, 'rgba(254, 240, 138, 0.9)'); starGrad.addColorStop(0.3, 'rgba(245, 158, 11, 0.4)'); starGrad.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = starGrad; ctx.beginPath(); ctx.arc(cx, cy, 220 * pulse, 0, Math.PI * 2); ctx.fill();
       }
-      // 13. Anillos de Luz Infinitos
       else if (type === 'video_proc_tunnel') {
-        ctx.fillStyle = '#050510';
-        ctx.fillRect(0, 0, width, height);
-
-        const cx = width / 2;
-        const cy = height / 2;
-        for (let i = 0; i < 8; i++) {
-          const r = ((time * 60 + i * 80) % 500);
-          const opacity = Math.max(0, 1 - (r / 500));
-          ctx.strokeStyle = `rgba(147, 197, 253, ${opacity * 0.4})`;
-          ctx.lineWidth = 3;
-          ctx.beginPath();
-          ctx.arc(cx, cy, r, 0, Math.PI * 2);
-          ctx.stroke();
-        }
+        ctx.fillStyle = '#050510'; ctx.fillRect(0, 0, width, height);
+        const cx = width / 2; const cy = height / 2;
+        for (let i = 0; i < 8; i++) { const r = ((time * 60 + i * 80) % 500); const opacity = Math.max(0, 1 - (r / 500)); ctx.strokeStyle = `rgba(147, 197, 253, ${opacity * 0.4})`; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke(); }
       }
-      // 14. Torbellino de Pétalos
       else if (type === 'video_proc_petals_flow') {
-        const grad = ctx.createLinearGradient(0, 0, 0, height);
-        grad.addColorStop(0, '#1e1b4b');
-        grad.addColorStop(1, '#311b92');
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, width, height);
-
-        for (let i = 0; i < 30; i++) {
-          const x = (i * 120 + Math.sin(time * 1.2 + i) * 50) % width;
-          const y = (time * 40 + i * 90) % (height + 50) - 20;
-          ctx.save();
-          ctx.translate(x, y);
-          ctx.rotate(time * 0.8 + i);
-          ctx.fillStyle = `rgba(244, 114, 182, 0.35)`;
-          ctx.beginPath();
-          ctx.ellipse(0, 0, 12, 6, 0, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.restore();
-        }
+        const grad = ctx.createLinearGradient(0, 0, 0, height); grad.addColorStop(0, '#1e1b4b'); grad.addColorStop(1, '#311b92'); ctx.fillStyle = grad; ctx.fillRect(0, 0, width, height);
+        for (let i = 0; i < 30; i++) { const x = (i * 120 + Math.sin(time * 1.2 + i) * 50) % width; const y = (time * 40 + i * 90) % (height + 50) - 20; ctx.save(); ctx.translate(x, y); ctx.rotate(time * 0.8 + i); ctx.fillStyle = `rgba(244, 114, 182, 0.35)`; ctx.beginPath(); ctx.ellipse(0, 0, 12, 6, 0, 0, Math.PI * 2); ctx.fill(); ctx.restore(); }
       }
-      // 15. Halo de Gloria
       else if (type === 'video_proc_halo') {
-        ctx.fillStyle = '#0f172a';
-        ctx.fillRect(0, 0, width, height);
-
-        const cx = width / 2;
-        const cy = height * 0.38;
-        const pulse = Math.sin(time * 1.5) * 15;
-
-        for (let r = 80; r <= 220; r += 35) {
-          ctx.strokeStyle = `rgba(253, 224, 71, ${0.15 + Math.sin(r + time) * 0.1})`;
-          ctx.lineWidth = 2;
-          ctx.beginPath();
-          ctx.arc(cx, cy, r + pulse, 0, Math.PI * 2);
-          ctx.stroke();
-        }
+        ctx.fillStyle = '#0f172a'; ctx.fillRect(0, 0, width, height);
+        const cx = width / 2; const cy = height * 0.38; const pulse = Math.sin(time * 1.5) * 15;
+        for (let r = 80; r <= 220; r += 35) { ctx.strokeStyle = `rgba(253, 224, 71, ${0.15 + Math.sin(r + time) * 0.1})`; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(cx, cy, r + pulse, 0, Math.PI * 2); ctx.stroke(); }
       }
-      // 16. Ondas de Agua Cristalina
       else if (type === 'video_proc_water_ripples') {
-        const grad = ctx.createLinearGradient(0, 0, 0, height);
-        grad.addColorStop(0, '#0284c7');
-        grad.addColorStop(1, '#0f172a');
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, width, height);
-
-        for (let i = 0; i < 6; i++) {
-          const cx = (width * 0.2 + i * 150) % width;
-          const cy = (height * 0.3 + i * 180) % height;
-          const r = ((time * 45 + i * 60) % 250);
-          const opacity = Math.max(0, 1 - (r / 250));
-
-          ctx.strokeStyle = `rgba(224, 242, 254, ${opacity * 0.35})`;
-          ctx.lineWidth = 2;
-          ctx.beginPath();
-          ctx.arc(cx, cy, r, 0, Math.PI * 2);
-          ctx.stroke();
-        }
+        const grad = ctx.createLinearGradient(0, 0, 0, height); grad.addColorStop(0, '#0284c7'); grad.addColorStop(1, '#0f172a'); ctx.fillStyle = grad; ctx.fillRect(0, 0, width, height);
+        for (let i = 0; i < 6; i++) { const cx = (width * 0.2 + i * 150) % width; const cy = (height * 0.3 + i * 180) % height; const r = ((time * 45 + i * 60) % 250); const opacity = Math.max(0, 1 - (r / 250)); ctx.strokeStyle = `rgba(224, 242, 254, ${opacity * 0.35})`; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke(); }
       }
-      // 17. Refracción Prisma Celestial
       else if (type === 'video_proc_prism') {
-        const hue = (time * 25) % 360;
-        const grad = ctx.createLinearGradient(0, 0, width, height);
-        grad.addColorStop(0, `hsla(${hue}, 60%, 15%, 1)`);
-        grad.addColorStop(0.5, `hsla(${(hue + 60) % 360}, 70%, 20%, 1)`);
-        grad.addColorStop(1, `hsla(${(hue + 120) % 360}, 60%, 10%, 1)`);
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, width, height);
+        const hue = (time * 25) % 360; const grad = ctx.createLinearGradient(0, 0, width, height); grad.addColorStop(0, `hsla(${hue}, 60%, 15%, 1)`); grad.addColorStop(0.5, `hsla(${(hue + 60) % 360}, 70%, 20%, 1)`); grad.addColorStop(1, `hsla(${(hue + 120) % 360}, 60%, 10%, 1)`); ctx.fillStyle = grad; ctx.fillRect(0, 0, width, height);
       }
-      // 18. Constelaciones de la Fe
       else if (type === 'video_proc_constellations') {
-        ctx.fillStyle = '#050814';
-        ctx.fillRect(0, 0, width, height);
-
+        ctx.fillStyle = '#050814'; ctx.fillRect(0, 0, width, height);
         const stars = [];
-        for (let i = 0; i < 22; i++) {
-          const x = (i * 170 + Math.sin(time * 0.3 + i) * 30) % width;
-          const y = (i * 130 + Math.cos(time * 0.4 + i) * 30) % height;
-          stars.push({ x, y });
-
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-          ctx.beginPath();
-          ctx.arc(x, y, 2.5, 0, Math.PI * 2);
-          ctx.fill();
-        }
-
-        ctx.strokeStyle = 'rgba(147, 197, 253, 0.2)';
-        ctx.lineWidth = 1;
-        for (let i = 0; i < stars.length - 1; i++) {
-          ctx.beginPath();
-          ctx.moveTo(stars[i].x, stars[i].y);
-          ctx.lineTo(stars[i + 1].x, stars[i + 1].y);
-          ctx.stroke();
-        }
+        for (let i = 0; i < 22; i++) { const x = (i * 170 + Math.sin(time * 0.3 + i) * 30) % width; const y = (i * 130 + Math.cos(time * 0.4 + i) * 30) % height; stars.push({ x, y }); ctx.fillStyle = 'rgba(255, 255, 255, 0.7)'; ctx.beginPath(); ctx.arc(x, y, 2.5, 0, Math.PI * 2); ctx.fill(); }
+        ctx.strokeStyle = 'rgba(147, 197, 253, 0.2)'; ctx.lineWidth = 1; for (let i = 0; i < stars.length - 1; i++) { ctx.beginPath(); ctx.moveTo(stars[i].x, stars[i].y); ctx.lineTo(stars[i + 1].x, stars[i + 1].y); ctx.stroke(); }
       }
-      // 19. Chispas de Fuego Santo
       else if (type === 'video_proc_ember_rise') {
-        const grad = ctx.createLinearGradient(0, 0, 0, height);
-        grad.addColorStop(0, '#1c1917');
-        grad.addColorStop(1, '#451a03');
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, width, height);
-
-        for (let i = 0; i < 40; i++) {
-          const x = (i * 110 + Math.sin(time * 1.5 + i) * 35) % width;
-          const y = height - ((time * 60 + i * 85) % (height + 40));
-          const opacity = 0.3 + Math.sin(time * 3.0 + i) * 0.5;
-
-          ctx.fillStyle = `rgba(249, 115, 22, ${Math.max(0.1, opacity)})`;
-          ctx.beginPath();
-          ctx.arc(x, y, 3 + (i % 3), 0, Math.PI * 2);
-          ctx.fill();
-        }
+        const grad = ctx.createLinearGradient(0, 0, 0, height); grad.addColorStop(0, '#1c1917'); grad.addColorStop(1, '#451a03'); ctx.fillStyle = grad; ctx.fillRect(0, 0, width, height);
+        for (let i = 0; i < 40; i++) { const x = (i * 110 + Math.sin(time * 1.5 + i) * 35) % width; const y = height - ((time * 60 + i * 85) % (height + 40)); const opacity = 0.3 + Math.sin(time * 3.0 + i) * 0.5; ctx.fillStyle = `rgba(249, 115, 22, ${Math.max(0.1, opacity)})`; ctx.beginPath(); ctx.arc(x, y, 3 + (i % 3), 0, Math.PI * 2); ctx.fill(); }
       }
-      // 20. Incienso Místico
       else if (type === 'video_proc_soft_smoke') {
-        const grad = ctx.createLinearGradient(0, 0, 0, height);
-        grad.addColorStop(0, '#0f172a');
-        grad.addColorStop(1, '#1e293b');
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, width, height);
-
-        for (let i = 0; i < 4; i++) {
-          const cx = width / 2 + Math.sin(time * 0.6 + i) * 120;
-          const cy = height - ((time * 40 + i * 180) % (height + 300));
-          const r = 140 + i * 40;
-
-          const sGrad = ctx.createRadialGradient(cx, cy, 10, cx, cy, r);
-          sGrad.addColorStop(0, 'rgba(241, 245, 249, 0.12)');
-          sGrad.addColorStop(1, 'rgba(0,0,0,0)');
-
-          ctx.fillStyle = sGrad;
-          ctx.beginPath();
-          ctx.arc(cx, cy, r, 0, Math.PI * 2);
-          ctx.fill();
-        }
+        const grad = ctx.createLinearGradient(0, 0, 0, height); grad.addColorStop(0, '#0f172a'); grad.addColorStop(1, '#1e293b'); ctx.fillStyle = grad; ctx.fillRect(0, 0, width, height);
+        for (let i = 0; i < 4; i++) { const cx = width / 2 + Math.sin(time * 0.6 + i) * 120; const cy = height - ((time * 40 + i * 180) % (height + 300)); const r = 140 + i * 40; const sGrad = ctx.createRadialGradient(cx, cy, 10, cx, cy, r); sGrad.addColorStop(0, 'rgba(241, 245, 249, 0.12)'); sGrad.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = sGrad; ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill(); }
       }
-
       ctx.restore();
     }
 
-    /* EFECTOS Y OVERLAYS DE PARTÍCULAS COMPLETOS (28 EFECTOS) */
+    /* EFECTOS Y OVERLAYS DE PARTÍCULAS COMPLETOS */
     function drawOverlayEffects(ctx, width, height, effectType, time) {
       if (!effectType || effectType === 'none') return;
-
       ctx.save();
-
       if (effectType === 'bubbles') {
         const count = 25;
         for (let i = 0; i < count; i++) {
-          const speed = 25 + (i % 5) * 10;
-          const size = 10 + (i % 4) * 8;
-          const startX = ((i * 137.5) % width);
-          const wobble = Math.sin(time * 0.8 + i) * 15;
-          const x = startX + wobble;
-          const y = height - ((time * speed + i * 90) % (height + 120));
-
-          ctx.beginPath();
-          ctx.arc(x, y, size, 0, Math.PI * 2);
-          ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
-          ctx.lineWidth = 1.5;
-          ctx.stroke();
+          const speed = 25 + (i % 5) * 10; const size = 10 + (i % 4) * 8; const startX = ((i * 137.5) % width); const wobble = Math.sin(time * 0.8 + i) * 15; const x = startX + wobble; const y = height - ((time * speed + i * 90) % (height + 120));
+          ctx.beginPath(); ctx.arc(x, y, size, 0, Math.PI * 2); ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)'; ctx.lineWidth = 1.5; ctx.stroke();
         }
       } else if (effectType === 'sparkles') {
         const count = 35;
         for (let i = 0; i < count; i++) {
-          const x = ((i * 269) + Math.sin(i + time * 0.4) * 20) % width;
-          const y = ((i * 193) + Math.cos(i * 2 + time * 0.3) * 20) % height;
-          const pulse = Math.abs(Math.sin(time * 1.5 + i));
-          const size = (3 + (i % 5) * 2.5) * pulse;
-
+          const x = ((i * 269) + Math.sin(i + time * 0.4) * 20) % width; const y = ((i * 193) + Math.cos(i * 2 + time * 0.3) * 20) % height; const pulse = Math.abs(Math.sin(time * 1.5 + i)); const size = (3 + (i % 5) * 2.5) * pulse;
           if (size > 0.8) {
-            ctx.save();
-            ctx.translate(x, y);
-            ctx.rotate((time * 0.4) + i);
-            ctx.fillStyle = `rgba(255, 245, 200, ${0.25 + pulse * 0.5})`;
-            ctx.shadowColor = '#fff5cc';
-            ctx.shadowBlur = 8;
-
-            ctx.beginPath();
-            ctx.moveTo(0, -size * 1.8);
-            ctx.quadraticCurveTo(0, 0, size * 1.8, 0);
-            ctx.quadraticCurveTo(0, 0, 0, size * 1.8);
-            ctx.quadraticCurveTo(0, 0, -size * 1.8, 0);
-            ctx.quadraticCurveTo(0, 0, 0, -size * 1.8);
-            ctx.fill();
-            ctx.restore();
+            ctx.save(); ctx.translate(x, y); ctx.rotate((time * 0.4) + i); ctx.fillStyle = `rgba(255, 245, 200, ${0.25 + pulse * 0.5})`; ctx.shadowColor = '#fff5cc'; ctx.shadowBlur = 8;
+            ctx.beginPath(); ctx.moveTo(0, -size * 1.8); ctx.quadraticCurveTo(0, 0, size * 1.8, 0); ctx.quadraticCurveTo(0, 0, 0, size * 1.8); ctx.quadraticCurveTo(0, 0, -size * 1.8, 0); ctx.quadraticCurveTo(0, 0, 0, -size * 1.8); ctx.fill(); ctx.restore();
           }
         }
       } else if (effectType === 'dust') {
         const count = 45;
         for (let i = 0; i < count; i++) {
-          const speedY = 12 + (i % 4) * 6;
-          const x = (i * 157 + Math.sin(time * 0.8 + i) * 30) % width;
-          const y = (height - ((time * speedY + i * 110) % height));
-          const opacity = 0.15 + 0.35 * Math.abs(Math.sin(time * 1.2 + i));
-          const size = 12 + (i % 6) * 5;
-
-          const grad = ctx.createRadialGradient(x, y, 0, x, y, size);
-          grad.addColorStop(0, `rgba(255, 215, 0, ${opacity})`);
-          grad.addColorStop(0.5, `rgba(255, 230, 150, ${opacity * 0.3})`);
-          grad.addColorStop(1, 'rgba(255, 215, 0, 0)');
-
-          ctx.fillStyle = grad;
-          ctx.beginPath();
-          ctx.arc(x, y, size, 0, Math.PI * 2);
-          ctx.fill();
+          const speedY = 12 + (i % 4) * 6; const x = (i * 157 + Math.sin(time * 0.8 + i) * 30) % width; const y = (height - ((time * speedY + i * 110) % height)); const opacity = 0.15 + 0.35 * Math.abs(Math.sin(time * 1.2 + i)); const size = 12 + (i % 6) * 5;
+          const grad = ctx.createRadialGradient(x, y, 0, x, y, size); grad.addColorStop(0, `rgba(255, 215, 0, ${opacity})`); grad.addColorStop(0.5, `rgba(255, 230, 150, ${opacity * 0.3})`); grad.addColorStop(1, 'rgba(255, 215, 0, 0)');
+          ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(x, y, size, 0, Math.PI * 2); ctx.fill();
         }
       } else if (effectType === 'snow') {
         const count = 45;
         for (let i = 0; i < count; i++) {
-          const speed = 25 + (i % 5) * 15;
-          const size = 2.5 + (i % 3) * 2;
-          const x = ((i * 180 + Math.sin(time * 0.6 + i) * 20) % width);
-          const y = (time * speed + i * 90) % (height + 30) - 10;
-          const alpha = 0.25 + (i % 4) * 0.1;
-
-          ctx.beginPath();
-          ctx.arc(x, y, size, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
-          ctx.shadowColor = '#ffffff';
-          ctx.shadowBlur = 6;
-          ctx.fill();
+          const speed = 25 + (i % 5) * 15; const size = 2.5 + (i % 3) * 2; const x = ((i * 180 + Math.sin(time * 0.6 + i) * 20) % width); const y = (time * speed + i * 90) % (height + 30) - 10; const alpha = 0.25 + (i % 4) * 0.1;
+          ctx.beginPath(); ctx.arc(x, y, size, 0, Math.PI * 2); ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`; ctx.shadowColor = '#ffffff'; ctx.shadowBlur = 6; ctx.fill();
         }
       } else if (effectType === 'rays') {
-        const numRays = 7;
-        const centerX = width / 2;
-        const centerY = -120;
-        const pulse = 0.12 + Math.sin(time * 0.8) * 0.05;
-
-        ctx.save();
-        ctx.translate(centerX, centerY);
-        ctx.rotate(Math.sin(time * 0.15) * 0.08);
-
+        const numRays = 7; const centerX = width / 2; const centerY = -120; const pulse = 0.12 + Math.sin(time * 0.8) * 0.05;
+        ctx.save(); ctx.translate(centerX, centerY); ctx.rotate(Math.sin(time * 0.15) * 0.08);
         for (let i = 0; i < numRays; i++) {
-          const angle = (i * Math.PI / (numRays - 1)) - (Math.PI / 2);
-          ctx.beginPath();
-          ctx.moveTo(0, 0);
-          ctx.arc(0, 0, height * 1.6, angle - 0.10, angle + 0.10);
-          ctx.closePath();
-
-          const grad = ctx.createRadialGradient(0, 0, 100, 0, 0, height * 1.6);
-          grad.addColorStop(0, `rgba(255, 245, 200, ${pulse * 1.2})`);
-          grad.addColorStop(1, 'rgba(255, 245, 200, 0)');
-
-          ctx.fillStyle = grad;
-          ctx.fill();
+          const angle = (i * Math.PI / (numRays - 1)) - (Math.PI / 2); ctx.beginPath(); ctx.moveTo(0, 0); ctx.arc(0, 0, height * 1.6, angle - 0.10, angle + 0.10); ctx.closePath();
+          const grad = ctx.createRadialGradient(0, 0, 100, 0, 0, height * 1.6); grad.addColorStop(0, `rgba(255, 245, 200, ${pulse * 1.2})`); grad.addColorStop(1, 'rgba(255, 245, 200, 0)'); ctx.fillStyle = grad; ctx.fill();
         }
         ctx.restore();
       } else if (effectType === 'rain') {
-        const count = 65;
-        ctx.strokeStyle = 'rgba(220, 235, 255, 0.35)';
-        ctx.lineWidth = 1.2;
+        const count = 65; ctx.strokeStyle = 'rgba(220, 235, 255, 0.35)'; ctx.lineWidth = 1.2;
         for (let i = 0; i < count; i++) {
-          const speed = 110 + (i % 5) * 25;
-          const len = 15 + (i % 4) * 10;
-          const x = (i * 97 + time * 30) % (width + 100) - 50;
-          const y = (time * speed + i * 120) % (height + 100) - 50;
-
-          ctx.beginPath();
-          ctx.moveTo(x, y);
-          ctx.lineTo(x - 4, y + len);
-          ctx.stroke();
+          const speed = 110 + (i % 5) * 25; const len = 15 + (i % 4) * 10; const x = (i * 97 + time * 30) % (width + 100) - 50; const y = (time * speed + i * 120) % (height + 100) - 50;
+          ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - 4, y + len); ctx.stroke();
         }
       } else if (effectType === 'petals') {
         const count = 30;
         for (let i = 0; i < count; i++) {
-          const speed = 20 + (i % 5) * 8;
-          const x = (i * 120 + Math.sin(time * 1.2 + i) * 45) % width;
-          const y = (time * speed + i * 85) % (height + 40) - 20;
-          ctx.save();
-          ctx.translate(x, y);
-          ctx.rotate(time * 0.8 + i);
-          ctx.fillStyle = 'rgba(251, 207, 232, 0.45)';
-          ctx.beginPath();
-          ctx.ellipse(0, 0, 10, 5, Math.PI / 4, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.restore();
+          const speed = 20 + (i % 5) * 8; const x = (i * 120 + Math.sin(time * 1.2 + i) * 45) % width; const y = (time * speed + i * 85) % (height + 40) - 20;
+          ctx.save(); ctx.translate(x, y); ctx.rotate(time * 0.8 + i); ctx.fillStyle = 'rgba(251, 207, 232, 0.45)'; ctx.beginPath(); ctx.ellipse(0, 0, 10, 5, Math.PI / 4, 0, Math.PI * 2); ctx.fill(); ctx.restore();
         }
       } else if (effectType === 'fog') {
         for (let i = 0; i < 4; i++) {
-          const cx = width / 2 + Math.sin(time * 0.4 + i) * 100;
-          const cy = height - (i * 120) + Math.cos(time * 0.3 + i) * 30;
-          const radius = width * 0.7;
-          const fogGrad = ctx.createRadialGradient(cx, cy, 20, cx, cy, radius);
-          fogGrad.addColorStop(0, 'rgba(241, 245, 249, 0.15)');
-          fogGrad.addColorStop(0.5, 'rgba(203, 213, 225, 0.08)');
-          fogGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-          ctx.fillStyle = fogGrad;
-          ctx.beginPath();
-          ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-          ctx.fill();
+          const cx = width / 2 + Math.sin(time * 0.4 + i) * 100; const cy = height - (i * 120) + Math.cos(time * 0.3 + i) * 30; const radius = width * 0.7;
+          const fogGrad = ctx.createRadialGradient(cx, cy, 20, cx, cy, radius); fogGrad.addColorStop(0, 'rgba(241, 245, 249, 0.15)'); fogGrad.addColorStop(0.5, 'rgba(203, 213, 225, 0.08)'); fogGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+          ctx.fillStyle = fogGrad; ctx.beginPath(); ctx.arc(cx, cy, radius, 0, Math.PI * 2); ctx.fill();
         }
       } else if (effectType === 'fireflies') {
         for (let i = 0; i < 30; i++) {
-          const x = (i * 147.3 + Math.sin(time * 0.9 + i) * 35) % width;
-          const y = height - ((time * (15 + (i % 4) * 8) + i * 75) % (height + 80));
-          const opacity = 0.2 + 0.8 * Math.abs(Math.sin(time * 1.8 + i));
-          const radius = 5 + (i % 3) * 3;
-          const ffGrad = ctx.createRadialGradient(x, y, 0, x, y, radius * 2);
-          ffGrad.addColorStop(0, `rgba(250, 204, 21, ${opacity})`);
-          ffGrad.addColorStop(0.5, `rgba(234, 179, 8, ${opacity * 0.4})`);
-          ffGrad.addColorStop(1, 'rgba(0,0,0,0)');
-          ctx.fillStyle = ffGrad;
-          ctx.beginPath();
-          ctx.arc(x, y, radius * 2, 0, Math.PI * 2);
-          ctx.fill();
+          const x = (i * 147.3 + Math.sin(time * 0.9 + i) * 35) % width; const y = height - ((time * (15 + (i % 4) * 8) + i * 75) % (height + 80)); const opacity = 0.2 + 0.8 * Math.abs(Math.sin(time * 1.8 + i)); const radius = 5 + (i % 3) * 3;
+          const ffGrad = ctx.createRadialGradient(x, y, 0, x, y, radius * 2); ffGrad.addColorStop(0, `rgba(250, 204, 21, ${opacity})`); ffGrad.addColorStop(0.5, `rgba(234, 179, 8, ${opacity * 0.4})`); ffGrad.addColorStop(1, 'rgba(0,0,0,0)');
+          ctx.fillStyle = ffGrad; ctx.beginPath(); ctx.arc(x, y, radius * 2, 0, Math.PI * 2); ctx.fill();
         }
       } else if (effectType === 'lensflare') {
-        const fx = width * 0.25 + Math.sin(time * 0.3) * 50;
-        const fy = height * 0.25 + Math.cos(time * 0.3) * 40;
-        const cx = width / 2;
-        const cy = height / 2;
-        const dx = cx - fx;
-        const dy = cy - fy;
-
-        const haloGrad = ctx.createRadialGradient(fx, fy, 5, fx, fy, 180);
-        haloGrad.addColorStop(0, 'rgba(255, 255, 255, 0.6)');
-        haloGrad.addColorStop(0.3, 'rgba(56, 189, 248, 0.25)');
-        haloGrad.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx.fillStyle = haloGrad;
-        ctx.beginPath();
-        ctx.arc(fx, fy, 180, 0, Math.PI * 2);
-        ctx.fill();
-
-        for (let t = 0.3; t <= 1.5; t += 0.3) {
-          const rx = fx + dx * t;
-          const ry = fy + dy * t;
-          const rSize = 15 + t * 25;
-          ctx.fillStyle = `rgba(168, 85, 247, ${0.12 / t})`;
-          ctx.beginPath();
-          ctx.arc(rx, ry, rSize, 0, Math.PI * 2);
-          ctx.fill();
-        }
+        const fx = width * 0.25 + Math.sin(time * 0.3) * 50; const fy = height * 0.25 + Math.cos(time * 0.3) * 40; const cx = width / 2; const cy = height / 2; const dx = cx - fx; const dy = cy - fy;
+        const haloGrad = ctx.createRadialGradient(fx, fy, 5, fx, fy, 180); haloGrad.addColorStop(0, 'rgba(255, 255, 255, 0.6)'); haloGrad.addColorStop(0.3, 'rgba(56, 189, 248, 0.25)'); haloGrad.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = haloGrad; ctx.beginPath(); ctx.arc(fx, fy, 180, 0, Math.PI * 2); ctx.fill();
+        for (let t = 0.3; t <= 1.5; t += 0.3) { const rx = fx + dx * t; const ry = fy + dy * t; const rSize = 15 + t * 25; ctx.fillStyle = `rgba(168, 85, 247, ${0.12 / t})`; ctx.beginPath(); ctx.arc(rx, ry, rSize, 0, Math.PI * 2); ctx.fill(); }
       } else if (effectType === 'bokeh') {
         for (let i = 0; i < 24; i++) {
-          const radius = 25 + (i % 5) * 18;
-          const speed = 12 + (i % 4) * 8;
-          const x = (i * 173 + Math.sin(time * 0.5 + i) * 35) % width;
-          const y = height - ((time * speed + i * 105) % (height + 120));
-          const opacity = 0.08 + (i % 4) * 0.05;
-
-          const bGrad = ctx.createRadialGradient(x, y, 0, x, y, radius);
-          bGrad.addColorStop(0, `rgba(224, 242, 254, ${opacity * 1.5})`);
-          bGrad.addColorStop(0.6, `rgba(147, 197, 253, ${opacity})`);
-          bGrad.addColorStop(1, 'rgba(0,0,0,0)');
-
-          ctx.fillStyle = bGrad;
-          ctx.beginPath();
-          ctx.arc(x, y, radius, 0, Math.PI * 2);
-          ctx.fill();
+          const radius = 25 + (i % 5) * 18; const speed = 12 + (i % 4) * 8; const x = (i * 173 + Math.sin(time * 0.5 + i) * 35) % width; const y = height - ((time * speed + i * 105) % (height + 120)); const opacity = 0.08 + (i % 4) * 0.05;
+          const bGrad = ctx.createRadialGradient(x, y, 0, x, y, radius); bGrad.addColorStop(0, `rgba(224, 242, 254, ${opacity * 1.5})`); bGrad.addColorStop(0.6, `rgba(147, 197, 253, ${opacity})`); bGrad.addColorStop(1, 'rgba(0,0,0,0)');
+          ctx.fillStyle = bGrad; ctx.beginPath(); ctx.arc(x, y, radius, 0, Math.PI * 2); ctx.fill();
         }
       } else if (effectType === 'aurora') {
         ctx.globalCompositeOperation = 'screen';
         for (let i = 0; i < 3; i++) {
-          ctx.beginPath();
-          ctx.moveTo(0, height * 0.15);
-          for (let x = 0; x <= width; x += 20) {
-            const y = (height * 0.25) + Math.sin(x * 0.006 + time * 1.0 + i) * 70 + Math.cos(time * 0.7 + i) * 35;
-            ctx.lineTo(x, y);
-          }
-          ctx.lineTo(width, height * 0.6);
-          ctx.lineTo(0, height * 0.6);
-          ctx.closePath();
-
-          const waveGrad = ctx.createLinearGradient(0, 0, width, height);
-          waveGrad.addColorStop(0, `rgba(52, 211, 153, ${0.15 + i * 0.04})`);
-          waveGrad.addColorStop(0.5, `rgba(56, 189, 248, ${0.18 + i * 0.04})`);
-          waveGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-          ctx.fillStyle = waveGrad;
-          ctx.fill();
+          ctx.beginPath(); ctx.moveTo(0, height * 0.15);
+          for (let x = 0; x <= width; x += 20) { const y = (height * 0.25) + Math.sin(x * 0.006 + time * 1.0 + i) * 70 + Math.cos(time * 0.7 + i) * 35; ctx.lineTo(x, y); }
+          ctx.lineTo(width, height * 0.6); ctx.lineTo(0, height * 0.6); ctx.closePath();
+          const waveGrad = ctx.createLinearGradient(0, 0, width, height); waveGrad.addColorStop(0, `rgba(52, 211, 153, ${0.15 + i * 0.04})`); waveGrad.addColorStop(0.5, `rgba(56, 189, 248, ${0.18 + i * 0.04})`); waveGrad.addColorStop(1, 'rgba(0, 0, 0, 0)'); ctx.fillStyle = waveGrad; ctx.fill();
         }
       } else if (effectType === 'lightleaks') {
-        ctx.globalCompositeOperation = 'screen';
-        const pulse1 = 0.25 + Math.sin(time * 0.8) * 0.1;
-        const leak1 = ctx.createRadialGradient(0, 0, 20, 0, 0, width * 0.7);
-        leak1.addColorStop(0, `rgba(251, 146, 60, ${pulse1})`);
-        leak1.addColorStop(0.5, `rgba(244, 63, 94, ${pulse1 * 0.5})`);
-        leak1.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx.fillStyle = leak1;
-        ctx.fillRect(0, 0, width, height);
-
-        const pulse2 = 0.2 + Math.cos(time * 0.9) * 0.08;
-        const leak2 = ctx.createRadialGradient(width, height, 20, width, height, width * 0.7);
-        leak2.addColorStop(0, `rgba(250, 204, 21, ${pulse2})`);
-        leak2.addColorStop(0.5, `rgba(249, 115, 22, ${pulse2 * 0.5})`);
-        leak2.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx.fillStyle = leak2;
-        ctx.fillRect(0, 0, width, height);
+        ctx.globalCompositeOperation = 'screen'; const pulse1 = 0.25 + Math.sin(time * 0.8) * 0.1;
+        const leak1 = ctx.createRadialGradient(0, 0, 20, 0, 0, width * 0.7); leak1.addColorStop(0, `rgba(251, 146, 60, ${pulse1})`); leak1.addColorStop(0.5, `rgba(244, 63, 94, ${pulse1 * 0.5})`); leak1.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = leak1; ctx.fillRect(0, 0, width, height);
+        const pulse2 = 0.2 + Math.cos(time * 0.9) * 0.08; const leak2 = ctx.createRadialGradient(width, height, 20, width, height, width * 0.7); leak2.addColorStop(0, `rgba(250, 204, 21, ${pulse2})`); leak2.addColorStop(0.5, `rgba(249, 115, 22, ${pulse2 * 0.5})`); leak2.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = leak2; ctx.fillRect(0, 0, width, height);
       } else if (effectType === 'matrices') {
-        const count = 20;
-        ctx.strokeStyle = 'rgba(224, 242, 254, 0.4)';
-        ctx.lineWidth = 1.5;
-        for (let i = 0; i < count; i++) {
-          const speed = 120 + (i % 4) * 40;
-          const len = 30 + (i % 3) * 20;
-          const x = (i * 110 + time * 60) % (width + 200) - 100;
-          const y = (time * speed + i * 130) % (height + 200) - 100;
-
-          ctx.beginPath();
-          ctx.moveTo(x, y);
-          ctx.lineTo(x - len, y - len);
-          ctx.stroke();
-        }
+        const count = 20; ctx.strokeStyle = 'rgba(224, 242, 254, 0.4)'; ctx.lineWidth = 1.5;
+        for (let i = 0; i < count; i++) { const speed = 120 + (i % 4) * 40; const len = 30 + (i % 3) * 20; const x = (i * 110 + time * 60) % (width + 200) - 100; const y = (time * speed + i * 130) % (height + 200) - 100; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - len, y - len); ctx.stroke(); }
       } else if (effectType === 'vignette') {
-        const pulse = 0.65 + Math.sin(time * 1.0) * 0.05;
-        const vigGrad = ctx.createRadialGradient(width/2, height/2, width * 0.35, width/2, height/2, height * 0.75);
-        vigGrad.addColorStop(0, 'rgba(0, 0, 0, 0)');
-        vigGrad.addColorStop(1, `rgba(0, 0, 0, ${pulse})`);
-        ctx.fillStyle = vigGrad;
-        ctx.fillRect(0, 0, width, height);
+        const pulse = 0.65 + Math.sin(time * 1.0) * 0.05; const vigGrad = ctx.createRadialGradient(width/2, height/2, width * 0.35, width/2, height/2, height * 0.75); vigGrad.addColorStop(0, 'rgba(0, 0, 0, 0)'); vigGrad.addColorStop(1, `rgba(0, 0, 0, ${pulse})`); ctx.fillStyle = vigGrad; ctx.fillRect(0, 0, width, height);
       } else if (effectType === 'cinematicbars') {
-        const barHeight = height * 0.08;
-        ctx.fillStyle = '#000000';
-        ctx.fillRect(0, 0, width, barHeight);
-        ctx.fillRect(0, height - barHeight, width, barHeight);
+        const barHeight = height * 0.08; ctx.fillStyle = '#000000'; ctx.fillRect(0, 0, width, barHeight); ctx.fillRect(0, height - barHeight, width, barHeight);
       } else if (effectType === 'glitch') {
-        const glowPulse = 0.3 + Math.sin(time * 2.5) * 0.2;
-        ctx.strokeStyle = `rgba(56, 189, 248, ${glowPulse})`;
-        ctx.lineWidth = 8;
-        ctx.strokeRect(10, 10, width - 20, height - 20);
+        const glowPulse = 0.3 + Math.sin(time * 2.5) * 0.2; ctx.strokeStyle = `rgba(56, 189, 248, ${glowPulse})`; ctx.lineWidth = 8; ctx.strokeRect(10, 10, width - 20, height - 20);
       } else if (effectType === 'proc_aurora_overlay') {
         ctx.globalCompositeOperation = 'screen';
         for (let i = 0; i < 3; i++) {
-          ctx.beginPath();
-          ctx.moveTo(0, height * 0.2);
-          for (let x = 0; x <= width; x += 20) {
-            const y = (height * 0.3) + Math.sin(x * 0.005 + time * 1.2 + i) * 80 + Math.cos(time * 0.8 + i) * 40;
-            ctx.lineTo(x, y);
-          }
-          ctx.lineTo(width, height);
-          ctx.lineTo(0, height);
-          ctx.closePath();
-
-          const waveGrad = ctx.createLinearGradient(0, 0, width, height);
-          waveGrad.addColorStop(0, `rgba(16, 185, 129, ${0.12 + i * 0.04})`);
-          waveGrad.addColorStop(0.5, `rgba(6, 182, 212, ${0.15 + i * 0.04})`);
-          waveGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-          ctx.fillStyle = waveGrad;
-          ctx.fill();
+          ctx.beginPath(); ctx.moveTo(0, height * 0.2);
+          for (let x = 0; x <= width; x += 20) { const y = (height * 0.3) + Math.sin(x * 0.005 + time * 1.2 + i) * 80 + Math.cos(time * 0.8 + i) * 40; ctx.lineTo(x, y); }
+          ctx.lineTo(width, height); ctx.lineTo(0, height); ctx.closePath();
+          const waveGrad = ctx.createLinearGradient(0, 0, width, height); waveGrad.addColorStop(0, `rgba(16, 185, 129, ${0.12 + i * 0.04})`); waveGrad.addColorStop(0.5, `rgba(6, 182, 212, ${0.15 + i * 0.04})`); waveGrad.addColorStop(1, 'rgba(0, 0, 0, 0)'); ctx.fillStyle = waveGrad; ctx.fill();
         }
       } else if (effectType === 'proc_waves_overlay') {
         ctx.globalCompositeOperation = 'screen';
         for (let i = 0; i < 4; i++) {
-          ctx.beginPath();
-          const baseHeight = height * 0.3 + i * 90;
-          ctx.moveTo(0, baseHeight);
-          for (let x = 0; x <= width; x += 15) {
-            const y = baseHeight + Math.sin(x * 0.004 + time * (1 + i * 0.2) + i) * 35;
-            ctx.lineTo(x, y);
-          }
-          ctx.lineTo(width, height);
-          ctx.lineTo(0, height);
-          ctx.closePath();
-
-          const waveGrad = ctx.createLinearGradient(0, baseHeight - 40, 0, height);
-          waveGrad.addColorStop(0, `rgba(56, 189, 248, ${0.12 + i * 0.03})`);
-          waveGrad.addColorStop(1, 'rgba(3, 105, 161, 0)');
-          ctx.fillStyle = waveGrad;
-          ctx.fill();
+          ctx.beginPath(); const baseHeight = height * 0.3 + i * 90; ctx.moveTo(0, baseHeight);
+          for (let x = 0; x <= width; x += 15) { const y = baseHeight + Math.sin(x * 0.004 + time * (1 + i * 0.2) + i) * 35; ctx.lineTo(x, y); }
+          ctx.lineTo(width, height); ctx.lineTo(0, height); ctx.closePath();
+          const waveGrad = ctx.createLinearGradient(0, baseHeight - 40, 0, height); waveGrad.addColorStop(0, `rgba(56, 189, 248, ${0.12 + i * 0.03})`); waveGrad.addColorStop(1, 'rgba(3, 105, 161, 0)'); ctx.fillStyle = waveGrad; ctx.fill();
         }
       } else if (effectType === 'proc_nebula_overlay') {
         ctx.globalCompositeOperation = 'screen';
@@ -3224,141 +2432,44 @@
           { x: width * 0.7 + Math.cos(time * 0.5) * 60, y: height * 0.65 + Math.sin(time * 0.4) * 50, color: 'rgba(236, 72, 153, 0.20)' },
           { x: width * 0.5 + Math.sin(time * 0.3) * 40, y: height * 0.5 + Math.sin(time * 0.6) * 40, color: 'rgba(59, 130, 246, 0.18)' }
         ];
-
         centers.forEach(c => {
-          const nebGrad = ctx.createRadialGradient(c.x, c.y, 20, c.x, c.y, width * 0.60);
-          nebGrad.addColorStop(0, c.color);
-          nebGrad.addColorStop(1, 'rgba(0,0,0,0)');
-          ctx.fillStyle = nebGrad;
-          ctx.beginPath();
-          ctx.arc(c.x, c.y, width * 0.60, 0, Math.PI * 2);
-          ctx.fill();
+          const nebGrad = ctx.createRadialGradient(c.x, c.y, 20, c.x, c.y, width * 0.60); nebGrad.addColorStop(0, c.color); nebGrad.addColorStop(1, 'rgba(0,0,0,0)');
+          ctx.fillStyle = nebGrad; ctx.beginPath(); ctx.arc(c.x, c.y, width * 0.60, 0, Math.PI * 2); ctx.fill();
         });
       } else if (effectType === 'proc_tunnel_overlay') {
-        ctx.globalCompositeOperation = 'screen';
-        const cx = width / 2;
-        const cy = height / 2;
-        for (let i = 0; i < 6; i++) {
-          const r = ((time * 60 + i * 90) % 500);
-          const opacity = Math.max(0, 1 - (r / 500));
-          ctx.strokeStyle = `rgba(147, 197, 253, ${opacity * 0.35})`;
-          ctx.lineWidth = 2.5;
-          ctx.beginPath();
-          ctx.arc(cx, cy, r, 0, Math.PI * 2);
-          ctx.stroke();
-        }
+        ctx.globalCompositeOperation = 'screen'; const cx = width / 2; const cy = height / 2;
+        for (let i = 0; i < 6; i++) { const r = ((time * 60 + i * 90) % 500); const opacity = Math.max(0, 1 - (r / 500)); ctx.strokeStyle = `rgba(147, 197, 253, ${opacity * 0.35})`; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke(); }
       } else if (effectType === 'proc_geometric_overlay') {
-        ctx.globalCompositeOperation = 'screen';
-        const points = [];
-        const numPoints = 16;
-        for (let i = 0; i < numPoints; i++) {
-          const px = (i * 140 + Math.sin(time * 0.8 + i) * 60) % width;
-          const py = (i * 110 + Math.cos(time * 0.6 + i) * 60) % height;
-          points.push({ x: px, y: py });
-        }
-
-        ctx.strokeStyle = 'rgba(56, 189, 248, 0.22)';
-        ctx.lineWidth = 1.2;
-        for (let i = 0; i < points.length; i++) {
-          for (let j = i + 1; j < points.length; j++) {
-            const dist = Math.hypot(points[i].x - points[j].x, points[i].y - points[j].y);
-            if (dist < 260) {
-              ctx.beginPath();
-              ctx.moveTo(points[i].x, points[i].y);
-              ctx.lineTo(points[j].x, points[j].y);
-              ctx.stroke();
-            }
-          }
-        }
+        ctx.globalCompositeOperation = 'screen'; const points = []; const numPoints = 16;
+        for (let i = 0; i < numPoints; i++) { const px = (i * 140 + Math.sin(time * 0.8 + i) * 60) % width; const py = (i * 110 + Math.cos(time * 0.6 + i) * 60) % height; points.push({ x: px, y: py }); }
+        ctx.strokeStyle = 'rgba(56, 189, 248, 0.22)'; ctx.lineWidth = 1.2;
+        for (let i = 0; i < points.length; i++) { for (let j = i + 1; j < points.length; j++) { const dist = Math.hypot(points[i].x - points[j].x, points[i].y - points[j].y); if (dist < 260) { ctx.beginPath(); ctx.moveTo(points[i].x, points[i].y); ctx.lineTo(points[j].x, points[j].y); ctx.stroke(); } } }
       } else if (effectType === 'proc_sunbeams_overlay') {
-        ctx.globalCompositeOperation = 'screen';
-        const sunX = width / 2;
-        const sunY = height * 0.15;
-        const rayCount = 10;
-
+        ctx.globalCompositeOperation = 'screen'; const sunX = width / 2; const sunY = height * 0.15; const rayCount = 10;
         for (let i = 0; i < rayCount; i++) {
-          const angle = (i * Math.PI / (rayCount - 1)) + Math.sin(time * 0.2 + i) * 0.05;
-          ctx.save();
-          ctx.translate(sunX, sunY);
-          ctx.rotate(angle - Math.PI / 2);
-          const rGrad = ctx.createLinearGradient(0, 0, 0, height);
-          rGrad.addColorStop(0, 'rgba(254, 240, 138, 0.20)');
-          rGrad.addColorStop(1, 'rgba(254, 240, 138, 0)');
-          ctx.fillStyle = rGrad;
-          ctx.beginPath();
-          ctx.moveTo(-20, 0);
-          ctx.lineTo(20, 0);
-          ctx.lineTo(100, height);
-          ctx.lineTo(-100, height);
-          ctx.closePath();
-          ctx.fill();
-          ctx.restore();
+          const angle = (i * Math.PI / (rayCount - 1)) + Math.sin(time * 0.2 + i) * 0.05; ctx.save(); ctx.translate(sunX, sunY); ctx.rotate(angle - Math.PI / 2);
+          const rGrad = ctx.createLinearGradient(0, 0, 0, height); rGrad.addColorStop(0, 'rgba(254, 240, 138, 0.20)'); rGrad.addColorStop(1, 'rgba(254, 240, 138, 0)');
+          ctx.fillStyle = rGrad; ctx.beginPath(); ctx.moveTo(-20, 0); ctx.lineTo(20, 0); ctx.lineTo(100, height); ctx.lineTo(-100, height); ctx.closePath(); ctx.fill(); ctx.restore();
         }
       } else if (effectType === 'proc_supernova_overlay') {
-        ctx.globalCompositeOperation = 'screen';
-        const cx = width / 2;
-        const cy = height * 0.45;
-        const pulse = 1 + Math.sin(time * 2.0) * 0.2;
-
-        const starGrad = ctx.createRadialGradient(cx, cy, 5, cx, cy, 240 * pulse);
-        starGrad.addColorStop(0, 'rgba(254, 240, 138, 0.45)');
-        starGrad.addColorStop(0.4, 'rgba(245, 158, 11, 0.18)');
-        starGrad.addColorStop(1, 'rgba(0,0,0,0)');
-
-        ctx.fillStyle = starGrad;
-        ctx.beginPath();
-        ctx.arc(cx, cy, 240 * pulse, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.globalCompositeOperation = 'screen'; const cx = width / 2; const cy = height * 0.45; const pulse = 1 + Math.sin(time * 2.0) * 0.2;
+        const starGrad = ctx.createRadialGradient(cx, cy, 5, cx, cy, 240 * pulse); starGrad.addColorStop(0, 'rgba(254, 240, 138, 0.45)'); starGrad.addColorStop(0.4, 'rgba(245, 158, 11, 0.18)'); starGrad.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = starGrad; ctx.beginPath(); ctx.arc(cx, cy, 240 * pulse, 0, Math.PI * 2); ctx.fill();
       } else if (effectType === 'proc_water_ripples_overlay') {
         ctx.globalCompositeOperation = 'screen';
         for (let i = 0; i < 5; i++) {
-          const cx = (width * 0.2 + i * 160) % width;
-          const cy = (height * 0.25 + i * 190) % height;
-          const r = ((time * 45 + i * 70) % 240);
-          const opacity = Math.max(0, 1 - (r / 240));
-
-          ctx.strokeStyle = `rgba(224, 242, 254, ${opacity * 0.30})`;
-          ctx.lineWidth = 1.8;
-          ctx.beginPath();
-          ctx.arc(cx, cy, r, 0, Math.PI * 2);
-          ctx.stroke();
+          const cx = (width * 0.2 + i * 160) % width; const cy = (height * 0.25 + i * 190) % height; const r = ((time * 45 + i * 70) % 240); const opacity = Math.max(0, 1 - (r / 240));
+          ctx.strokeStyle = `rgba(224, 242, 254, ${opacity * 0.30})`; ctx.lineWidth = 1.8; ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke();
         }
       } else if (effectType === 'proc_constellations_overlay') {
-        ctx.globalCompositeOperation = 'screen';
-        const stars = [];
-        for (let i = 0; i < 20; i++) {
-          const x = (i * 170 + Math.sin(time * 0.3 + i) * 30) % width;
-          const y = (i * 130 + Math.cos(time * 0.4 + i) * 30) % height;
-          stars.push({ x, y });
-
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
-          ctx.beginPath();
-          ctx.arc(x, y, 2.5, 0, Math.PI * 2);
-          ctx.fill();
-        }
-
-        ctx.strokeStyle = 'rgba(147, 197, 253, 0.22)';
-        ctx.lineWidth = 1;
-        for (let i = 0; i < stars.length - 1; i++) {
-          ctx.beginPath();
-          ctx.moveTo(stars[i].x, stars[i].y);
-          ctx.lineTo(stars[i + 1].x, stars[i + 1].y);
-          ctx.stroke();
-        }
+        ctx.globalCompositeOperation = 'screen'; const stars = [];
+        for (let i = 0; i < 20; i++) { const x = (i * 170 + Math.sin(time * 0.3 + i) * 30) % width; const y = (i * 130 + Math.cos(time * 0.4 + i) * 30) % height; stars.push({ x, y }); ctx.fillStyle = 'rgba(255, 255, 255, 0.65)'; ctx.beginPath(); ctx.arc(x, y, 2.5, 0, Math.PI * 2); ctx.fill(); }
+        ctx.strokeStyle = 'rgba(147, 197, 253, 0.22)'; ctx.lineWidth = 1;
+        for (let i = 0; i < stars.length - 1; i++) { ctx.beginPath(); ctx.moveTo(stars[i].x, stars[i].y); ctx.lineTo(stars[i + 1].x, stars[i + 1].y); ctx.stroke(); }
       } else if (effectType === 'proc_ember_rise_overlay') {
         ctx.globalCompositeOperation = 'screen';
-        for (let i = 0; i < 35; i++) {
-          const x = (i * 110 + Math.sin(time * 1.5 + i) * 35) % width;
-          const y = height - ((time * 60 + i * 85) % (height + 40));
-          const opacity = 0.2 + Math.sin(time * 3.0 + i) * 0.4;
-
-          ctx.fillStyle = `rgba(249, 115, 22, ${Math.max(0.1, opacity)})`;
-          ctx.beginPath();
-          ctx.arc(x, y, 3 + (i % 3), 0, Math.PI * 2);
-          ctx.fill();
-        }
+        for (let i = 0; i < 35; i++) { const x = (i * 110 + Math.sin(time * 1.5 + i) * 35) % width; const y = height - ((time * 60 + i * 85) % (height + 40)); const opacity = 0.2 + Math.sin(time * 3.0 + i) * 0.4; ctx.fillStyle = `rgba(249, 115, 22, ${Math.max(0.1, opacity)})`; ctx.beginPath(); ctx.arc(x, y, 3 + (i % 3), 0, Math.PI * 2); ctx.fill(); }
       }
-
       ctx.restore();
     }
 
@@ -3392,27 +2503,15 @@
       const time = animOptions.time || 0;
       const dur = animOptions.duration || 15;
 
-      const inDur = 1.5;
-      const outDur = 1.5;
+      const inDur = 1.5; const outDur = 1.5;
+      let inProgress = 1.0; let outProgress = 0.0;
 
-      let inProgress = 1.0;
-      let outProgress = 0.0;
-
-      if (time < inDur) {
-        inProgress = time / inDur;
-        outProgress = 0.0;
-      } else if (time <= (dur - outDur)) {
-        inProgress = 1.0;
-        outProgress = 0.0;
-      } else {
-        inProgress = 1.0;
-        outProgress = (time - (dur - outDur)) / outDur;
-      }
+      if (time < inDur) { inProgress = time / inDur; outProgress = 0.0; } 
+      else if (time <= (dur - outDur)) { inProgress = 1.0; outProgress = 0.0; } 
+      else { inProgress = 1.0; outProgress = (time - (dur - outDur)) / outDur; }
 
       const easeOutCubic = (t) => 1 - Math.pow(1 - Math.min(Math.max(t, 0), 1), 3);
-      const pIn = easeOutCubic(inProgress);
-      const pOut = easeOutCubic(outProgress);
-
+      const pIn = easeOutCubic(inProgress); const pOut = easeOutCubic(outProgress);
       const netAlpha = Math.max(0, pIn * (1 - pOut));
 
       const showLogo = document.getElementById('chkShowLogo') ? document.getElementById('chkShowLogo').checked : true;
@@ -3427,103 +2526,63 @@
         stampSub = document.getElementById('inputStampSub') ? document.getElementById('inputStampSub').value : 'MISIÓN PARA TODOS';
       }
 
-      let bgScale = 1.0;
-      let contentScale = 1.0;
-      let contentRotate = 0;
-
+      let bgScale = 1.0; let contentScale = 1.0; let contentRotate = 0;
       let logoAlpha = netAlpha, logoYOffset = (1 - pIn) * 40 - (pOut * 30), logoXOffset = 0;
       let handleAlpha = netAlpha, handleYOffset = (1 - pIn) * 20 + (pOut * 20), handleXOffset = 0;
-
       let phraseAlpha = netAlpha, phraseYOffset = (1 - pIn) * 60 - (pOut * 40), phraseXOffset = 0;
       let citationAlpha = netAlpha, citationYOffset = (1 - pIn) * 30 - (pOut * 20), citationXOffset = 0;
 
       const formattedPhrase = formatPhraseText(phrase, fontPhraseName);
       let typewriterChars = formattedPhrase.length;
 
-      if (animType === 'slide') {
-      } else if (animType === 'slideLeft') {
+      if (animType === 'slideLeft') {
         logoXOffset = handleXOffset = (1 - pIn) * (-200) + (pOut * 200);
         phraseXOffset = (1 - pIn) * (-250) + (pOut * 250);
         citationXOffset = (1 - pIn) * (-200) + (pOut * 200);
-      } else if (animType === 'zoom') {
-        bgScale = 1.0 + ((time / dur) * 0.10);
-      } else if (animType === 'typewriter') {
-        typewriterChars = Math.floor(pIn * formattedPhrase.length);
-        phraseAlpha = netAlpha;
-      } else if (animType === 'none') {
-        logoAlpha = handleAlpha = phraseAlpha = citationAlpha = 1.0;
-        logoYOffset = handleYOffset = phraseYOffset = citationYOffset = 0;
-        logoXOffset = handleXOffset = phraseXOffset = citationXOffset = 0;
-      }
+      } else if (animType === 'zoom') { bgScale = 1.0 + ((time / dur) * 0.10); } 
+      else if (animType === 'typewriter') { typewriterChars = Math.floor(pIn * formattedPhrase.length); phraseAlpha = netAlpha; } 
+      else if (animType === 'none') { logoAlpha = handleAlpha = phraseAlpha = citationAlpha = 1.0; logoYOffset = handleYOffset = phraseYOffset = citationYOffset = 0; logoXOffset = handleXOffset = phraseXOffset = citationXOffset = 0; }
 
-      // DIBUJO DE FONDO PROCEDURAL ANIMADO POR CÓDIGO CANVAS
-      if (bgType.startsWith('video_proc_')) {
-        drawProceduralVideoBg(ctx, canvas.width, canvas.height, bgType, time);
-      } else if (bgType === 'user_custom' && userCustomImg) {
-        drawCoverImage(ctx, userCustomImg, canvas.width, canvas.height, bgScale);
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.48)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-      } else if (bgType.startsWith('photo_')) {
+      // DIBUJO DE FONDO
+      if (bgType.startsWith('video_proc_')) { drawProceduralVideoBg(ctx, canvas.width, canvas.height, bgType, time); } 
+      else if (bgType === 'user_custom' && userCustomImg) {
+        drawCoverImage(ctx, userCustomImg, canvas.width, canvas.height, bgScale); ctx.fillStyle = 'rgba(0, 0, 0, 0.48)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+      } 
+      else if (bgType.startsWith('photo_')) {
         const pIndex = parseInt(bgType.split('_')[1]);
         try {
           const bgImg = await loadImage(activePhotos[pIndex % activePhotos.length] || ALL_PHOTOS[0]);
-          drawCoverImage(ctx, bgImg, canvas.width, canvas.height, bgScale);
-          ctx.fillStyle = 'rgba(0, 0, 0, 0.52)';
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
-        } catch(e) {
-          drawGrad(ctx, canvas, 0, bgScale);
-        }
-      } else if (bgType.startsWith('pattern_')) {
+          drawCoverImage(ctx, bgImg, canvas.width, canvas.height, bgScale); ctx.fillStyle = 'rgba(0, 0, 0, 0.52)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+        } catch(e) { drawGrad(ctx, canvas, 0, bgScale); }
+      } 
+      else if (bgType.startsWith('pattern_')) {
         const ptIndex = parseInt(bgType.split('_')[1]);
         try {
           const ptImg = await loadImage(activePatterns[ptIndex % activePatterns.length] || ALL_PATTERNS[0]);
-          drawCoverImage(ctx, ptImg, canvas.width, canvas.height, bgScale);
-          ctx.fillStyle = 'rgba(0, 0, 0, 0.58)';
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
-        } catch(e) {
-          drawGrad(ctx, canvas, 0, bgScale);
-        }
-      } else {
-        const gIndex = parseInt(bgType.split('_')[1]);
-        drawGrad(ctx, canvas, gIndex, bgScale);
-      }
+          drawCoverImage(ctx, ptImg, canvas.width, canvas.height, bgScale); ctx.fillStyle = 'rgba(0, 0, 0, 0.58)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+        } catch(e) { drawGrad(ctx, canvas, 0, bgScale); }
+      } 
+      else { const gIndex = parseInt(bgType.split('_')[1]); drawGrad(ctx, canvas, gIndex, bgScale); }
 
       const topGradHeight = (ratioKey === '9:16') ? 380 : 260;
       const topGrad = ctx.createLinearGradient(0, 0, 0, topGradHeight);
-      topGrad.addColorStop(0, 'rgba(0, 0, 0, 0.70)');
-      topGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-      ctx.fillStyle = topGrad;
-      ctx.fillRect(0, 0, canvas.width, topGradHeight);
+      topGrad.addColorStop(0, 'rgba(0, 0, 0, 0.70)'); topGrad.addColorStop(1, 'rgba(0, 0, 0, 0)'); ctx.fillStyle = topGrad; ctx.fillRect(0, 0, canvas.width, topGradHeight);
 
       const botGradHeight = (ratioKey === '9:16') ? 480 : 220;
       const botGrad = ctx.createLinearGradient(0, canvas.height - botGradHeight, 0, canvas.height);
-      botGrad.addColorStop(0, 'rgba(0, 0, 0, 0)');
-      botGrad.addColorStop(1, 'rgba(0, 0, 0, 0.70)');
-      ctx.fillStyle = botGrad;
-      ctx.fillRect(0, canvas.height - botGradHeight, canvas.width, botGradHeight);
+      botGrad.addColorStop(0, 'rgba(0, 0, 0, 0)'); botGrad.addColorStop(1, 'rgba(0, 0, 0, 0.70)'); ctx.fillStyle = botGrad; ctx.fillRect(0, canvas.height - botGradHeight, canvas.width, botGradHeight);
 
       drawOverlayEffects(ctx, canvas.width, canvas.height, effectType, time);
 
       ctx.save();
-      if (contentScale !== 1.0 || contentRotate !== 0) {
-        ctx.translate(canvas.width / 2, canvas.height / 2);
-        ctx.scale(contentScale, contentScale);
-        ctx.rotate(contentRotate);
-        ctx.translate(-canvas.width / 2, -canvas.height / 2);
-      }
+      if (contentScale !== 1.0 || contentRotate !== 0) { ctx.translate(canvas.width / 2, canvas.height / 2); ctx.scale(contentScale, contentScale); ctx.rotate(contentRotate); ctx.translate(-canvas.width / 2, -canvas.height / 2); }
 
       let logoImg = null;
       if (showLogo) {
-        if (logoKey === 'custom' && userCustomLogoImg) {
-          logoImg = userCustomLogoImg;
-        } else if (logoKey !== 'custom') {
+        if (logoKey === 'custom' && userCustomLogoImg) { logoImg = userCustomLogoImg; } 
+        else if (logoKey !== 'custom') {
           logoImg = loadedLogos[logoKey];
-          if (!logoImg) {
-            try {
-              logoImg = await loadImage(LOGOS[logoKey]);
-              loadedLogos[logoKey] = logoImg;
-            } catch(e) {}
-          }
+          if (!logoImg) { try { logoImg = await loadImage(LOGOS[logoKey]); loadedLogos[logoKey] = logoImg; } catch(e) {} }
         }
       }
 
@@ -3534,14 +2593,10 @@
 
       let logoHeight = 0;
       if (showLogo && logoImg && logoAlpha > 0.01) {
-        ctx.save();
-        ctx.globalAlpha = logoAlpha;
-        const logoWidth = 170;
-        const aspectRatio = logoImg.naturalHeight / logoImg.naturalWidth || 1;
-        logoHeight = logoWidth * aspectRatio;
+        ctx.save(); ctx.globalAlpha = logoAlpha;
+        const logoWidth = 170; const aspectRatio = logoImg.naturalHeight / logoImg.naturalWidth || 1; logoHeight = logoWidth * aspectRatio;
         const logoX = ((canvas.width - logoWidth) / 2) + logoXOffset;
-        ctx.drawImage(logoImg, logoX, logoY, logoWidth, logoHeight);
-        ctx.restore();
+        ctx.drawImage(logoImg, logoX, logoY, logoWidth, logoHeight); ctx.restore();
       }
 
       let baseFooterY = canvas.height - 110;
@@ -3549,536 +2604,269 @@
       if (ratioKey === '1:1') baseFooterY = canvas.height - 100;
       baseFooterY += handleYOffset;
 
-      let stampY = baseFooterY;
-      let handleY = baseFooterY;
-
+      let stampY = baseFooterY; let handleY = baseFooterY;
       const hasStampText = showStamp && stampText && stampText.trim() !== '';
 
-      if (hasStampText) {
-        stampY = baseFooterY - 45;
-        handleY = baseFooterY + 25;
-      }
-
+      if (hasStampText) { stampY = baseFooterY - 45; handleY = baseFooterY + 25; }
       if (hasStampText && citationAlpha > 0.01) {
-        ctx.save();
-        ctx.globalAlpha = citationAlpha;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'alphabetic';
-        
-        ctx.font = '900 48px "Montserrat", "Outfit", "Bebas Neue", sans-serif';
-        ctx.fillStyle = '#ffffff';
-        ctx.shadowColor = 'rgba(0, 0, 0, 0.95)';
-        ctx.shadowBlur = 12;
-        ctx.shadowOffsetX = 0;
-        ctx.shadowOffsetY = 3;
+        ctx.save(); ctx.globalAlpha = citationAlpha; ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+        ctx.font = '900 48px "Montserrat", "Outfit", "Bebas Neue", sans-serif'; ctx.fillStyle = '#ffffff'; ctx.shadowColor = 'rgba(0, 0, 0, 0.95)'; ctx.shadowBlur = 12; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 3;
         ctx.fillText(stampText.toUpperCase(), (canvas.width / 2) + handleXOffset, stampY);
-
-        if (stampSub && stampSub.trim() !== '') {
-          ctx.font = '600 16px "Montserrat", sans-serif';
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.90)';
-          ctx.shadowBlur = 8;
-          ctx.fillText(stampSub.toUpperCase(), (canvas.width / 2) + handleXOffset, stampY + 24);
-        }
+        if (stampSub && stampSub.trim() !== '') { ctx.font = '600 16px "Montserrat", sans-serif'; ctx.fillStyle = 'rgba(255, 255, 255, 0.90)'; ctx.shadowBlur = 8; ctx.fillText(stampSub.toUpperCase(), (canvas.width / 2) + handleXOffset, stampY + 24); }
         ctx.restore();
       }
 
       const phrCfg = FONT_MAP[fontPhraseName] || { family: '"Montserrat", sans-serif', weight: '700' };
       const citCfg = FONT_MAP[fontCitationName] || { family: '"Lora", serif', weight: '600' };
-
       const phraseFontSize = calculatePhraseFontSize(formattedPhrase.length, fontPhraseName);
       const phraseLineHeight = Math.round(phraseFontSize * 1.28);
       const phraseFontString = `${phrCfg.weight} ${phraseFontSize}px ${phrCfg.family}`;
-
       const citationFontString = `italic 500 ${FIXED_CITATION_FONT_SIZE}px ${citCfg.family}`;
 
       const displayPhrase = (animType === 'typewriter') ? formattedPhrase.substring(0, typewriterChars) : formattedPhrase;
-      const words = displayPhrase.split(' ');
-      let lines = [];
-      let currentLine = '';
+      const words = displayPhrase.split(' '); let lines = []; let currentLine = '';
 
       ctx.font = phraseFontString;
       for (let n = 0; n < words.length; n++) {
-        let testLine = currentLine + words[n] + ' ';
-        let metrics = ctx.measureText(testLine);
-        if (metrics.width > maxWidth && n > 0) {
-          lines.push(currentLine.trim());
-          currentLine = words[n] + ' ';
-        } else {
-          currentLine = testLine;
-        }
+        let testLine = currentLine + words[n] + ' '; let metrics = ctx.measureText(testLine);
+        if (metrics.width > maxWidth && n > 0) { lines.push(currentLine.trim()); currentLine = words[n] + ' '; } 
+        else { currentLine = testLine; }
       }
       lines.push(currentLine.trim());
 
       const totalTextHeight = (lines.length * phraseLineHeight) + 80;
       let startY = (canvas.height / 2) - (totalTextHeight / 2) + 10;
-
       const minStartY = (showLogo && logoHeight > 0) ? (logoY + logoHeight + 50) : 200;
       if (startY < minStartY) startY = minStartY;
 
       const lowestTopY = hasStampText ? (stampY - 35) : (handleY - 35);
       const maxCitationY = lowestTopY - 25;
-
       let citationY = startY + (lines.length * phraseLineHeight) + 40 + citationYOffset;
-      if (citationY > maxCitationY) {
-        startY = maxCitationY - (lines.length * phraseLineHeight) - 40;
-        citationY = maxCitationY;
-      }
+      if (citationY > maxCitationY) { startY = maxCitationY - (lines.length * phraseLineHeight) - 40; citationY = maxCitationY; }
 
       if (phraseAlpha > 0.01) {
-        ctx.save();
-        ctx.globalAlpha = phraseAlpha;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'alphabetic';
-        ctx.fillStyle = '#ffffff';
-        ctx.font = phraseFontString;
-        ctx.shadowColor = 'rgba(0, 0, 0, 0.95)';
-        ctx.shadowBlur = 14;
-        ctx.shadowOffsetX = 0;
-        ctx.shadowOffsetY = 3;
-
+        ctx.save(); ctx.globalAlpha = phraseAlpha; ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic'; ctx.fillStyle = '#ffffff';
+        ctx.font = phraseFontString; ctx.shadowColor = 'rgba(0, 0, 0, 0.95)'; ctx.shadowBlur = 14; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 3;
         let y = startY + phraseYOffset;
-        for (let i = 0; i < lines.length; i++) {
-          ctx.fillText(lines[i], (canvas.width / 2) + phraseXOffset, y);
-          y += phraseLineHeight;
-        }
+        for (let i = 0; i < lines.length; i++) { ctx.fillText(lines[i], (canvas.width / 2) + phraseXOffset, y); y += phraseLineHeight; }
         ctx.restore();
       }
 
       if (citationAlpha > 0.01) {
-        ctx.save();
-        ctx.globalAlpha = citationAlpha;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'alphabetic';
-        ctx.fillStyle = '#f1f5f9';
-        ctx.font = citationFontString;
-        ctx.shadowColor = 'rgba(0, 0, 0, 0.95)';
-        ctx.shadowBlur = 10;
-        ctx.shadowOffsetX = 0;
-        ctx.shadowOffsetY = 2;
-        ctx.fillText(citation, (canvas.width / 2) + citationXOffset, citationY);
-        ctx.restore();
+        ctx.save(); ctx.globalAlpha = citationAlpha; ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic'; ctx.fillStyle = '#f1f5f9';
+        ctx.font = citationFontString; ctx.shadowColor = 'rgba(0, 0, 0, 0.95)'; ctx.shadowBlur = 10; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 2;
+        ctx.fillText(citation, (canvas.width / 2) + citationXOffset, citationY); ctx.restore();
       }
 
       if (handleAlpha > 0.01 && handleText && handleText.trim() !== '') {
-        ctx.save();
-        ctx.globalAlpha = handleAlpha;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'alphabetic';
-        ctx.font = 'italic 500 24px "Montserrat", sans-serif';
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.88)';
-        ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
-        ctx.shadowBlur = 8;
-        ctx.shadowOffsetX = 0;
-        ctx.shadowOffsetY = 2;
-        ctx.fillText(handleText || '@adventistassv', (canvas.width / 2) + handleXOffset, handleY);
-        ctx.restore();
+        ctx.save(); ctx.globalAlpha = handleAlpha; ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+        ctx.font = 'italic 500 24px "Montserrat", sans-serif'; ctx.fillStyle = 'rgba(255, 255, 255, 0.88)';
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.9)'; ctx.shadowBlur = 8; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 2;
+        ctx.fillText(handleText || '@adventistassv', (canvas.width / 2) + handleXOffset, handleY); ctx.restore();
       }
-
       ctx.restore();
     }
 
     function drawGrad(ctx, canvas, index, scale = 1.0) {
       const colors = (activeGradients[index % activeGradients.length]) || ALL_GRADIENTS[0];
-      if (scale !== 1.0) {
-        ctx.save();
-        ctx.translate(canvas.width / 2, canvas.height / 2);
-        ctx.scale(scale, scale);
-        ctx.translate(-canvas.width / 2, -canvas.height / 2);
-      }
-      const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-      grad.addColorStop(0, colors[0]);
-      grad.addColorStop(1, colors[1]);
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      if (scale !== 1.0) { ctx.save(); ctx.translate(canvas.width / 2, canvas.height / 2); ctx.scale(scale, scale); ctx.translate(-canvas.width / 2, -canvas.height / 2); }
+      const grad = ctx.createLinearGradient(0, 0, 0, canvas.height); grad.addColorStop(0, colors[0]); grad.addColorStop(1, colors[1]);
+      ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
       if (scale !== 1.0) ctx.restore();
     }
 
-    function openCanvasModal(canvas) {
+    // NUEVO MODAL CON ACCIONES
+    function openCanvasModal(canvas, itemObj = null) {
       const modal = document.getElementById('imageModal');
       const modalImg = document.getElementById('modalImg');
+      const actionsBox = document.getElementById('modalActions');
+      
       modalImg.src = canvas.toDataURL('image/webp', 0.95);
+      actionsBox.innerHTML = '';
+      
+      if (itemObj) {
+        currentModalItemObj = itemObj;
+        
+        const svgEdit = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>`;
+        const svgShare = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`;
+        const svgDownload = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`;
+
+        const btnEdit = document.createElement('button');
+        btnEdit.className = 'btn btn-secondary';
+        btnEdit.innerHTML = `${svgEdit} Editar`;
+        btnEdit.onclick = () => { closeModal(); editCardQuote(itemObj.quote.frase, itemObj.quote.cita, itemObj.quote.fontPhrase, itemObj.quote.fontCitation, itemObj.quote.logo, itemObj.quote.bg); };
+        
+        const btnShare = document.createElement('button');
+        btnShare.className = 'btn btn-secondary';
+        btnShare.innerHTML = `${svgShare} Compartir`;
+        btnShare.onclick = async () => { const tempCanvas = document.createElement('canvas'); await drawCanvasCard(tempCanvas, itemObj.quote.frase, itemObj.quote.cita, itemObj.quote.fontPhrase, itemObj.quote.fontCitation, itemObj.quote.logo, itemObj.quote.bg, '@adventistassv', '4:5'); shareCanvasCard(tempCanvas, itemObj.quote.frase, itemObj.quote.cita, '@adventistassv'); };
+        
+        const btnDownload = document.createElement('button');
+        btnDownload.className = 'btn';
+        btnDownload.innerHTML = `${svgDownload} Descargar`;
+        btnDownload.onclick = () => { closeModal(); openDownloadModal({ phrase: itemObj.quote.frase, citation: itemObj.quote.cita, fontPhrase: itemObj.quote.fontPhrase, fontCitation: itemObj.quote.fontCitation, logo: itemObj.quote.logo, bg: itemObj.quote.bg, handle: '@adventistassv', stamp: { show: false, text: 'UNAVOZ27', sub: 'MISIÓN PARA TODOS' } }); };
+
+        actionsBox.appendChild(btnEdit);
+        actionsBox.appendChild(btnShare);
+        actionsBox.appendChild(btnDownload);
+      }
+      
       modal.classList.add('active');
     }
 
     function closeModal() {
       document.getElementById('imageModal').classList.remove('active');
+      currentModalItemObj = null;
     }
 
-    // FUNCIÓN ÚNICA DIRECTA DE COMPARTIR (MÓVIL NATIVO Y COMPUTADORAS / PC)
     async function shareCanvasCard(canvas, phrase, citation, handle = '@adventistassv') {
       if (!canvas) return;
-
-      const cleanUrl = getCleanBaseUrl();
-      const shortUrl = await getShortUrl(cleanUrl);
+      const cleanUrl = getCleanBaseUrl(); const shortUrl = await getShortUrl(cleanUrl);
       const shareText = `"${phrase}" — ${citation}\n\nVía ${handle}\n${shortUrl}`;
-
       try {
-        const dataUrl = canvas.toDataURL('image/webp', 0.92);
-        const file = dataURLtoFile(dataUrl, 'adventistassv-frase.webp');
-
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-          await navigator.share({
-            title: 'Adventistas SV',
-            text: shareText,
-            files: [file]
-          });
-          return;
-        } 
-        else if (navigator.share) {
-          downloadCanvasImageFile(canvas);
-          await navigator.share({
-            title: 'Adventistas SV',
-            text: shareText,
-            url: shortUrl
-          });
-          return;
-        }
-      } catch (err) {
-        if (err.name === 'AbortError') return;
-      }
-
+        const dataUrl = canvas.toDataURL('image/webp', 0.92); const file = dataURLtoFile(dataUrl, 'adventistassv-frase.webp');
+        if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ title: 'Adventistas SV', text: shareText, files: [file] }); return; } 
+        else if (navigator.share) { downloadCanvasImageFile(canvas); await navigator.share({ title: 'Adventistas SV', text: shareText, url: shortUrl }); return; }
+      } catch (err) { if (err.name === 'AbortError') return; }
       downloadCanvasImageFile(canvas);
-      try {
-        await navigator.clipboard.writeText(shareText);
-        alert('¡Imagen descargada y texto con créditos copiado al portapapeles!\n\nListo para pegar en tus redes sociales.');
-      } catch(e) {
-        alert('¡Imagen descargada exitosamente!');
-      }
+      try { await navigator.clipboard.writeText(shareText); alert('¡Imagen descargada y texto con créditos copiado al portapapeles!\n\nListo para pegar en tus redes sociales.'); } catch(e) { alert('¡Imagen descargada exitosamente!'); }
     }
 
     function downloadCanvasImageFile(canvas, filename = 'adventistassv-frase.webp') {
-      if (!canvas) return;
-      const link = document.createElement('a');
-      link.download = filename;
-      link.href = canvas.toDataURL('image/webp', 0.92);
-      link.click();
+      if (!canvas) return; const link = document.createElement('a'); link.download = filename; link.href = canvas.toDataURL('image/webp', 0.92); link.click();
     }
 
-    function openDownloadModal(config) {
-      currentDownloadConfig = config;
-      document.getElementById('downloadModal').classList.add('active');
-    }
-
-    function closeDownloadModal() {
-      document.getElementById('downloadModal').classList.remove('active');
-    }
+    function openDownloadModal(config) { currentDownloadConfig = config; document.getElementById('downloadModal').classList.add('active'); }
+    function closeDownloadModal() { document.getElementById('downloadModal').classList.remove('active'); }
 
     async function triggerDownload(ratioKey) {
       if (!currentDownloadConfig) return;
-
       const format = document.getElementById('modalFileFormat').value || 'webp';
-      let mimeType = 'image/webp';
-      let fileExt = 'webp';
-
-      if (format === 'png') {
-        mimeType = 'image/png';
-        fileExt = 'png';
-      } else if (format === 'jpg' || format === 'jpeg') {
-        mimeType = 'image/jpeg';
-        fileExt = 'jpg';
-      }
-
+      let mimeType = 'image/webp'; let fileExt = 'webp';
+      if (format === 'png') { mimeType = 'image/png'; fileExt = 'png'; } else if (format === 'jpg' || format === 'jpeg') { mimeType = 'image/jpeg'; fileExt = 'jpg'; }
       const tempCanvas = document.createElement('canvas');
       await drawCanvasCard(
-        tempCanvas,
-        currentDownloadConfig.phrase,
-        currentDownloadConfig.citation,
-        currentDownloadConfig.fontPhrase,
-        currentDownloadConfig.fontCitation,
-        currentDownloadConfig.logo,
-        currentDownloadConfig.bg,
-        currentDownloadConfig.handle,
-        ratioKey,
-        { type: 'none', effect: 'none' },
-        currentDownloadConfig.stamp || { show: false, text: 'UNAVOZ27', sub: 'MISIÓN PARA TODOS' }
+        tempCanvas, currentDownloadConfig.phrase, currentDownloadConfig.citation, currentDownloadConfig.fontPhrase, currentDownloadConfig.fontCitation, currentDownloadConfig.logo,
+        currentDownloadConfig.bg, currentDownloadConfig.handle, ratioKey, { type: 'none', effect: 'none' }, currentDownloadConfig.stamp || { show: false, text: 'UNAVOZ27', sub: 'MISIÓN PARA TODOS' }
       );
-
-      const link = document.createElement('a');
-      const cleanRatio = ratioKey.replace(':', 'x');
-      const selectedDate = document.getElementById('historyDate').value || 'hoy';
-      link.download = `adventistassv-${selectedDate}-${cleanRatio}.${fileExt}`;
-      link.href = tempCanvas.toDataURL(mimeType, 0.90);
-      link.click();
-
-      closeDownloadModal();
+      const link = document.createElement('a'); const cleanRatio = ratioKey.replace(':', 'x'); const selectedDate = document.getElementById('historyDate').value || 'hoy';
+      link.download = `adventistassv-${selectedDate}-${cleanRatio}.${fileExt}`; link.href = tempCanvas.toDataURL(mimeType, 0.90); link.click(); closeDownloadModal();
     }
 
     function downloadCustomImage() {
-      const chkStamp = document.getElementById('chkShowStamp');
-      const inputStampText = document.getElementById('inputStampText');
-      const inputStampSub = document.getElementById('inputStampSub');
-
+      const chkStamp = document.getElementById('chkShowStamp'); const inputStampText = document.getElementById('inputStampText'); const inputStampSub = document.getElementById('inputStampSub');
       openDownloadModal({
-        phrase: document.getElementById('inputPhrase').value || '',
-        citation: document.getElementById('inputCitation').value || '',
-        fontPhrase: document.getElementById('selectFontPhrase').value,
-        fontCitation: document.getElementById('selectFontCitation').value,
-        logo: document.getElementById('selectLogo').value,
-        bg: selectedBg,
-        handle: document.getElementById('inputHandle').value || '@adventistassv',
-        stamp: {
-          show: chkStamp ? chkStamp.checked : false,
-          text: inputStampText ? inputStampText.value : 'UNAVOZ27',
-          sub: inputStampSub ? inputStampSub.value : 'MISIÓN PARA TODOS'
-        }
+        phrase: document.getElementById('inputPhrase').value || '', citation: document.getElementById('inputCitation').value || '',
+        fontPhrase: document.getElementById('selectFontPhrase').value, fontCitation: document.getElementById('selectFontCitation').value,
+        logo: document.getElementById('selectLogo').value, bg: selectedBg, handle: document.getElementById('inputHandle').value || '@adventistassv',
+        stamp: { show: chkStamp ? chkStamp.checked : false, text: inputStampText ? inputStampText.value : 'UNAVOZ27', sub: inputStampSub ? inputStampSub.value : 'MISIÓN PARA TODOS' }
       });
     }
 
-    function stopAudioPlayback() {
-      if (activeAudioEl) {
-        activeAudioEl.pause();
-        activeAudioEl.currentTime = 0;
-        activeAudioEl = null;
-      }
-    }
+    function stopAudioPlayback() { if (activeAudioEl) { activeAudioEl.pause(); activeAudioEl.currentTime = 0; activeAudioEl = null; } }
 
     async function startAudioPlayback() {
-      stopAudioPlayback();
-      if (!userCustomAudio) return null;
-
-      const audio = new Audio();
-      audio.crossOrigin = "anonymous";
-      audio.src = userCustomAudio;
-      audio.loop = true;
-
-      try {
-        await audio.play();
-        activeAudioEl = audio;
-      } catch(e) {}
-
+      stopAudioPlayback(); if (!userCustomAudio) return null;
+      const audio = new Audio(); audio.crossOrigin = "anonymous"; audio.src = userCustomAudio; audio.loop = true;
+      try { await audio.play(); activeAudioEl = audio; } catch(e) {}
       return audio;
     }
 
     function stopPreviewAnimation() {
-      if (previewAnimId) {
-        cancelAnimationFrame(previewAnimId);
-        previewAnimId = null;
-      }
-      isPreviewPlaying = false;
-      stopAudioPlayback();
-
-      const btnPlay = document.getElementById('btnPlayPreview');
-      if (btnPlay) btnPlay.innerText = 'Previsualizar Animación Completa';
+      if (previewAnimId) { cancelAnimationFrame(previewAnimId); previewAnimId = null; }
+      isPreviewPlaying = false; stopAudioPlayback();
+      const btnPlay = document.getElementById('btnPlayPreview'); if (btnPlay) btnPlay.innerText = 'Previsualizar Animación Completa';
     }
 
     async function previewAnimation() {
-      if (isPreviewPlaying) {
-        stopPreviewAnimation();
-        updateCustomCanvas();
-        return;
-      }
-
+      if (isPreviewPlaying) { stopPreviewAnimation(); updateCustomCanvas(); return; }
       stopPreviewAnimation();
       const durationSec = parseFloat(document.getElementById('selectDuration').value) || 15;
-
-      const animType = document.getElementById('selectAnimation').value;
-      const effectType = document.getElementById('selectEffect').value;
-
-      const btnPlay = document.getElementById('btnPlayPreview');
-      if (btnPlay) btnPlay.innerText = 'Detener Previsualización';
-
-      isPreviewPlaying = true;
-      await startAudioPlayback();
-
+      const animType = document.getElementById('selectAnimation').value; const effectType = document.getElementById('selectEffect').value;
+      const btnPlay = document.getElementById('btnPlayPreview'); if (btnPlay) btnPlay.innerText = 'Detener Previsualización';
+      isPreviewPlaying = true; await startAudioPlayback();
       let startTime = null;
-
       async function step(timestamp) {
-        if (!isPreviewPlaying) return;
-        if (!startTime) startTime = timestamp;
-
+        if (!isPreviewPlaying) return; if (!startTime) startTime = timestamp;
         let elapsed = (timestamp - startTime) / 1000;
-        if (elapsed > durationSec) {
-          startTime = timestamp;
-          elapsed = 0;
-        }
-
+        if (elapsed > durationSec) { startTime = timestamp; elapsed = 0; }
         await drawCustomCanvasWithAnim(Math.min(elapsed, durationSec), durationSec, animType, effectType);
-
-        if (isPreviewPlaying) {
-          previewAnimId = requestAnimationFrame(step);
-        }
+        if (isPreviewPlaying) previewAnimId = requestAnimationFrame(step);
       }
-
       previewAnimId = requestAnimationFrame(step);
     }
 
     async function drawCustomCanvasOnTarget(targetCanvas, time, duration, animType, effectType) {
       if (!targetCanvas) return;
-      const phrase = document.getElementById('inputPhrase').value || '';
-      const citation = document.getElementById('inputCitation').value || '';
-      const handle = document.getElementById('inputHandle').value || '@adventistassv';
-      const fontPhrase = document.getElementById('selectFontPhrase').value;
-      const fontCitation = document.getElementById('selectFontCitation').value;
-      const logo = document.getElementById('selectLogo').value;
-      const ratio = document.getElementById('selectRatio').value;
-
-      const chkStamp = document.getElementById('chkShowStamp');
-      const inputStampText = document.getElementById('inputStampText');
-      const inputStampSub = document.getElementById('inputStampSub');
-
-      const stampObj = {
-        show: chkStamp ? chkStamp.checked : false,
-        text: inputStampText ? inputStampText.value : 'UNAVOZ27',
-        sub: inputStampSub ? inputStampSub.value : 'MISIÓN PARA TODOS'
-      };
-
-      await drawCanvasCard(
-        targetCanvas, phrase, citation, fontPhrase, fontCitation, logo,
-        selectedBg, handle, ratio, { type: animType, effect: effectType, time: time, duration: duration },
-        stampObj
-      );
+      const phrase = document.getElementById('inputPhrase').value || ''; const citation = document.getElementById('inputCitation').value || '';
+      const handle = document.getElementById('inputHandle').value || '@adventistassv'; const fontPhrase = document.getElementById('selectFontPhrase').value;
+      const fontCitation = document.getElementById('selectFontCitation').value; const logo = document.getElementById('selectLogo').value; const ratio = document.getElementById('selectRatio').value;
+      const chkStamp = document.getElementById('chkShowStamp'); const inputStampText = document.getElementById('inputStampText'); const inputStampSub = document.getElementById('inputStampSub');
+      const stampObj = { show: chkStamp ? chkStamp.checked : false, text: inputStampText ? inputStampText.value : 'UNAVOZ27', sub: inputStampSub ? inputStampSub.value : 'MISIÓN PARA TODOS' };
+      await drawCanvasCard(targetCanvas, phrase, citation, fontPhrase, fontCitation, logo, selectedBg, handle, ratio, { type: animType, effect: effectType, time: time, duration: duration }, stampObj);
     }
 
     async function drawCustomCanvasWithAnim(time, duration, animType, effectType) {
-      const canvas = document.getElementById('customCanvas');
-      await drawCustomCanvasOnTarget(canvas, time, duration, animType, effectType);
+      const canvas = document.getElementById('customCanvas'); await drawCustomCanvasOnTarget(canvas, time, duration, animType, effectType);
     }
 
-    /* DESCARGADOR DE VIDEO DE ALTA DENSIDAD */
     async function generarVideoAnimado() {
       stopPreviewAnimation();
-
-      const canvas = document.getElementById('customCanvas');
-      const btn = document.getElementById('btnDescargarVideo');
-
-      if (!canvas) {
-        alert("No se encontró el lienzo para generar el video.");
-        return;
-      }
-
-      const durationSec = parseFloat(document.getElementById('selectDuration').value) || 15;
-      const durationMs = durationSec * 1000;
-
-      const animType = document.getElementById('selectAnimation').value;
-      const effectType = document.getElementById('selectEffect').value;
-
-      const originalText = btn.innerText;
-      btn.disabled = true;
-
+      const canvas = document.getElementById('customCanvas'); const btn = document.getElementById('btnDescargarVideo');
+      if (!canvas) { alert("No se encontró el lienzo para generar el video."); return; }
+      const durationSec = parseFloat(document.getElementById('selectDuration').value) || 15; const durationMs = durationSec * 1000;
+      const animType = document.getElementById('selectAnimation').value; const effectType = document.getElementById('selectEffect').value;
+      const originalText = btn.innerText; btn.disabled = true;
       const audioEl = await startAudioPlayback();
-
-      const canvasStream = canvas.captureStream(30);
-      let finalStream = canvasStream;
-      let audioCtx = null;
-
+      const canvasStream = canvas.captureStream(30); let finalStream = canvasStream; let audioCtx = null;
       if (audioEl) {
         try {
-          const AudioCtx = window.AudioContext || window.webkitAudioContext;
-          audioCtx = new AudioCtx();
-          const source = audioCtx.createMediaElementSource(audioEl);
-          const dest = audioCtx.createMediaStreamDestination();
-          source.connect(dest);
-          source.connect(audioCtx.destination);
-
+          const AudioCtx = window.AudioContext || window.webkitAudioContext; audioCtx = new AudioCtx();
+          const source = audioCtx.createMediaElementSource(audioEl); const dest = audioCtx.createMediaStreamDestination();
+          source.connect(dest); source.connect(audioCtx.destination);
           const audioTrack = dest.stream.getAudioTracks()[0];
-          if (audioTrack) {
-            const videoTrack = canvasStream.getVideoTracks()[0];
-            finalStream = new MediaStream([videoTrack, audioTrack]);
-          }
-        } catch(e) {
-          console.warn("Audio Context error:", e);
-        }
+          if (audioTrack) { const videoTrack = canvasStream.getVideoTracks()[0]; finalStream = new MediaStream([videoTrack, audioTrack]); }
+        } catch(e) { console.warn("Audio Context error:", e); }
       }
-
       let mimeType = 'video/webm;codecs=vp9,opus';
       if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'video/webm;codecs=vp8,opus';
       if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'video/webm';
-
-      const recordedChunks = [];
-      let mediaRecorder;
-      try {
-        mediaRecorder = new MediaRecorder(finalStream, { mimeType: mimeType });
-      } catch (e) {
-        mediaRecorder = new MediaRecorder(finalStream);
-      }
-
-      mediaRecorder.ondataavailable = (e) => {
-        if (e.data && e.data.size > 0) recordedChunks.push(e.data);
-      };
-
+      const recordedChunks = []; let mediaRecorder;
+      try { mediaRecorder = new MediaRecorder(finalStream, { mimeType: mimeType }); } catch (e) { mediaRecorder = new MediaRecorder(finalStream); }
+      mediaRecorder.ondataavailable = (e) => { if (e.data && e.data.size > 0) recordedChunks.push(e.data); };
       mediaRecorder.onstop = async () => {
-        stopAudioPlayback();
-        if (audioCtx) { try { audioCtx.close(); } catch(e){} }
-
-        btn.innerText = "Empaquetando metadatos para Instagram...";
+        stopAudioPlayback(); if (audioCtx) { try { audioCtx.close(); } catch(e){} }
+        btn.innerText = "Empaquetando metadatos...";
         const rawBlob = new Blob(recordedChunks, { type: mediaRecorder.mimeType || 'video/webm' });
-
         const fixedBlob = await new Promise((resolve) => {
           const fixFunc = window.ysFixWebmDuration || window.fixWebmDuration;
-          if (typeof fixFunc === 'function') {
-            try {
-              fixFunc(rawBlob, durationMs, (result) => resolve(result));
-            } catch(err) {
-              console.warn("Error fixWebmDuration:", err);
-              resolve(rawBlob);
-            }
-          } else {
-            resolve(rawBlob);
-          }
+          if (typeof fixFunc === 'function') { try { fixFunc(rawBlob, durationMs, (result) => resolve(result)); } catch(err) { resolve(rawBlob); } } else resolve(rawBlob);
         });
-
-        const url = URL.createObjectURL(fixedBlob);
-        const a = document.createElement('a');
-        a.href = url;
-        const selectedDate = document.getElementById('historyDate')?.value || 'frase';
-        a.download = `adventistassv-video-${selectedDate}.webm`;
-        a.click();
-
+        const url = URL.createObjectURL(fixedBlob); const a = document.createElement('a'); a.href = url;
+        const selectedDate = document.getElementById('historyDate')?.value || 'frase'; a.download = `adventistassv-video-${selectedDate}.webm`; a.click();
         setTimeout(() => URL.revokeObjectURL(url), 5000);
-
-        btn.innerText = originalText;
-        btn.disabled = false;
-        updateCustomCanvas();
+        btn.innerText = originalText; btn.disabled = false; updateCustomCanvas();
       };
-
       mediaRecorder.start();
-
-      let startTime = null;
-      let animFrameId = null;
-
+      let startTime = null; let animFrameId = null;
       async function renderFrame(timestamp) {
-        if (!startTime) startTime = timestamp;
-        const elapsedSec = (timestamp - startTime) / 1000;
+        if (!startTime) startTime = timestamp; const elapsedSec = (timestamp - startTime) / 1000;
         const pct = Math.min(Math.round((elapsedSec / durationSec) * 100), 100);
-
         btn.innerText = `Generando video para Instagram (${pct}%)...`;
-
         await drawCustomCanvasWithAnim(Math.min(elapsedSec, durationSec), durationSec, animType, effectType);
-
-        if (elapsedSec < durationSec) {
-          animFrameId = requestAnimationFrame(renderFrame);
-        } else {
-          if (animFrameId) cancelAnimationFrame(animFrameId);
-          if (mediaRecorder.state !== 'inactive') {
-            mediaRecorder.stop();
-          }
-        }
+        if (elapsedSec < durationSec) animFrameId = requestAnimationFrame(renderFrame);
+        else { if (animFrameId) cancelAnimationFrame(animFrameId); if (mediaRecorder.state !== 'inactive') mediaRecorder.stop(); }
       }
-
       animFrameId = requestAnimationFrame(renderFrame);
     }
 
     function updateCustomCanvas() {
       if (isPreviewPlaying || testModalAnimId) return;
-
-      const phrase = document.getElementById('inputPhrase').value || '';
-      const citation = document.getElementById('inputCitation').value || '';
-      const handle = document.getElementById('inputHandle').value || '@adventistassv';
-      const fontPhrase = document.getElementById('selectFontPhrase').value;
-      const fontCitation = document.getElementById('selectFontCitation').value;
-      const logo = document.getElementById('selectLogo').value;
-      const ratio = document.getElementById('selectRatio').value;
-
-      const chkStamp = document.getElementById('chkShowStamp');
-      const inputStampText = document.getElementById('inputStampText');
-      const inputStampSub = document.getElementById('inputStampSub');
-
-      const stampObj = {
-        show: chkStamp ? chkStamp.checked : false,
-        text: inputStampText ? inputStampText.value : 'UNAVOZ27',
-        sub: inputStampSub ? inputStampSub.value : 'MISIÓN PARA TODOS'
-      };
-
+      const phrase = document.getElementById('inputPhrase').value || ''; const citation = document.getElementById('inputCitation').value || '';
+      const handle = document.getElementById('inputHandle').value || '@adventistassv'; const fontPhrase = document.getElementById('selectFontPhrase').value;
+      const fontCitation = document.getElementById('selectFontCitation').value; const logo = document.getElementById('selectLogo').value; const ratio = document.getElementById('selectRatio').value;
+      const chkStamp = document.getElementById('chkShowStamp'); const inputStampText = document.getElementById('inputStampText'); const inputStampSub = document.getElementById('inputStampSub');
+      const stampObj = { show: chkStamp ? chkStamp.checked : false, text: inputStampText ? inputStampText.value : 'UNAVOZ27', sub: inputStampSub ? inputStampSub.value : 'MISIÓN PARA TODOS' };
       const canvas = document.getElementById('customCanvas');
       drawCanvasCard(canvas, phrase, citation, fontPhrase, fontCitation, logo, selectedBg, handle, ratio, { type: 'none', effect: 'none' }, stampObj);
     }
@@ -4086,132 +2874,56 @@
     async function loadQuotesForSelectedDate(dateStr) {
       if (!dateStr) return;
       document.getElementById('galleryTitle').innerText = `Frases del Día (${dateStr})`;
-      
       const storedCards = await getStoredCardsByDate(dateStr);
-      if (storedCards && storedCards.length > 0 && manualGenOffset === 0) {
-        renderStoredWebpCards(storedCards.slice(0, 10));
-      } else {
-        await refreshAllBackgrounds();
-        const quotes = getQuotesForDate(dateStr, 10);
-        renderDailyGrid(quotes);
-      }
+      if (storedCards && storedCards.length > 0 && manualGenOffset === 0) { renderStoredWebpCards(storedCards.slice(0, 10)); } 
+      else { await refreshAllBackgrounds(); const quotes = getQuotesForDate(dateStr, 10); renderDailyGrid(quotes); }
     }
 
     function resetToTodayDate() {
       const today = new Date().toISOString().split('T')[0];
       document.getElementById('historyDate').value = today;
-      manualGenOffset = 0;
-      loadQuotesForSelectedDate(today);
+      manualGenOffset = 0; loadQuotesForSelectedDate(today);
     }
 
     function renderStoredWebpCards(cardsList) {
-      const grid = document.getElementById('dailyGrid');
-      grid.innerHTML = '';
-
+      const grid = document.getElementById('dailyGrid'); grid.innerHTML = '';
       const itemsToRender = cardsList.slice(0, 10);
-
       const svgEye = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
       const svgEdit = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>`;
       const svgShare = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`;
       const svgDownload = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`;
 
       itemsToRender.forEach(item => {
-        const card = document.createElement('div');
-        card.className = 'card';
-
-        const canvasBox = document.createElement('div');
-        canvasBox.className = 'canvas-container';
-
-        const imgEl = document.createElement('img');
-        imgEl.src = item.webp;
-        imgEl.style.width = '100%';
-        imgEl.style.height = '100%';
-        imgEl.style.objectFit = 'cover';
-
-        canvasBox.onclick = () => {
-          const modal = document.getElementById('imageModal');
-          const modalImg = document.getElementById('modalImg');
-          modalImg.src = item.webp;
-          modal.classList.add('active');
-        };
+        const card = document.createElement('div'); card.className = 'card';
+        const canvasBox = document.createElement('div'); canvasBox.className = 'canvas-container';
+        const imgEl = document.createElement('img'); imgEl.src = item.webp; imgEl.style.width = '100%'; imgEl.style.height = '100%'; imgEl.style.objectFit = 'cover';
+        canvasBox.onclick = () => { openCanvasModal(document.createElement('canvas'), item); document.getElementById('modalImg').src = item.webp; };
         canvasBox.appendChild(imgEl);
 
-        const actions = document.createElement('div');
-        actions.className = 'card-actions';
+        const actions = document.createElement('div'); actions.className = 'card-actions';
+        const btnView = document.createElement('button'); btnView.className = 'btn btn-secondary'; btnView.title = 'Ver imagen'; btnView.innerHTML = svgEye;
+        btnView.onclick = (e) => { e.stopPropagation(); openCanvasModal(document.createElement('canvas'), item); document.getElementById('modalImg').src = item.webp; };
 
-        const btnView = document.createElement('button');
-        btnView.className = 'btn btn-secondary';
-        btnView.title = 'Ver imagen';
-        btnView.innerHTML = svgEye;
-        btnView.onclick = (e) => {
-          e.stopPropagation();
-          const modal = document.getElementById('imageModal');
-          const modalImg = document.getElementById('modalImg');
-          modalImg.src = item.webp;
-          modal.classList.add('active');
-        };
+        const btnEdit = document.createElement('button'); btnEdit.className = 'btn btn-secondary'; btnEdit.title = 'Editar frase'; btnEdit.innerHTML = svgEdit;
+        btnEdit.onclick = (e) => { e.stopPropagation(); editCardQuote(item.quote.frase, item.quote.cita, item.quote.fontPhrase, item.quote.fontCitation, item.quote.logo, item.quote.bg); };
 
-        const btnEdit = document.createElement('button');
-        btnEdit.className = 'btn btn-secondary';
-        btnEdit.title = 'Editar frase';
-        btnEdit.innerHTML = svgEdit;
-        btnEdit.onclick = (e) => {
-          e.stopPropagation();
-          editCardQuote(item.quote.frase, item.quote.cita, item.quote.fontPhrase, item.quote.fontCitation, item.quote.logo, item.quote.bg);
-        };
+        const btnShare = document.createElement('button'); btnShare.className = 'btn btn-secondary'; btnShare.title = 'Compartir'; btnShare.innerHTML = svgShare;
+        btnShare.onclick = async (e) => { e.stopPropagation(); const tempCanvas = document.createElement('canvas'); await drawCanvasCard(tempCanvas, item.quote.frase, item.quote.cita, item.quote.fontPhrase, item.quote.fontCitation, item.quote.logo, item.quote.bg, '@adventistassv', '4:5'); shareCanvasCard(tempCanvas, item.quote.frase, item.quote.cita, '@adventistassv'); };
 
-        const btnShare = document.createElement('button');
-        btnShare.className = 'btn btn-secondary';
-        btnShare.title = 'Compartir';
-        btnShare.innerHTML = svgShare;
-        btnShare.onclick = async (e) => {
-          e.stopPropagation();
-          const tempCanvas = document.createElement('canvas');
-          await drawCanvasCard(tempCanvas, item.quote.frase, item.quote.cita, item.quote.fontPhrase, item.quote.fontCitation, item.quote.logo, item.quote.bg, '@adventistassv', '4:5');
-          shareCanvasCard(tempCanvas, item.quote.frase, item.quote.cita, '@adventistassv');
-        };
+        const btnDownload = document.createElement('button'); btnDownload.className = 'btn'; btnDownload.title = 'Descargar'; btnDownload.innerHTML = svgDownload;
+        btnDownload.onclick = (e) => { e.stopPropagation(); openDownloadModal({ phrase: item.quote.frase, citation: item.quote.cita, fontPhrase: item.quote.fontPhrase, fontCitation: item.quote.fontCitation, logo: item.quote.logo, bg: item.quote.bg, handle: '@adventistassv', stamp: { show: false, text: 'UNAVOZ27', sub: 'MISIÓN PARA TODOS' } }); };
 
-        const btnDownload = document.createElement('button');
-        btnDownload.className = 'btn';
-        btnDownload.title = 'Descargar';
-        btnDownload.innerHTML = svgDownload;
-        btnDownload.onclick = (e) => {
-          e.stopPropagation();
-          openDownloadModal({
-            phrase: item.quote.frase,
-            citation: item.quote.cita,
-            fontPhrase: item.quote.fontPhrase,
-            fontCitation: item.quote.fontCitation,
-            logo: item.quote.logo,
-            bg: item.quote.bg,
-            handle: '@adventistassv',
-            stamp: { show: false, text: 'UNAVOZ27', sub: 'MISIÓN PARA TODOS' }
-          });
-        };
-
-        actions.appendChild(btnView);
-        actions.appendChild(btnEdit);
-        actions.appendChild(btnShare);
-        actions.appendChild(btnDownload);
-
-        card.appendChild(canvasBox);
-        card.appendChild(actions);
-        grid.appendChild(card);
+        actions.appendChild(btnView); actions.appendChild(btnEdit); actions.appendChild(btnShare); actions.appendChild(btnDownload);
+        card.appendChild(canvasBox); card.appendChild(actions); grid.appendChild(card);
       });
     }
 
     async function renderDailyGrid(quotesList, forceSaveNew = false) {
-      const grid = document.getElementById('dailyGrid');
-      grid.innerHTML = '';
-
+      const grid = document.getElementById('dailyGrid'); grid.innerHTML = '';
       const dateStr = document.getElementById('historyDate')?.value || new Date().toISOString().split('T')[0];
-      const daySeed = getDateSeed(dateStr) + manualGenOffset;
-      const rng = createPRNG(daySeed);
-
-      const fontKeys = Object.keys(FONT_MAP);
-      const shuffledFonts = seededShuffle(fontKeys, rng);
+      const daySeed = getDateSeed(dateStr) + manualGenOffset; const rng = createPRNG(daySeed);
+      const fontKeys = Object.keys(FONT_MAP); const shuffledFonts = seededShuffle(fontKeys, rng);
       const shuffledCitations = seededShuffle(LEGIBLE_CITATION_FONTS, createPRNG(daySeed + 101));
-
       const logoRotation = ['blanco', 'turquesa', 'blanco', 'blanco', 'turquesa'];
 
       const svgEye = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
@@ -4223,123 +2935,48 @@
 
       for (let i = 0; i < targetQuotes.length; i++) {
         const item = targetQuotes[i];
-        
-        const fontPhraseName = shuffledFonts[i % shuffledFonts.length];
-        const fontCitationName = shuffledCitations[i % shuffledCitations.length];
+        const fontPhraseName = shuffledFonts[i % shuffledFonts.length]; const fontCitationName = shuffledCitations[i % shuffledCitations.length];
         const logoKey = logoRotation[i % logoRotation.length];
         
-        const typeSelector = i % 3;
-        let bgType;
-        if (typeSelector === 0) {
-          bgType = `photo_${i % activePhotos.length}`;
-        } else if (typeSelector === 1) {
-          bgType = `pattern_${i % activePatterns.length}`;
-        } else {
-          bgType = `grad_${i % activeGradients.length}`;
-        }
+        // FORZAMOS A QUE SIEMPRE USE FOTOS EN LA GALERÍA DIARIA
+        const bgType = `photo_${i % activePhotos.length}`;
 
-        const card = document.createElement('div');
-        card.className = 'card';
+        const card = document.createElement('div'); card.className = 'card';
+        const canvasBox = document.createElement('div'); canvasBox.className = 'canvas-container';
+        const canvas = document.createElement('canvas'); canvasBox.appendChild(canvas);
 
-        const canvasBox = document.createElement('div');
-        canvasBox.className = 'canvas-container';
-        canvasBox.onclick = () => openCanvasModal(canvas);
+        const fullItemObj = { quote: { frase: item.frase, cita: item.cita, fontPhrase: fontPhraseName, fontCitation: fontCitationName, logo: logoKey, bg: bgType } };
+        canvasBox.onclick = () => openCanvasModal(canvas, fullItemObj);
 
-        const canvas = document.createElement('canvas');
-        canvasBox.appendChild(canvas);
+        const actions = document.createElement('div'); actions.className = 'card-actions';
 
-        const actions = document.createElement('div');
-        actions.className = 'card-actions';
+        const btnView = document.createElement('button'); btnView.className = 'btn btn-secondary'; btnView.title = 'Ver imagen'; btnView.innerHTML = svgEye;
+        btnView.onclick = (e) => { e.stopPropagation(); openCanvasModal(canvas, fullItemObj); };
 
-        const btnView = document.createElement('button');
-        btnView.className = 'btn btn-secondary';
-        btnView.title = 'Ver imagen';
-        btnView.innerHTML = svgEye;
-        btnView.onclick = (e) => { e.stopPropagation(); openCanvasModal(canvas); };
+        const btnEdit = document.createElement('button'); btnEdit.className = 'btn btn-secondary'; btnEdit.title = 'Editar frase'; btnEdit.innerHTML = svgEdit;
+        btnEdit.onclick = (e) => { e.stopPropagation(); editCardQuote(item.frase, item.cita, fontPhraseName, fontCitationName, logoKey, bgType); };
 
-        const btnEdit = document.createElement('button');
-        btnEdit.className = 'btn btn-secondary';
-        btnEdit.title = 'Editar frase';
-        btnEdit.innerHTML = svgEdit;
-        btnEdit.onclick = (e) => {
-          e.stopPropagation();
-          editCardQuote(item.frase, item.cita, fontPhraseName, fontCitationName, logoKey, bgType);
-        };
-
-        const btnShare = document.createElement('button');
-        btnShare.className = 'btn btn-secondary';
-        btnShare.title = 'Compartir';
-        btnShare.innerHTML = svgShare;
+        const btnShare = document.createElement('button'); btnShare.className = 'btn btn-secondary'; btnShare.title = 'Compartir'; btnShare.innerHTML = svgShare;
         btnShare.onclick = (e) => { e.stopPropagation(); shareCanvasCard(canvas, item.frase, item.cita, '@adventistassv'); };
 
-        const btnDownload = document.createElement('button');
-        btnDownload.className = 'btn';
-        btnDownload.title = 'Descargar';
-        btnDownload.innerHTML = svgDownload;
-        btnDownload.onclick = (e) => {
-          e.stopPropagation();
-          openDownloadModal({
-            phrase: item.frase,
-            citation: item.cita,
-            fontPhrase: fontPhraseName,
-            fontCitation: fontCitationName,
-            logo: logoKey,
-            bg: bgType,
-            handle: '@adventistassv',
-            stamp: { show: false, text: 'UNAVOZ27', sub: 'MISIÓN PARA TODOS' }
-          });
-        };
+        const btnDownload = document.createElement('button'); btnDownload.className = 'btn'; btnDownload.title = 'Descargar'; btnDownload.innerHTML = svgDownload;
+        btnDownload.onclick = (e) => { e.stopPropagation(); openDownloadModal({ phrase: item.frase, citation: item.cita, fontPhrase: fontPhraseName, fontCitation: fontCitationName, logo: logoKey, bg: bgType, handle: '@adventistassv', stamp: { show: false, text: 'UNAVOZ27', sub: 'MISIÓN PARA TODOS' } }); };
 
-        actions.appendChild(btnView);
-        actions.appendChild(btnEdit);
-        actions.appendChild(btnShare);
-        actions.appendChild(btnDownload);
+        actions.appendChild(btnView); actions.appendChild(btnEdit); actions.appendChild(btnShare); actions.appendChild(btnDownload);
+        card.appendChild(canvasBox); card.appendChild(actions); grid.appendChild(card);
 
-        card.appendChild(canvasBox);
-        card.appendChild(actions);
-        grid.appendChild(card);
+        await drawCanvasCard(canvas, item.frase, item.cita, fontPhraseName, fontCitationName, logoKey, bgType, '@adventistassv', '4:5', { type: 'none', effect: 'none' }, { show: false, text: 'UNAVOZ27', sub: 'MISIÓN PARA TODOS' });
 
-        await drawCanvasCard(
-          canvas, item.frase, item.cita, fontPhraseName, fontCitationName, 
-          logoKey, bgType, '@adventistassv', '4:5', 
-          { type: 'none', effect: 'none' }, 
-          { show: false, text: 'UNAVOZ27', sub: 'MISIÓN PARA TODOS' }
-        );
-
-        const webpDataUrl = canvas.toDataURL('image/webp', 0.85);
-        const cardId = `card_${dateStr}_${i}_${manualGenOffset}`;
-        saveWebpCardToDB({
-          id: cardId,
-          date: dateStr,
-          webp: webpDataUrl,
-          quote: {
-            frase: item.frase,
-            cita: item.cita,
-            fontPhrase: fontPhraseName,
-            fontCitation: fontCitationName,
-            logo: logoKey,
-            bg: bgType
-          },
-          timestamp: Date.now()
-        });
+        const webpDataUrl = canvas.toDataURL('image/webp', 0.85); const cardId = `card_${dateStr}_${i}_${manualGenOffset}`;
+        saveWebpCardToDB({ id: cardId, date: dateStr, webp: webpDataUrl, quote: fullItemObj.quote, timestamp: Date.now() });
       }
     }
 
     async function initDailyGallery() {
-      await preloadLogos();
-      await document.fonts.ready;
-      
-      const imgHeader = document.getElementById('mainLogoHeader');
-      if (imgHeader && imgHeader.complete) {
-        processHeaderLogo(imgHeader);
-      }
-
-      initPhraseBankSelector();
-      await refreshAllBackgrounds();
-      resetToTodayDate();
-
-      const currentTab = window.location.hash === '#editor' || localStorage.getItem('activeTab') === 'editor' ? 'editor' : 'gallery';
-      switchTab(currentTab, false);
+      await preloadLogos(); await document.fonts.ready;
+      const imgHeader = document.getElementById('mainLogoHeader'); if (imgHeader && imgHeader.complete) processHeaderLogo(imgHeader);
+      initPhraseBankSelector(); await refreshAllBackgrounds(); resetToTodayDate();
+      const currentTab = window.location.hash === '#editor' || localStorage.getItem('activeTab') === 'editor' ? 'editor' : 'gallery'; switchTab(currentTab, false);
     }
 
     window.onload = initDailyGallery;
