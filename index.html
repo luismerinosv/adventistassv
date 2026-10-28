@@ -81,27 +81,6 @@
     }
 
     header p { color: var(--text-muted); font-size: 0.82rem; }
-
-/* CONTADOR DISCRETO DE VISITAS EN ENCABEZADO (INTACTO) */
-.header-stats {
-  margin-top: 6px;
-  font-size: 0.73rem;
-  color: var(--text-muted);
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(255, 255, 255, 0.04);
-  padding: 3px 10px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-}
-.header-stats strong {
-  color: #38bdf8;
-  font-weight: 600;
-}
-.header-stats .stat-divider {
-  opacity: 0.4;
-}
     
     /* NAVEGACIÓN FIJA AL SCROLL */
     .sticky-nav-wrapper {
@@ -716,14 +695,6 @@
       <img id="mainLogoHeader" src="logo.png" alt="Adventistas SV" class="header-logo" onload="processHeaderLogo(this)">
     </div>
     <p>Frases e inspiración diaria • @adventistassv</p>
-    
-    <div class="header-stats" id="headerStats">
-      <span>👁️ Únicas: <strong id="statUniques">--</strong></span>
-      <span class="stat-divider">•</span>
-      <span>🔄 Repeticiones: <strong id="statRepeats">--</strong></span>
-      <span class="stat-divider">•</span>
-      <span>Total: <strong id="statTotal">--</strong></span>
-    </div>
   </header>
 
   <!-- NAVEGACIÓN FIJA AL SCROLL -->
@@ -1255,63 +1226,19 @@
       }
     }
 
-  // CONTADOR DE VISITAS EN TIEMPO REAL (ÚNICAS, REPETICIONES Y TOTAL)
-async function initVisitCounter() {
-  const VISITED_KEY = 'asv_registered_visitor';
-  const UNIQUES_KEY = 'asv_count_uniques';
-  const REPEATS_KEY = 'asv_count_repeats';
+    // VARIABLES DEL REPRODUCTOR Y ESTADOS DE TU SITIO
+    let selectedAudioKey = 'piano';
+    let selectedTrackMeta = null;
+    let modalAudioPreview = null;
+    let playingPreviewId = null;
+    let searchDebounceTimer = null;
 
-  // 1. Detectar si el usuario ya ingresó anteriormente en este dispositivo
-  const hasVisited = localStorage.getItem(VISITED_KEY);
-  const isNewVisitor = !hasVisited;
+    let userCustomAudio = null;
+    let userCustomLogoImg = null;
+    let activeAudioEl = null;
 
-  // 2. Valores base iniciales
-  let uniquesVal = parseInt(localStorage.getItem(UNIQUES_KEY) || '1020', 10);
-  let repeatsVal = parseInt(localStorage.getItem(REPEATS_KEY) || '231', 10);
-
-  // 3. Incrementar según el tipo de visitante
-  if (isNewVisitor) {
-    uniquesVal += 1;
-    localStorage.setItem(VISITED_KEY, 'true');
-    localStorage.setItem(UNIQUES_KEY, uniquesVal);
-  } else {
-    repeatsVal += 1;
-    localStorage.setItem(REPEATS_KEY, repeatsVal);
-  }
-
-  // Cálculo del Total acumulado
-  const totalVal = uniquesVal + repeatsVal;
-
-  // 4. Escribir los resultados en las etiquetas del HTML
-  const elUniques = document.getElementById('statUniques');
-  const elRepeats = document.getElementById('statRepeats');
-  const elTotal = document.getElementById('statTotal');
-
-  if (elUniques) elUniques.innerText = uniquesVal.toLocaleString();
-  if (elRepeats) elRepeats.innerText = repeatsVal.toLocaleString();
-  if (elTotal) elTotal.innerText = totalVal.toLocaleString();
-}
-
-// Iniciar script al cargar el documento
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initVisitCounter);
-} else {
-  initVisitCounter();
-}
-
-// VARIABLES DEL REPRODUCTOR Y ESTADOS DE TU SITIO
-let selectedAudioKey = 'piano';
-let selectedTrackMeta = null;
-let modalAudioPreview = null;
-let playingPreviewId = null;
-let searchDebounceTimer = null;
-
-let userCustomAudio = null;
-let userCustomLogoImg = null;
-let activeAudioEl = null;
-
-let testModalAnimId = null;
-let manualGenOffset = 0;
+    let testModalAnimId = null;
+    let manualGenOffset = 0;
 
     // CATÁLOGO DE 20 FONDOS ANIMADOS EXCLUSIVAMENTE POR CÓDIGO CANVAS (PROCEDURALES)
     const ALL_PROCEDURAL_VIDEOS = [
@@ -1530,26 +1457,21 @@ let manualGenOffset = 0;
       }
     }
 
-    // EXACTAMENTE 15 FOTOGRAFÍAS DE FONDO
-    const ALL_PHOTOS = [
-      'https://images.unsplash.com/photo-1518640467707-6811f4a6ab73?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1604076913837-52ab5629fba9?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1508615039623-a25605d2b022?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1513002749550-c59d786b8e6c?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80'
-    ];
+    // GENERADOR DINÁMICO DE IMÁGENES DE FONDO EN TIEMPO REAL DESDE SERVIDORES GRATUITOS
+    function generateDynamicPhotos(query = 'fe,cielo,naturaleza,esperanza,paz', count = 15) {
+      const terms = query.split(',').map(s => s.trim()).filter(Boolean);
+      const photos = [];
+      const timeStamp = Date.now();
+      for (let i = 1; i <= count; i++) {
+        const t = terms[i % terms.length] || 'fe';
+        photos.push(`https://picsum.photos/seed/adventistas_${t}_${i}_${timeStamp}/800/1000`);
+      }
+      return photos;
+    }
 
-    // EXACTAMENTE 10 PATRONES Y TEXTURAS
+    const ALL_PHOTOS = generateDynamicPhotos();
+
+    // 10 PATRONES Y TEXTURAS
     const ALL_PATTERNS = [
       'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80',
@@ -1563,7 +1485,7 @@ let manualGenOffset = 0;
       'https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&w=800&q=80'
     ];
 
-    // EXACTAMENTE 15 DEGRADADOS ELEGANTES
+    // 15 DEGRADADOS ELEGANTES
     const ALL_GRADIENTS = [
       ['#0f172a', '#1e3a8a'], ['#2d124d', '#1e1b4b'], ['#134e4a', '#064e3b'], ['#7c2d12', '#451a03'],
       ['#312e81', '#4c1d95'], ['#0f2027', '#203a43'], ['#1a2a6c', '#b21f1f'], ['#232526', '#414345'],
@@ -1603,21 +1525,16 @@ let manualGenOffset = 0;
       return getCleanBaseUrl();
     }
 
-    // BÚSQUEDA Y RECARGA DE IMÁGENES EXTERNAS DESDE OTROS SERVIDORES
+    // BÚSQUEDA Y RECARGA DE IMÁGENES EXTERNAS EN TIEMPO REAL
     async function searchExternalImages() {
       const queryInput = document.getElementById('inputImageSearch');
-      const query = (queryInput && queryInput.value.trim()) ? queryInput.value.trim() : 'cielo,fe,naturaleza';
+      const query = (queryInput && queryInput.value.trim()) ? queryInput.value.trim() : 'cielo,fe,naturaleza,esperanza,paz';
 
       const searchBtn = document.getElementById('btnSearchImages');
       if (searchBtn) searchBtn.innerText = 'Buscando...';
 
       try {
-        const newImages = [];
-        const timeStamp = Date.now();
-        for (let i = 1; i <= 15; i++) {
-          newImages.push(`https://picsum.photos/seed/${encodeURIComponent(query)}_${i}_${timeStamp}/800/1000`);
-        }
-        activePhotos = newImages;
+        activePhotos = generateDynamicPhotos(query, 15);
         renderBgThumbnails(true);
       } catch (e) {
         console.warn("Error cargando imágenes externas:", e);
@@ -1692,7 +1609,7 @@ let manualGenOffset = 0;
 
     async function refreshAllBackgrounds() {
       manualGenOffset += 1;
-      activePhotos = ALL_PHOTOS;
+      activePhotos = generateDynamicPhotos('fe,cielo,naturaleza,oracion,amanecer,esperanza', 15);
       activePatterns = ALL_PATTERNS;
       activeGradients = ALL_GRADIENTS;
       activeVideos = ALL_PROCEDURAL_VIDEOS;
@@ -2980,7 +2897,7 @@ let manualGenOffset = 0;
       ctx.restore();
     }
 
-    /* EFECTOS Y OVERLAYS DE PARTÍCULAS */
+    /* EFECTOS Y OVERLAYS DE PARTÍCULAS COMPLETOS (28 EFECTOS) */
     function drawOverlayEffects(ctx, width, height, effectType, time) {
       if (!effectType || effectType === 'none') return;
 
@@ -3103,6 +3020,163 @@ let manualGenOffset = 0;
           ctx.lineTo(x - 4, y + len);
           ctx.stroke();
         }
+      } else if (effectType === 'petals') {
+        const count = 30;
+        for (let i = 0; i < count; i++) {
+          const speed = 20 + (i % 5) * 8;
+          const x = (i * 120 + Math.sin(time * 1.2 + i) * 45) % width;
+          const y = (time * speed + i * 85) % (height + 40) - 20;
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.rotate(time * 0.8 + i);
+          ctx.fillStyle = 'rgba(251, 207, 232, 0.45)';
+          ctx.beginPath();
+          ctx.ellipse(0, 0, 10, 5, Math.PI / 4, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+      } else if (effectType === 'fog') {
+        for (let i = 0; i < 4; i++) {
+          const cx = width / 2 + Math.sin(time * 0.4 + i) * 100;
+          const cy = height - (i * 120) + Math.cos(time * 0.3 + i) * 30;
+          const radius = width * 0.7;
+          const fogGrad = ctx.createRadialGradient(cx, cy, 20, cx, cy, radius);
+          fogGrad.addColorStop(0, 'rgba(241, 245, 249, 0.15)');
+          fogGrad.addColorStop(0.5, 'rgba(203, 213, 225, 0.08)');
+          fogGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+          ctx.fillStyle = fogGrad;
+          ctx.beginPath();
+          ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      } else if (effectType === 'fireflies') {
+        for (let i = 0; i < 30; i++) {
+          const x = (i * 147.3 + Math.sin(time * 0.9 + i) * 35) % width;
+          const y = height - ((time * (15 + (i % 4) * 8) + i * 75) % (height + 80));
+          const opacity = 0.2 + 0.8 * Math.abs(Math.sin(time * 1.8 + i));
+          const radius = 5 + (i % 3) * 3;
+          const ffGrad = ctx.createRadialGradient(x, y, 0, x, y, radius * 2);
+          ffGrad.addColorStop(0, `rgba(250, 204, 21, ${opacity})`);
+          ffGrad.addColorStop(0.5, `rgba(234, 179, 8, ${opacity * 0.4})`);
+          ffGrad.addColorStop(1, 'rgba(0,0,0,0)');
+          ctx.fillStyle = ffGrad;
+          ctx.beginPath();
+          ctx.arc(x, y, radius * 2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      } else if (effectType === 'lensflare') {
+        const fx = width * 0.25 + Math.sin(time * 0.3) * 50;
+        const fy = height * 0.25 + Math.cos(time * 0.3) * 40;
+        const cx = width / 2;
+        const cy = height / 2;
+        const dx = cx - fx;
+        const dy = cy - fy;
+
+        const haloGrad = ctx.createRadialGradient(fx, fy, 5, fx, fy, 180);
+        haloGrad.addColorStop(0, 'rgba(255, 255, 255, 0.6)');
+        haloGrad.addColorStop(0.3, 'rgba(56, 189, 248, 0.25)');
+        haloGrad.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = haloGrad;
+        ctx.beginPath();
+        ctx.arc(fx, fy, 180, 0, Math.PI * 2);
+        ctx.fill();
+
+        for (let t = 0.3; t <= 1.5; t += 0.3) {
+          const rx = fx + dx * t;
+          const ry = fy + dy * t;
+          const rSize = 15 + t * 25;
+          ctx.fillStyle = `rgba(168, 85, 247, ${0.12 / t})`;
+          ctx.beginPath();
+          ctx.arc(rx, ry, rSize, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      } else if (effectType === 'bokeh') {
+        for (let i = 0; i < 24; i++) {
+          const radius = 25 + (i % 5) * 18;
+          const speed = 12 + (i % 4) * 8;
+          const x = (i * 173 + Math.sin(time * 0.5 + i) * 35) % width;
+          const y = height - ((time * speed + i * 105) % (height + 120));
+          const opacity = 0.08 + (i % 4) * 0.05;
+
+          const bGrad = ctx.createRadialGradient(x, y, 0, x, y, radius);
+          bGrad.addColorStop(0, `rgba(224, 242, 254, ${opacity * 1.5})`);
+          bGrad.addColorStop(0.6, `rgba(147, 197, 253, ${opacity})`);
+          bGrad.addColorStop(1, 'rgba(0,0,0,0)');
+
+          ctx.fillStyle = bGrad;
+          ctx.beginPath();
+          ctx.arc(x, y, radius, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      } else if (effectType === 'aurora') {
+        ctx.globalCompositeOperation = 'screen';
+        for (let i = 0; i < 3; i++) {
+          ctx.beginPath();
+          ctx.moveTo(0, height * 0.15);
+          for (let x = 0; x <= width; x += 20) {
+            const y = (height * 0.25) + Math.sin(x * 0.006 + time * 1.0 + i) * 70 + Math.cos(time * 0.7 + i) * 35;
+            ctx.lineTo(x, y);
+          }
+          ctx.lineTo(width, height * 0.6);
+          ctx.lineTo(0, height * 0.6);
+          ctx.closePath();
+
+          const waveGrad = ctx.createLinearGradient(0, 0, width, height);
+          waveGrad.addColorStop(0, `rgba(52, 211, 153, ${0.15 + i * 0.04})`);
+          waveGrad.addColorStop(0.5, `rgba(56, 189, 248, ${0.18 + i * 0.04})`);
+          waveGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+          ctx.fillStyle = waveGrad;
+          ctx.fill();
+        }
+      } else if (effectType === 'lightleaks') {
+        ctx.globalCompositeOperation = 'screen';
+        const pulse1 = 0.25 + Math.sin(time * 0.8) * 0.1;
+        const leak1 = ctx.createRadialGradient(0, 0, 20, 0, 0, width * 0.7);
+        leak1.addColorStop(0, `rgba(251, 146, 60, ${pulse1})`);
+        leak1.addColorStop(0.5, `rgba(244, 63, 94, ${pulse1 * 0.5})`);
+        leak1.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = leak1;
+        ctx.fillRect(0, 0, width, height);
+
+        const pulse2 = 0.2 + Math.cos(time * 0.9) * 0.08;
+        const leak2 = ctx.createRadialGradient(width, height, 20, width, height, width * 0.7);
+        leak2.addColorStop(0, `rgba(250, 204, 21, ${pulse2})`);
+        leak2.addColorStop(0.5, `rgba(249, 115, 22, ${pulse2 * 0.5})`);
+        leak2.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = leak2;
+        ctx.fillRect(0, 0, width, height);
+      } else if (effectType === 'matrices') {
+        const count = 20;
+        ctx.strokeStyle = 'rgba(224, 242, 254, 0.4)';
+        ctx.lineWidth = 1.5;
+        for (let i = 0; i < count; i++) {
+          const speed = 120 + (i % 4) * 40;
+          const len = 30 + (i % 3) * 20;
+          const x = (i * 110 + time * 60) % (width + 200) - 100;
+          const y = (time * speed + i * 130) % (height + 200) - 100;
+
+          ctx.beginPath();
+          ctx.moveTo(x, y);
+          ctx.lineTo(x - len, y - len);
+          ctx.stroke();
+        }
+      } else if (effectType === 'vignette') {
+        const pulse = 0.65 + Math.sin(time * 1.0) * 0.05;
+        const vigGrad = ctx.createRadialGradient(width/2, height/2, width * 0.35, width/2, height/2, height * 0.75);
+        vigGrad.addColorStop(0, 'rgba(0, 0, 0, 0)');
+        vigGrad.addColorStop(1, `rgba(0, 0, 0, ${pulse})`);
+        ctx.fillStyle = vigGrad;
+        ctx.fillRect(0, 0, width, height);
+      } else if (effectType === 'cinematicbars') {
+        const barHeight = height * 0.08;
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(0, 0, width, barHeight);
+        ctx.fillRect(0, height - barHeight, width, barHeight);
+      } else if (effectType === 'glitch') {
+        const glowPulse = 0.3 + Math.sin(time * 2.5) * 0.2;
+        ctx.strokeStyle = `rgba(56, 189, 248, ${glowPulse})`;
+        ctx.lineWidth = 8;
+        ctx.strokeRect(10, 10, width - 20, height - 20);
       } else if (effectType === 'proc_aurora_overlay') {
         ctx.globalCompositeOperation = 'screen';
         for (let i = 0; i < 3; i++) {
@@ -3642,7 +3716,6 @@ let manualGenOffset = 0;
         const dataUrl = canvas.toDataURL('image/webp', 0.92);
         const file = dataURLtoFile(dataUrl, 'adventistassv-frase.webp');
 
-        // Intentar compartir archivo de imagen nativamente (Teléfonos móviles y PC compatibles con Web Share API)
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
           await navigator.share({
             title: 'Adventistas SV',
@@ -3651,7 +3724,6 @@ let manualGenOffset = 0;
           });
           return;
         } 
-        // Si la app o dispositivo soporta compartir solo texto/URL
         else if (navigator.share) {
           downloadCanvasImageFile(canvas);
           await navigator.share({
@@ -3662,10 +3734,9 @@ let manualGenOffset = 0;
           return;
         }
       } catch (err) {
-        if (err.name === 'AbortError') return; // Usuario canceló la acción
+        if (err.name === 'AbortError') return;
       }
 
-      // RESPALDO AUTOMÁTICO PARA COMPUTADORAS DE ESCRITORIO
       downloadCanvasImageFile(canvas);
       try {
         await navigator.clipboard.writeText(shareText);
@@ -4264,7 +4335,6 @@ let manualGenOffset = 0;
       }
 
       initPhraseBankSelector();
-      initVisitCounter();
       await refreshAllBackgrounds();
       resetToTodayDate();
 
