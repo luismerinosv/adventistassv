@@ -2594,7 +2594,7 @@
       let logoHeight = 0;
       if (showLogo && logoImg && logoAlpha > 0.01) {
         ctx.save(); ctx.globalAlpha = logoAlpha;
-        const logoWidth = 120; const aspectRatio = logoImg.naturalHeight / logoImg.naturalWidth || 1; logoHeight = logoWidth * aspectRatio;
+        const logoWidth = 100; const aspectRatio = logoImg.naturalHeight / logoImg.naturalWidth || 1; logoHeight = logoWidth * aspectRatio;
         const logoX = ((canvas.width - logoWidth) / 2) + logoXOffset;
         ctx.drawImage(logoImg, logoX, logoY, logoWidth, logoHeight); ctx.restore();
       }
